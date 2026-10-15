@@ -6,6 +6,8 @@
 
 **SynthDCB: World Distillation for Scalable Device Control Benchmarking**
 
+🌐 [Project Page](https://x-lance.github.io/SynthDCB/)
+
 ![Code](https://img.shields.io/badge/Code-coming%20soon-green?logo=github)
 ![Data](https://img.shields.io/badge/Data-coming%20soon-blue)
 
