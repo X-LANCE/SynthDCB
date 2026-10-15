@@ -9,17 +9,61 @@
 <meta property="og:type" content="website"><meta property="og:url" content="https://x-lance.github.io/SynthDCB/">
 <meta property="og:image" content="https://x-lance.github.io/SynthDCB/assets/overview.png">
 <meta name="twitter:card" content="summary_large_image">
+<link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans" rel="stylesheet">
 <link rel="icon" href="assets/logo.png"><link rel="stylesheet" href="assets/site.css">
 <script src="assets/site.js" defer></script>
 </head>
 <body>
-<header class="topbar"><nav class="nav wrap" aria-label="Main navigation"><a class="lab" href="https://github.com/X-LANCE">X-LANCE</a><div class="navlinks"><a href="#abstract">Abstract</a><a href="#pipeline">Pipeline</a><a href="#citation">Citation</a><a href="https://github.com/X-LANCE/SynthDCB">GitHub ↗</a></div></nav></header>
+<header class="topbar">
+<nav class="research-nav" aria-label="Main navigation">
+  <div class="nav-brand">
+    <a href="https://github.com/X-LANCE"><svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-2.1c-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.72.39-1.22.71-1.5-2.5-.28-5.13-1.25-5.13-5.56 0-1.23.44-2.24 1.16-3.03-.12-.28-.5-1.43.11-2.98 0 0 .95-.3 3.08 1.15a10.8 10.8 0 0 1 5.61 0c2.14-1.45 3.08-1.15 3.08-1.15.61 1.55.23 2.7.11 2.98.72.79 1.16 1.8 1.16 3.03 0 4.32-2.63 5.28-5.14 5.56.4.35.76 1.03.76 2.08v3.1c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z"/></svg><strong>X-LANCE</strong></a>
+    <a href="https://github.com/OpenDFM"><svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-2.1c-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.72.39-1.22.71-1.5-2.5-.28-5.13-1.25-5.13-5.56 0-1.23.44-2.24 1.16-3.03-.12-.28-.5-1.43.11-2.98 0 0 .95-.3 3.08 1.15a10.8 10.8 0 0 1 5.61 0c2.14-1.45 3.08-1.15 3.08-1.15.61 1.55.23 2.7.11 2.98.72.79 1.16 1.8 1.16 3.03 0 4.32-2.63 5.28-5.14 5.56.4.35.76 1.03.76 2.08v3.1c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z"/></svg><strong>OpenDFM</strong></a>
+    <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="research-navigation"><span></span><span></span><span></span></button>
+  </div>
+  <div class="research-navigation" id="research-navigation">
+    <div class="research-center">
+      <details class="research-dropdown">
+        <summary>More Research <span class="chevron" aria-hidden="true"></span></summary>
+        <div class="research-options">
+          <a href="https://opendfm.github.io/MULTI-Benchmark/">📊 MULTI-Benchmark</a>
+          <a href="https://github.com/OpenDFM/MobA">🎮 MobA</a>
+          <a href="https://github.com/OpenDFM/Image_Edit_Agent">🎨 Image Edit Agent</a>
+        </div>
+      </details>
+    </div>
+    <div class="nav-huggingface"><a href="https://huggingface.co/OpenDFM"><strong>OpenDFM 🤗</strong></a><a href="https://huggingface.co/X-LANCE"><strong>X-LANCE 🤗</strong></a></div>
+  </div>
+</nav>
+</header>
 <main>
 <section class="hero wrap">
 <img class="logo" src="assets/logo.png" alt="SynthDCB" width="360">
-<h1><span class="brand">SynthDCB:</span> World Distillation for<br class="desktop"> Scalable Device Control Benchmarking</h1>
-<div class="authors"><span>Zichen Zhu<sup>1,3</sup></span> <span>Dingye Liu<sup>1</sup></span> <span>Nan Jiang<sup>1</sup></span> <span>Danyang Zhang<sup>1</sup></span> <span>Hang Zheng<sup>1</sup></span> <span>Shijie Zheng<sup>1</sup></span> <span>Situo Zhang<sup>1</sup></span> <span>Kunyao Lan<sup>1</sup></span> <span>Yingzi Ma<sup>5</sup></span> <span>Sheng Jiang<sup>6</sup></span> <span>Lu Chen<sup>1,2,4,†</sup></span> <span>Kai Yu<sup>1,4,†</sup></span></div>
-<div class="affiliations"><span><sup>1</sup> X-LANCE Lab, School of Computer Science, Shanghai Jiao Tong University</span><span><sup>2</sup> Shanghai Innovation Institution &nbsp; <sup>3</sup> Nanyang Technological University</span><span><sup>4</sup> Jiangsu Key Lab of Language Computing &nbsp; <sup>5</sup> University of Wisconsin–Madison &nbsp; <sup>6</sup> AISpeech Co., Ltd.</span><small>† Corresponding authors</small></div>
+<h1 class="publication-title"><b>SynthDCB</b>: World Distillation for Scalable Device Control Benchmarking</h1>
+<div class="authors publication-authors">
+<span class="author-block"><a href="https://github.com/JamesZhutheThird">Zichen Zhu</a><sup>1,3</sup>,&nbsp;</span>
+<span class="author-block">Dingye Liu<sup>1</sup>,&nbsp;</span>
+<span class="author-block">Nan Jiang<sup>1</sup>,&nbsp;</span>
+<span class="author-block">Danyang Zhang<sup>1</sup>,&nbsp;</span>
+<span class="author-block">Hang Zheng<sup>1</sup>,&nbsp;</span>
+<span class="author-block">Shijie Zheng<sup>1</sup>,&nbsp;</span>
+<br class="author-break">
+<span class="author-block">Situo Zhang<sup>1</sup>,&nbsp;</span>
+<span class="author-block">Kunyao Lan<sup>1</sup>,&nbsp;</span>
+<span class="author-block"><a href="https://gray311.github.io">Yingzi Ma</a><sup>5</sup>,&nbsp;</span>
+<span class="author-block">Sheng Jiang<sup>6</sup>,&nbsp;</span>
+<span class="author-block"><a href="https://coai-sjtu.github.io">Lu Chen</a><sup>1,2,4,†</sup>,&nbsp;</span>
+<span class="author-block"><a href="https://cs.sjtu.edu.cn/PeopleDetail.aspx?id=76">Kai Yu</a><sup>1,4,†</sup></span>
+</div>
+<div class="affiliations publication-authors">
+<span class="author-block"><sup>1</sup> <a href="https://x-lance.sjtu.edu.cn">X-LANCE Lab</a>, School of Computer Science,<br>Shanghai Jiao Tong University</span>
+<span class="author-block"><sup>2</sup> Shanghai Innovation Institution</span>
+<span class="author-block"><sup>3</sup> Nanyang Technological University</span>
+<span class="author-block"><sup>4</sup> Jiangsu Key Lab of Language Computing</span>
+<span class="author-block"><sup>5</sup> University of Wisconsin–Madison</span>
+<span class="author-block"><sup>6</sup> AISpeech Co., Ltd.</span>
+<span class="author-block">† Corresponding authors</span>
+</div>
 <div class="resources"><a class="pill primary" href="https://github.com/X-LANCE/SynthDCB">GitHub <span aria-hidden="true">↗</span></a><span class="pill pending">Code <small>Coming soon</small></span><span class="pill pending">Data <small>Coming soon</small></span><a class="pill" href="#citation">BibTeX <span aria-hidden="true">↓</span></a></div>
 <p class="tagline">From device knowledge to executable worlds.<br>From executable worlds to verifiable tasks.</p>
 <figure class="overview"><a href="assets/overview.png" target="_blank" rel="noopener" aria-label="Open full-size SynthDCB overview"><img src="assets/overview.png" alt="SynthDCB connects Home, Car, and Phone worlds to stateful device control and temporal task evaluation." width="2000" height="716"></a><figcaption>Configurable worlds. Stateful interactions. Verifiable evaluation.</figcaption></figure>
