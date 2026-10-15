@@ -1,0 +1,1229 @@
+{
+  "source": "SynthDCB validation split",
+  "examples": [
+    {
+      "domain": "Car",
+      "family": "aggregate",
+      "subtype": "control",
+      "instruction": "First, turn on the sunshade in the cabin if needed. Then switch the drive settings to standard, turn on exterior mirror 1, and set its horizontal position to -100. Open the rear left seat door manually, then turn off the infotainment in the multimedia. Leave all unrelated settings and collection records unchanged. After that, set the energy external power supply's reserve percent to 0, turn on navigation, set its destination to charging_station, start guidance using the fastest route, pause guidance, and resume it. Finally, turn off the steering wheel, turn on the cabin light, and set its brightness to 82. Turn devices on first whenever needed, and leave everything else unchanged.",
+      "id": "task_0292314",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "aggregate",
+      "subtype": "control_goal",
+      "instruction": "For the rear right seat heater, set its cabin temperature reference to 1 below whatever the front passenger seat heater's current cabin temperature reference is, and copy over the front passenger seat heater's current target temperature. Then set the cabin temperature reference to 19 on every seat heater except the driver seat heater, front passenger seat heater, rear center seat heater, and rear right seat heater. Once that's done, read back and tell me the rear right seat heater's new cabin temperature reference. After that, bring the cabin temperature down by between 11 and 13, ending between 18 and 20.",
+      "id": "task_0164309",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "aggregate",
+      "subtype": "control_query",
+      "instruction": "Set the ventilation level to 1 on all the seat ventilators except the ones in the rear left and rear center seats. Once that's done, read back and report the new ventilation level. Then set the rear right seat window's position to the current position of the rear left seat window. After that, turn off the rear left seat ventilator, and tell me the current power of the rear left seat comfort.",
+      "id": "task_0112330",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "aggregate",
+      "subtype": "control_query",
+      "instruction": "First, turn on the parking camera in the multimedia, then turn on its display. Set the reserve percent on the external power supply in the energy to 0. Turn on the ambient light in the cabin and set its brightness to 40. Turn off lane keeping on the driver assistance in the propulsion. Turn devices on first when needed, and leave all unrelated settings and collection records unchanged. Next, what’s the current destination of navigation in the multimedia? Finally, raise horizontal_position and vertical_position by 2 on exterior mirror 1 and exterior mirror 2.",
+      "id": "task_0000309",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "aggregate",
+      "subtype": "control_query",
+      "instruction": "Let’s lower the level on the wiper in the exterior by 1. Then set the brightness on the car display in multimedia to 48 and, after that change, tell me its resulting brightness. Next, turn automatic_following_enabled off, turn lane_keeping_enabled off, and set target_speed to 48 on driver assistance in the propulsion. Then check trunk door and tell me its current locked status. Finally, turn on ambient light in the cabin and the steering wheel in the driver seat, if needed, and select height as low on air suspension in the propulsion. Please leave all unrelated settings and collection records alone.",
+      "id": "task_0110315",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "aggregate",
+      "subtype": "control_query_goal",
+      "instruction": "Let’s bring the noise in all cabin spaces into the saved preferred range. Then set the cabin_temperature_reference on the driver seat seat heater to 29, the front passenger seat seat heater to 26, the rear left seat seat heater to 24, the rear center seat seat heater to 28, and the rear right seat seat heater to 19. After that, what’s the current remaining_range for Energy?",
+      "id": "task_0133331",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "aggregate",
+      "subtype": "control_query_goal",
+      "instruction": "For all driver seat spaces, let’s bring Driver Seat’s seat temperature to between 18 and 20. Then, on the rear right seat seat heater, lower cabin_temperature_reference by 2 and raise target_temperature by 1. First lock the door in the rear left seat, then ask the fuel system in the energy to unlock the filler flap. Turn devices on first when needed, and don’t change any unrelated settings or collection records. Next, read the current illuminance in the rear left seat, then list every one of the front passenger seat, third row left seat, and trunk whose illuminance isn’t equal to that reading. After that, first set the energy drive settings to standard mode, then set the cabin sunroof position to 75, set the infotainment radio band to am, set the multimedia car display theme to dark, and turn on the exterior light. Turn devices on first when needed, without changing any unrelated settings or collection records. Finally, play on the infotainment, pause it, and then start the exterior wiper in intermittent mode. Turn devices on first when needed, and leave unrelated settings and collection records alone.",
+      "id": "task_0289302",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "aggregate",
+      "subtype": "goal",
+      "instruction": "Let's bring the cabin's light level to between 100 and 300, then get the front passenger seat temperature between 22 and 24.",
+      "id": "topup_18_000",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "aggregate",
+      "subtype": "query",
+      "instruction": "How noisy is the exterior right now? Then, what’s the current folded status of exterior mirror 1?",
+      "id": "task_0210315",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "aggregate",
+      "subtype": "query",
+      "instruction": "Which of cabin, exterior, and trunk has the lowest noise? Just give me the top 1. Then tell me the current level of the exterior wiper. After that, what is the current door_state of the rear right seat door? Finally, read the exterior's current noise and count how many of cabin, exterior, and trunk have a different noise level.",
+      "id": "task_0150310",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "aggregate",
+      "subtype": "query",
+      "instruction": "First, check the current seat_temperature in the rear left seat, then list every seat among the front passenger seat, rear center seat, rear left seat, and rear right seat whose seat_temperature is at least that high. Next, check the vehicle security in the cabin and tell me its current security_state. Finally, compare the illuminance in the driver seat, rear left seat, and trunk, and return the single target with the lowest illuminance.",
+      "id": "task_0275307",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "aggregate",
+      "subtype": "query_goal",
+      "instruction": "What’s the current power for the parking camera in the multimedia? Then, for all exterior spaces, bring the exterior’s illuminance between 1000 and 2000.",
+      "id": "task_0236304",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "control",
+      "subtype": "complex",
+      "instruction": "Can you set the driver seat window's sunshade_position to 0?",
+      "id": "task_0220101",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "control",
+      "subtype": "complex",
+      "instruction": "Can you set the navigation in the multimedia to guidance_volume 39.5?",
+      "id": "task_0200105",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "control",
+      "subtype": "complex",
+      "instruction": "First, turn on the multimedia infotainment if needed, then set its source to \"bluetooth\". Next, enable cruise control on the propulsion driver assistance. Arm the vehicle security in the cabin, and then turn on rear defogging for the climate control in the cabin. Leave all other settings and collection records unchanged.",
+      "id": "task_0047103",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "control",
+      "subtype": "multi_property",
+      "instruction": "Can you turn Exterior Climate Control's front_defogging on?",
+      "id": "task_0000102",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "control",
+      "subtype": "multi_property",
+      "instruction": "Let's set the multimedia navigation's guidance volume to 36, choose avoid_highways for the route preference, and turn voice guidance off.",
+      "id": "task_0000105",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "control",
+      "subtype": "multi_property",
+      "instruction": "Let's set exterior mirror 1's horizontal position to 2 below mirror 2's current horizontal position, and match its vertical position to mirror 2's current vertical position.",
+      "id": "task_0241104",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "control",
+      "subtype": "multi_target",
+      "instruction": "Can you set Energy Cabin Light's brightness to 0?",
+      "id": "task_0021105",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "control",
+      "subtype": "multi_target",
+      "instruction": "Could you set Cargo Bed Infotainment's muted to on?",
+      "id": "task_0014101",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "control",
+      "subtype": "multi_target",
+      "instruction": "Let's set the driver seat window's sunshade_position to 0.",
+      "id": "task_0037103",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "control",
+      "subtype": "single",
+      "instruction": "Could you set Energy Climate Control's fan_speed to 1?",
+      "id": "task_0035101",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "control",
+      "subtype": "single",
+      "instruction": "Can you identify Cargo Bed Seat Comfort, then turn the identified device's power on?",
+      "id": "task_0272105",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "control",
+      "subtype": "single",
+      "instruction": "Can you identify front passenger seat seat comfort 2, then set the identified device's power to on?",
+      "id": "task_0016104",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "goal",
+      "subtype": "complex",
+      "instruction": "Can you bring propulsion's illuminance into the range 300 to 500?",
+      "id": "task_0134201",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "goal",
+      "subtype": "complex",
+      "instruction": "Let's bring the rear left seat's temperature into the range 30 to 32.",
+      "id": "task_0122204",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "goal",
+      "subtype": "complex",
+      "instruction": "Let's bring Electric Energy's remaining_range into the range from 0 to 1000.",
+      "id": "task_0280205",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "goal",
+      "subtype": "multi_property",
+      "instruction": "Let's bring Fuel Energy's remaining_range into the range 0 to 1000.",
+      "id": "task_0121201",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "goal",
+      "subtype": "multi_property",
+      "instruction": "Let's bring the cabin's light level to between 1000 and 2000, and get its temperature between 16 and 18.",
+      "id": "task_0121205",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "goal",
+      "subtype": "multi_target",
+      "instruction": "Let's bring the noise in multimedia into the range 30 to 50.",
+      "id": "task_0161204",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "goal",
+      "subtype": "multi_target",
+      "instruction": "Can you bring rear center seat's remaining_range into the range 0 to 1000?",
+      "id": "task_0131203",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "goal",
+      "subtype": "multi_target",
+      "instruction": "For the cabin and trunk in this home, let's get the cabin temperature between 20 and 22 and the trunk temperature between 26 and 28.",
+      "id": "task_0262201",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "goal",
+      "subtype": "single",
+      "instruction": "Let's bring the cabin's temperature into its saved preferred range.",
+      "id": "task_0128201",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "goal",
+      "subtype": "single",
+      "instruction": "Let's bring multimedia's seat_temperature into the range from 30 to 32.",
+      "id": "task_0127206",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "property.device",
+      "instruction": "Hey, what's the current door_state for Multimedia Door?",
+      "id": "task_0019001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "property.device",
+      "instruction": "How much fuel is left in the energy fuel system right now?",
+      "id": "task_0014001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "property.device",
+      "instruction": "What's the current door state of the trunk door in the trunk?",
+      "id": "task_0020001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "property.space",
+      "instruction": "What's multimedia's current illuminance?",
+      "id": "task_0002001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "property.space",
+      "instruction": "What’s the noise level in the trunk right now? Then save that value as the preference.",
+      "id": "task_0221001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "target.comparison.top1",
+      "instruction": "What's the current active_memory_slot for the seat comfort in the rear center seat?",
+      "id": "task_0145001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "target.comparison.top1",
+      "instruction": "Let's compare the current noise in the cabin, exterior, and trunk, and tell me which one ranks highest—the top 1.",
+      "id": "task_0001008",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "target.comparison.topk",
+      "instruction": "What is Electric Energy Seat Comfort's motion_status right now?",
+      "id": "task_0234001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "target.comparison.topk",
+      "instruction": "Let's compare the current noise in the cabin, exterior, and trunk, and tell me every one in the top 2, ranked from noisiest to quietest.",
+      "id": "task_0001011",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "target.enum",
+      "instruction": "What’s Trunk Ambient Light’s current power?",
+      "id": "task_0190001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "target.enum",
+      "instruction": "Check the cabin's current noise level, then tell me which of the cabin, exterior, and trunk have that same noise level.",
+      "id": "task_0001003",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "target.quantity",
+      "instruction": "Hey, what's the current security_state for Cargo Bed Vehicle Security?",
+      "id": "task_0137001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "query",
+      "subtype": "target.quantity",
+      "instruction": "What’s the current noise level in the trunk, and how many of the cabin, exterior, and trunk have that same noise level?",
+      "id": "task_0080002",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "workflow",
+      "subtype": "at",
+      "instruction": "Let the low cycle already running on the air suspension in the propulsion finish by 2026-09-07 12:01 Asia/Shanghai, within 1 minute. Leave the other cycle settings as they are, and stop once nothing else needs to be done; the world can keep running.",
+      "id": "topup_28_002",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "workflow",
+      "subtype": "before",
+      "instruction": "Let the already-running fastest cycle on multimedia navigation finish, and make sure it’s done by 2026-09-07 12:13 Asia/Shanghai. Leave the other cycle settings as they are. You can stop once nothing else needs to be done—the world will keep running.",
+      "id": "task_0123801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "workflow",
+      "subtype": "condition_delay",
+      "instruction": "Let the normal cycle already running on the propulsion air suspension finish. Then wait 1 minute after it completes, with a tolerance of 1 minute, before using the drive settings in the energy to select drive mode with {\"mode\": \"standard\"}; don't do it early, and leave all the other cycle settings unchanged. You can stop once nothing else needs to be done—the World will keep running.",
+      "id": "topup_25_000",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "workflow",
+      "subtype": "condition_follow",
+      "instruction": "Run the propulsion air suspension through a high cycle and let it finish. Once it’s done, set the cabin ambient light’s color to #3366FF within 1 minute—don’t do it early. Leave all the other cycle settings unchanged. You can stop once there’s nothing else to do; the world will keep running.",
+      "id": "topup_24_002",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "workflow",
+      "subtype": "condition_window",
+      "instruction": "Let the already-running normal cycle on the air suspension in the propulsion finish. Then, between 1 and 5 minutes after it’s complete, set the cabin light’s brightness to 81—don’t do it early. Leave the other cycle settings unchanged, and stop when there’s nothing else to do; the world keeps running.",
+      "id": "topup_26_005",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "workflow",
+      "subtype": "environment_before_process",
+      "instruction": "Let the already-running normal charging cycle finish. Before it completes, get the cabin's actual temperature into the 20 to 22 range, and leave the cycle's other settings unchanged.",
+      "id": "topup_31_002",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "workflow",
+      "subtype": "environment_before_process",
+      "instruction": "Let the already-running fastest cycle on navigation finish. Before it completes, bring the cabin's actual noise into the range 0 to 30, without changing any of the cycle's other settings. You can stop once no further action is needed; the world keeps running.",
+      "id": "topup_31_007",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "workflow",
+      "subtype": "environment_deadline",
+      "instruction": "Let’s bring the cabin’s actual temperature into the 16 to 18 range strictly before 2026-09-07 12:10 Asia/Shanghai. It’s okay to finish after setting the controls—the world keeps running.",
+      "id": "task_0125801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "workflow",
+      "subtype": "single",
+      "instruction": "Start an automatic timed cycle on Multimedia Navigation 1 auxiliary unit and let it finish.",
+      "id": "task_0120801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "workflow",
+      "subtype": "single",
+      "instruction": "Can you run the process as an automatic timed cycle on the trunk car refrigerator and let it finish?",
+      "id": "task_0165801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "workflow",
+      "subtype": "single",
+      "instruction": "Let the fastest cycle already running on the navigation in the multimedia finish. Leave the other cycle settings unchanged, and stop once nothing else needs doing—the world will keep running.",
+      "id": "task_0124801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Car",
+      "family": "workflow",
+      "subtype": "synchronize",
+      "instruction": "Run the normal cycle on energy charging until it finishes, and run the high cycle on propulsion air suspension until that finishes too. Make sure they finish within 1 minute of each other, and leave all the other cycle settings as they are. You can stop once nothing else needs doing—the world will keep running.",
+      "id": "topup_27_000",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "control",
+      "instruction": "Set the laundry room air purifier's fan speed to 3 and its target air quality to 51. Then, in order: set the bathroom mirror's power to true, set its defogging to false, set the living room humidifier's power to true, set its sleep mode to true, set the kitchen oven's power to true, set its cooking time to 240, and set the bathroom heater's heating intensity to 1. Turn devices on first whenever needed, and leave all unrelated settings and collection records alone. After that, in order: set the entryway surveillance camera's power to true, set its vertical pan to \"center\", set the kitchen pet water dispenser's power to true, set the kitchen dishwasher's power to true, set its washing program to \"eco\", and set the bathroom heater's lighting to false. Again, turn a device on first when required and don't change anything unrelated or any collection records.",
+      "id": "task_0015312",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "control",
+      "instruction": "Set the study room pet feeder's feeding portion to 2. Then, in order: turn on the study room window opener if needed and set its power to true; turn on the kitchen rice cooker if needed and set its power to true, start cooking in white_rice mode, and pause cooking; turn on the bathroom mirror in bathroom 1 if needed, set its power to true, and set automatic lighting to false. Leave all unrelated settings and collection records unchanged. Next, turn on the laundry room water heater if needed, set its power to true, and set its target outlet temperature to 100.0; turn on the dining room window opener if needed and set its power to true; turn on the stairs surveillance camera if needed and set motion tracking to true; turn on the TV in bedroom 2 if needed and set its power to true; and turn on the basement humidifier if needed and set sleep mode to false. Again, leave unrelated settings and collection records alone. After that, pause the washer dryer in the laundry room; start cleaning on the cat litter box in bathroom 1, then stop its operation; set air purifier 2's power to false; turn on the fragrance diffuser in bedroom 1 if needed and set its output state to true; then turn on the door lock in bathroom 2 if needed and unlock it. Keep all unrelated settings and collection records unchanged. Then, turn on the robot vacuum in the entryway if needed, start it in recharge mode, set the study room projector's volume to 20, turn on the kitchen refrigerator if needed and set fast cool to false, set the toilet in bathroom 2's wash pressure to 3, and turn on the basement air conditioner if needed and set its target temperature to 26.0. Finally, set the color lamp in Peter's current room to brightness 52, then check and tell me the brightness it ended up at.",
+      "id": "task_0048323",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "control_goal",
+      "instruction": "First, turn on the basement humidifier and switch sleep mode off. Then turn on the kitchen microwave, start cooking in manual mode, and stop cooking. After that, set the hallway color lamp to color mode and change its color to #FF0000. Turn on the ceiling fan, then turn off cat litter box 4 in storage room 2. Turn a device on first if needed, and leave all unrelated settings and collection records unchanged. Next, for all bedroom spaces except bedroom 1 and bedroom 2, work toward increasing bedroom 3's temperature by between 5 and 7, ending between 22 and 24. Finally, set the laundry room washer dryer's water_temperature to 40.",
+      "id": "task_0472317",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "control_goal",
+      "instruction": "First, turn on the laundry room dryer and set it to gentle drying. Then turn on the entryway robot vacuum and set it to mop mode. Turn on the laundry room drying rack and set its height to 47, turning each device on before changing its settings when needed. Leave all unrelated settings and collection records alone. Next, turn on the kitchen induction cooker and set it to manual heating. Turn off storage room cat litter box 3. Turn on the living room bluetooth speaker and start playback. Set the kitchen gas water heater's target outlet temperature to 100.0, then turn on the kitchen air purifier and set its target air quality to 40. After that, raise the kitchen refrigerator's freezer_temperature by 1 and lower its refrigerator_temperature by 1. Finally, for all living room spaces, bring the temperature to between 16 and 18.",
+      "id": "task_0362321",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "control_query",
+      "instruction": "Tell me the current horizontal_pan of the hallway surveillance camera, then raise seat heating by 1 on the toilet in bathroom 1 and the toilet in bathroom 2.",
+      "id": "task_0211319",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "control_query",
+      "instruction": "Let’s compare the humidity in the basement, bathroom 1, bedroom 2, kitchen, and study room and tell me which are in the top 2 for lowest humidity. Then set the kitchen air fryer’s cooking time to 1, set its heating temperature to 50, and turn it on.",
+      "id": "task_0210307",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "control_query",
+      "instruction": "First, check the current illuminance in bedroom 1, then count how many of balcony, bathroom, bedroom 1, bedroom 2, dining room, kitchen, laundry room, and storage room are brighter than it. Next, tell me the current power status of the living room pet water dispenser 1. Then set the entryway lamp's brightness to 69 and the living room lamp's brightness to 67, and set its color temperature to 2600. Finally, tell me the current keep_warm status of the kitchen rice cooker.",
+      "id": "task_0250308",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "control_query_goal",
+      "instruction": "What’s the current lock_state of the entryway door lock? Then set the brightness to 1 on every simple lamp except the one in the storage room. After that, lower the basement’s temperature by between 5 and 7, ending between 16 and 18.",
+      "id": "task_0160309",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "control_query_goal",
+      "instruction": "Let's lower the humidity in all basement spaces by between 30 and 50, ending between 0 and 20. Then lower the keystone on the living room projector 1 by 2, and once that's done, tell me its new keystone. After that, set the bedroom 2 TV 4's brightness to 49 and volume to 38. Next, raise the illuminance in all hallway spaces by between 300 and 500, ending between 300 and 500. Finally, check the current noise in the storage room and list every one of these spaces whose noise matches it: bathroom 2, bedroom 1, dining room, entryway, garden, hallway, kitchen, living room, and storage room.",
+      "id": "task_0391306",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "control_query_goal",
+      "instruction": "How many of the bathroom, kitchen, laundry room, and living room have lower humidity than the current humidity in the entryway? Then, in order, turn on the bathroom door lock if needed, turn on the entryway robot vacuum and set its suction level to 4, set the living room ceiling fan's fan speed to 1, turn on the kitchen kettle and turn on its keep warm setting. Leave all unrelated settings and collection records alone. Next, turn on the study room air conditioner if needed and set its swing direction to \"fixed\". After that, turn on the living room floor washer if needed and set its suction level to 2, then set the laundry room ultrasonic humidifier's humidification intensity to \"high\". Keep the other settings and collection records unchanged. Then compare the current noise in the balcony, bathroom, entryway, kitchen, laundry room, storage room, and study room, and list every one in the top 3 lowest-noise positions. What is the current volume of study room bluetooth speaker 3? For the bedroom, raise humidity by between 60 and 80 so it ends between 80 and 100, raise illuminance by between 200 and 1200 so it ends between 1000 and 2000, and lower temperature by between 4 and 6 so it ends between 16 and 18. Finally, increase feeding_portion by 1 on study room pet feeder 2 and study room pet feeder 3.",
+      "id": "task_0294322",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "goal",
+      "instruction": "Let's bring the hallway's illuminance between 1000 and 2000, then do the same for the storage room.",
+      "id": "topup_18_002",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "goal",
+      "instruction": "Let's bring the entryway's light level to somewhere between 500 and 1000, then bring the dining room temperature to between 20 and 22.",
+      "id": "topup_18_006",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "goal",
+      "instruction": "Let's bring the laundry room's light level to somewhere between 100 and 300. Then bring the entryway's light level between 300 and 500.",
+      "id": "topup_18_007",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "query",
+      "instruction": "Can you check whether the storage room dehumidifier's tank is full? Then compare the current humidity in the bathroom, laundry room, and storage room and tell me which are the top 2 highest. After that, tell me the current noise level in the laundry room.",
+      "id": "task_0330314",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "query",
+      "instruction": "First, check the laundry room's current light level and list every space among basement, bedroom 1, bedroom 2, entryway, exterior, garage, hallway, kitchen, and laundry room whose illuminance is different from it. Then tell me the current mute status of study room projector 2.",
+      "id": "task_0215310",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "query",
+      "instruction": "Let's compare the current humidity in the balcony, bathroom, bedroom 1, bedroom 2, dining room, entryway, kitchen, living room, and storage room, and tell me which ones are in the top 2 for highest humidity. Then, what is the current power of the cat litter box in the laundry room?",
+      "id": "task_0251321",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "aggregate",
+      "subtype": "query_goal",
+      "instruction": "First, compare the current temperatures in the balcony, bathroom, bedroom, entryway, laundry room, living room, storage room, and study room, and list every room in the top 1 position closest to the balcony's current temperature. Then check the bedroom's current noise and list every space among the balcony, bathroom, bedroom, entryway, kitchen, laundry room, and storage room whose noise isn't equal to it. After that, raise the kitchen's illuminance by between 500 and 1000, ending between 500 and 1000.",
+      "id": "task_0133317",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "control",
+      "subtype": "complex",
+      "instruction": "Hey, can you set Garden Toilet's seat_heating to 0?",
+      "id": "task_0034106",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "control",
+      "subtype": "complex",
+      "instruction": "Could you make Study Room Lamp's color_temperature 1000?",
+      "id": "task_0155105",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "control",
+      "subtype": "complex",
+      "instruction": "First, turn on the dryer in the laundry room, then start a cycle with program=\"dry_only\". Next, turn on the range hood in the kitchen, start self-cleaning with mode=\"self_clean\", pause the self-cleaning, and then resume it.",
+      "id": "task_0360105",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "control",
+      "subtype": "multi_property",
+      "instruction": "Can you set the kitchen refrigerator's refrigerator_temperature to 3.25?",
+      "id": "task_0420102",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "control",
+      "subtype": "multi_property",
+      "instruction": "Check the bathroom 2 fan’s current oscillation_angle and wind_mode, then set the bedroom 2 fan to those same values.",
+      "id": "task_0205105",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "control",
+      "subtype": "multi_target",
+      "instruction": "Can you set the study room lamp's color to value?",
+      "id": "task_0096101",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "control",
+      "subtype": "multi_target",
+      "instruction": "Let's set Stairs Color Lamp's color_temperature to 1000.",
+      "id": "task_0029104",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "control",
+      "subtype": "multi_target",
+      "instruction": "Set the fan speed on every air purifier to 2 higher than the bathroom fan's current fan speed.",
+      "id": "task_0244103",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "control",
+      "subtype": "single",
+      "instruction": "Turn Bathroom Air Purifier 2's power on.",
+      "id": "task_0018101",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "control",
+      "subtype": "single",
+      "instruction": "Look for Balcony Surveillance Camera, then set the identified device's night_vision to auto.",
+      "id": "task_0016105",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "control",
+      "subtype": "single",
+      "instruction": "First identify Garage Cat Litter Box, then use that result to set the identified device's cleaning_mode to automatic.",
+      "id": "task_0019103",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "goal",
+      "subtype": "complex",
+      "instruction": "Can you bring Garage's illuminance into the range 2000 to 5000?",
+      "id": "task_0317202",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "goal",
+      "subtype": "complex",
+      "instruction": "Can you bring Balcony's illuminance somewhere between 100 and 300?",
+      "id": "task_0391204",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "goal",
+      "subtype": "multi_property",
+      "instruction": "Let's bring Stairs's temperature into the range 22 to 24.",
+      "id": "task_0131205",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "goal",
+      "subtype": "multi_property",
+      "instruction": "Let's bring the kitchen's illuminance to somewhere between 100 and 300, and its temperature between 16 and 18.",
+      "id": "task_0130201",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "goal",
+      "subtype": "multi_target",
+      "instruction": "Can you bring Garage's humidity into the range 0 to 20?",
+      "id": "task_0163206",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "goal",
+      "subtype": "multi_target",
+      "instruction": "Let's bring Balcony's illuminance into the range 100 to 300.",
+      "id": "task_0161202",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "goal",
+      "subtype": "multi_target",
+      "instruction": "For the targets on floor 1, let's get the kitchen's light level between 100 and 300, and the laundry room's between 300 and 500.",
+      "id": "task_0130202",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "goal",
+      "subtype": "single",
+      "instruction": "Let's bring study room's noise into the range 0 to 30.",
+      "id": "task_0160206",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "goal",
+      "subtype": "single",
+      "instruction": "Let's bring the kitchen's temperature into its saved preferred range.",
+      "id": "task_0130203",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "property.device",
+      "instruction": "What’s the basement fan’s power status right now?",
+      "id": "task_0150001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "property.device",
+      "instruction": "What area is the entryway robot vacuum cleaning right now?",
+      "id": "task_0471001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "property.device",
+      "instruction": "What’s the current remaining_minutes for Bathroom Dishwasher?",
+      "id": "task_0019001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "property.space",
+      "instruction": "What’s Exterior’s temperature right now?",
+      "id": "task_0067001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "property.space",
+      "instruction": "Can you check the kitchen's current air_quality and save this preference?",
+      "id": "task_0265001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "space.occupants",
+      "instruction": "Who’s in the garden right now?",
+      "id": "task_0446001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "space.person_location",
+      "instruction": "Can you find Rachel and tell me which room she's in right now?",
+      "id": "task_0327001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "target.comparison.top1",
+      "instruction": "Can you check the kitchen gas water heater's stored_water_volume_level and tell me what it is right now?",
+      "id": "task_0145001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "target.comparison.top1",
+      "instruction": "Can you compare the current illuminance in the bedroom, dining room, laundry room, living room, and storage room, and tell me which one ranks highest?",
+      "id": "task_0001008",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "target.comparison.topk",
+      "instruction": "What’s the current humidification_intensity for Balcony Evaporative Humidifier?",
+      "id": "task_0028001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "target.comparison.topk",
+      "instruction": "Can you compare the current light levels in the basement, bathroom 2, bedroom 1, entryway, garden, hallway, kitchen, and stairs, and tell me every room that ranks in the top 2 for highest illuminance?",
+      "id": "task_0120011",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "target.enum",
+      "instruction": "What's the current mute value for Storage Room Television?",
+      "id": "task_0381001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "target.enum",
+      "instruction": "Can you check the current illuminance in the storage room, then list every one of these rooms whose illuminance is lower than it: the bedroom, dining room, laundry room, living room, and storage room?",
+      "id": "task_0001003",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "target.quantity",
+      "instruction": "What’s the current power of Attic Dehumidifier?",
+      "id": "task_0301001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "query",
+      "subtype": "target.quantity",
+      "instruction": "What’s the current illuminance in the garage? Then count how many of the basement, bathroom 2, bedroom 3, dining room, entryway, kitchen, and laundry room have a lower illuminance than the garage.",
+      "id": "task_0490003",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "workflow",
+      "subtype": "at",
+      "instruction": "Let the already-running opening cycle on the living room window opener finish at 2026-07-22 14:01 Asia/Shanghai, within 1 minute. Leave the other cycle settings unchanged, and stop once no more action is needed while the world keeps running.",
+      "id": "topup_28_003",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "workflow",
+      "subtype": "before",
+      "instruction": "Let the coffee maker in the dining room finish its current cycle, strictly before 2026-07-22 14:09 Asia/Shanghai. Leave the other cycle settings as they are. Once it’s done and nothing else needs to be done, you can stop—the world keeps running.",
+      "id": "task_0162801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "workflow",
+      "subtype": "condition_delay",
+      "instruction": "Let the already-running daily cycle on the laundry room washer dryer finish. Then, only 1 minute after it completes, with a tolerance of 1 minute, turn fast cool on for the kitchen refrigerator by setting it to true—don’t do that early. Leave the other cycle settings as they are, and stop once nothing else needs to be done.",
+      "id": "task_0136801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "workflow",
+      "subtype": "condition_follow",
+      "instruction": "Let the already-running opening cycle on the kitchen window opener finish. Once it’s done, and within 1 minute, set the living room TV’s channel to 2—don’t do it early. Leave the other cycle settings unchanged, and stop when nothing else needs doing while the world keeps running.",
+      "id": "topup_24_002",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "workflow",
+      "subtype": "condition_follow",
+      "instruction": "Run the recharge cycle on the entryway robot vacuum until it’s complete. Then, within 1 minute after it finishes, turn power off on the stairs surveillance camera—don’t do that early—and leave the other cycle settings unchanged. You can stop once nothing else needs doing; the world keeps running.",
+      "id": "topup_24_000",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "workflow",
+      "subtype": "condition_window",
+      "instruction": "Let the mop cycle on the robot vacuum in the entryway finish. Then, only 5 to 10 minutes after it’s done, set power to false on the entryway surveillance camera—don’t do it early, and leave the other cycle settings unchanged. Once that’s done, you can stop.",
+      "id": "task_0160801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "workflow",
+      "subtype": "environment_before_process",
+      "instruction": "Let the balcony window opener finish its opening cycle. Before it finishes, bring the entryway illuminance into the range of 300 to 500, without changing any of the other cycle settings. You can stop once nothing else needs doing; the world will keep running.",
+      "id": "topup_31_001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "workflow",
+      "subtype": "environment_deadline",
+      "instruction": "Let's bring the kitchen's temperature into the range 16 to 18, strictly before 2026-07-22 14:31 Asia/Shanghai. It's fine to stop once the controls are set—the world can keep running.",
+      "id": "task_0132801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "workflow",
+      "subtype": "single",
+      "instruction": "Could you run an automatic timed cycle on Entryway Robot Vacuum 1 auxiliary unit and let it finish?",
+      "id": "task_0219801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "workflow",
+      "subtype": "single",
+      "instruction": "Can you run the process on laundry room pet water dispenser 3 as an automatic timed cycle and let it finish?",
+      "id": "task_0133801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "workflow",
+      "subtype": "single",
+      "instruction": "Let's run the opening cycle on the storage room window opener all the way to completion, leaving the other cycle settings unchanged. You can finish once no further action is needed; the world keeps running.",
+      "id": "task_0168801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Home",
+      "family": "workflow",
+      "subtype": "synchronize",
+      "instruction": "Let's run the opening cycle on the balcony window opener 4 and the coffee cycle on the kitchen coffee maker, letting both finish. Make sure they finish within 1 minute of each other, and leave all their other settings unchanged. You can stop once nothing else needs to be done.",
+      "id": "task_0317801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "aggregate",
+      "subtype": "control",
+      "instruction": "Lower alarm_volume on the sound device in the setting by 1, then check and tell me the resulting alarm_volume. After that, raise ringtone_volume by 2 on all sound devices and report the resulting ringtone_volume. Next, pause the timer in the application and then resume it. Set font scale level on accessibility in the setting to level=\"extra_large\", set auto rotate on rotation in the setting to false, and switch enabled to on for Wi-Fi in the setting. Turn on a device first if needed, and leave all unrelated settings and collection records unchanged.",
+      "id": "task_0182307",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "aggregate",
+      "subtype": "control_query",
+      "instruction": "What’s the current status of the timer in the application? Then, tell me whether Wi-Fi in the setting is enabled. After that, set ringer_mode to \"normal\" on all sound devices.",
+      "id": "task_0060329",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "aggregate",
+      "subtype": "control_query",
+      "instruction": "First, tell me the current supported_profiles for bluetooth. Then, let me know the current automatic_time for system settings. After that, turn shuffle on for all media player devices.",
+      "id": "task_0120329",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "aggregate",
+      "subtype": "control_query",
+      "instruction": "What's the current microphone_access_granted value for application screen capture? Then set alarm_volume to 68 and notification_volume to 86 on all sound devices. After that, what's the current system_language on system settings in the setting?",
+      "id": "task_0020305",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "aggregate",
+      "subtype": "query",
+      "instruction": "First, tell me the record for zh-CN in available_languages on system settings. Then tell me the current effective_rule_id for focus in the setting.",
+      "id": "task_0182332",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "aggregate",
+      "subtype": "query",
+      "instruction": "Hey, can you check the current wall_clock_offset_minutes for system settings in the setting? Then tell me the current auto_rotate for rotation in the setting, the current captions_enabled for accessibility, and the current camera_in_use for privacy in the setting. After that, let me know the current captures for screen capture in the application, report the calendar_reminders record from channel_settings on notifications in the setting, and tell me the current effective_source for focus in the setting.",
+      "id": "task_0177306",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "control",
+      "subtype": "complex",
+      "instruction": "Let's turn down media_volume on the sound in the setting by 0.5.",
+      "id": "task_0029104",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "control",
+      "subtype": "complex",
+      "instruction": "First, turn on the wi-fi in the setting if needed by setting enabled to true. Then connect it to the Office network using network_id Office. After that, disable the alarm using alarm_id alarm_2. Leave all unrelated settings and alarm records unchanged.",
+      "id": "task_0150104",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "control",
+      "subtype": "complex",
+      "instruction": "On the media player, stop playback and then start it again. Next, start the stopwatch and immediately pause it. Turn on a device first if needed. Then disable location in the setting and enable battery power saving. Leave all other settings and collection records unchanged.",
+      "id": "task_0080106",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "control",
+      "subtype": "multi_property",
+      "instruction": "Could you switch Setting System 2's airplane_mode to on?",
+      "id": "task_0006101",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "control",
+      "subtype": "multi_property",
+      "instruction": "Let's set the sound in the setting to vibrate and turn the ringtone volume up to 100.",
+      "id": "task_0001102",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "control",
+      "subtype": "multi_target",
+      "instruction": "Let's set sound in the setting's media_volume to 55.5.",
+      "id": "task_0139104",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "control",
+      "subtype": "multi_target",
+      "instruction": "First, turn on bluetooth in the setting. Then resume the application timer, pause it again, and turn off location in the setting. Leave all other settings and collection records unchanged.",
+      "id": "task_0077101",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "control",
+      "subtype": "single",
+      "instruction": "Let's set application display's brightness to 0.",
+      "id": "task_0035101",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "control",
+      "subtype": "single",
+      "instruction": "Let's set airplane mode on every system device to the saved preference.",
+      "id": "task_0094106",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "control",
+      "subtype": "single",
+      "instruction": "First, identify Setting Sound 2, then set the identified device's ringtone_volume to 0.",
+      "id": "task_0016103",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "query",
+      "subtype": "property.device",
+      "instruction": "What’s the current brightness of Application Display?",
+      "id": "task_0019001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "query",
+      "subtype": "property.device",
+      "instruction": "What's the battery's temperature in the setting right now?",
+      "id": "task_0130001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "query",
+      "subtype": "property.device",
+      "instruction": "What’s the current maximum_level for the flashlight in the setting?",
+      "id": "task_0000001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "workflow",
+      "subtype": "at",
+      "instruction": "Run the countdown cycle on the application timer all the way through, finishing at 2026-09-07 12:05 Asia/Shanghai, within 1 minute. Leave the other cycle settings unchanged. You can finish once nothing else needs doing; the World will keep running.",
+      "id": "topup_28_003",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "workflow",
+      "subtype": "before",
+      "instruction": "Let's let the timer's current countdown run all the way to the end, making sure it finishes strictly before 2026-09-07 12:04 Asia/Shanghai. Leave the other cycle settings unchanged, and you can stop once nothing else needs to be done—the world will keep running.",
+      "id": "task_0001801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "workflow",
+      "subtype": "condition_delay",
+      "instruction": "Let the already-running application timer finish its countdown. Then, only after 10 minutes have passed, with a tolerance of 1 minute, turn on dark mode on the display—don't do it early. Leave the timer's other settings as they are.",
+      "id": "topup_25_001",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "workflow",
+      "subtype": "condition_follow",
+      "instruction": "Let the countdown on the application timer finish. Once it’s done, and only within the next 1 minute, set the setting hotspot’s security method to wpa3_personal. Leave the other cycle settings as they are.",
+      "id": "topup_24_000",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "workflow",
+      "subtype": "condition_follow",
+      "instruction": "Watch the countdown already running on the application timer until it finishes. Only within 1 minute after it completes, set the hotspot's operating band to {\"operating_band\": \"5_ghz\"}—don't do it early—and leave the other cycle settings unchanged.",
+      "id": "topup_24_005",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "workflow",
+      "subtype": "condition_window",
+      "instruction": "Let the countdown on the application timer finish. Then, only 1 to 5 minutes after it completes, set the hotspot's credential to securepass1—don't do it early. Leave the other cycle settings as they are.",
+      "id": "topup_26_006",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "workflow",
+      "subtype": "condition_window",
+      "instruction": "Let the countdown on the application timer finish. Then, only 5 to 10 minutes after it completes, set media volume on the sound in the setting to 50—don't do it early. Leave the timer's other cycle settings unchanged. You can stop once nothing else is needed; the world will keep running.",
+      "id": "topup_26_002",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "workflow",
+      "subtype": "condition_window",
+      "instruction": "Let the countdown on the application timer finish. Then, only after it finishes and within 1 to 5 minutes, set notification volume on the sound in the setting to 100—don't do it early, and leave the timer's other cycle settings unchanged. You can stop once that's done; the world can keep running.",
+      "id": "topup_26_007",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "workflow",
+      "subtype": "single",
+      "instruction": "Can you run an automatic timed cycle for the process on setting accessibility and let it finish?",
+      "id": "task_0115801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "workflow",
+      "subtype": "single",
+      "instruction": "Can you run the process on Application Timer 1 auxiliary unit as an automatic timed cycle and let it finish?",
+      "id": "task_0148801",
+      "style": "conversational"
+    },
+    {
+      "domain": "Phone",
+      "family": "workflow",
+      "subtype": "single",
+      "instruction": "Just let the timer's current countdown run to completion without changing its other settings. Once it finishes, you're done—the world can keep running.",
+      "id": "task_0002801",
+      "style": "conversational"
+    }
+  ]
+}
