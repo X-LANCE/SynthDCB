@@ -1,0 +1,3264 @@
+{
+  "metric": "Pass@1 (%)",
+  "split": "Test",
+  "instruction_style": "conversational",
+  "models": [
+    "Claude Haiku 4.5",
+    "DeepSeek V4.1 Flash",
+    "Gemini 3.8 Flash",
+    "GLM-5.3 Flash",
+    "GPT-5.6 Luna",
+    "GPT-5.6 Terra",
+    "GPT-5.6 Sol"
+  ],
+  "results": {
+    "Home": {
+      "aggregate.control": [
+        {
+          "n": 51,
+          "passed": 39
+        },
+        {
+          "n": 51,
+          "passed": 44
+        },
+        {
+          "n": 51,
+          "passed": 17
+        },
+        {
+          "n": 51,
+          "passed": 46
+        },
+        {
+          "n": 51,
+          "passed": 47
+        },
+        {
+          "n": 51,
+          "passed": 47
+        },
+        {
+          "n": 51,
+          "passed": 48
+        }
+      ],
+      "aggregate.control_goal": [
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 8
+        }
+      ],
+      "aggregate.control_query": [
+        {
+          "n": 521,
+          "passed": 99
+        },
+        {
+          "n": 521,
+          "passed": 287
+        },
+        {
+          "n": 521,
+          "passed": 14
+        },
+        {
+          "n": 521,
+          "passed": 2
+        },
+        {
+          "n": 521,
+          "passed": 279
+        },
+        {
+          "n": 521,
+          "passed": 247
+        },
+        {
+          "n": 521,
+          "passed": 254
+        }
+      ],
+      "aggregate.control_query_goal": [
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 4
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 3
+        },
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 3
+        }
+      ],
+      "aggregate.goal": [
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 4
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 9
+        }
+      ],
+      "aggregate.query": [
+        {
+          "n": 57,
+          "passed": 29
+        },
+        {
+          "n": 57,
+          "passed": 39
+        },
+        {
+          "n": 57,
+          "passed": 0
+        },
+        {
+          "n": 57,
+          "passed": 0
+        },
+        {
+          "n": 57,
+          "passed": 31
+        },
+        {
+          "n": 57,
+          "passed": 33
+        },
+        {
+          "n": 57,
+          "passed": 30
+        }
+      ],
+      "aggregate.query_goal": [
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 4
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 3
+        },
+        {
+          "n": 10,
+          "passed": 6
+        },
+        {
+          "n": 10,
+          "passed": 4
+        }
+      ],
+      "control.complex": [
+        {
+          "n": 97,
+          "passed": 85
+        },
+        {
+          "n": 97,
+          "passed": 88
+        },
+        {
+          "n": 97,
+          "passed": 40
+        },
+        {
+          "n": 97,
+          "passed": 92
+        },
+        {
+          "n": 97,
+          "passed": 90
+        },
+        {
+          "n": 97,
+          "passed": 89
+        },
+        {
+          "n": 97,
+          "passed": 91
+        }
+      ],
+      "control.multi_property": [
+        {
+          "n": 42,
+          "passed": 31
+        },
+        {
+          "n": 42,
+          "passed": 39
+        },
+        {
+          "n": 42,
+          "passed": 18
+        },
+        {
+          "n": 42,
+          "passed": 39
+        },
+        {
+          "n": 42,
+          "passed": 38
+        },
+        {
+          "n": 42,
+          "passed": 38
+        },
+        {
+          "n": 42,
+          "passed": 40
+        }
+      ],
+      "control.multi_target": [
+        {
+          "n": 24,
+          "passed": 18
+        },
+        {
+          "n": 24,
+          "passed": 22
+        },
+        {
+          "n": 24,
+          "passed": 11
+        },
+        {
+          "n": 24,
+          "passed": 22
+        },
+        {
+          "n": 24,
+          "passed": 22
+        },
+        {
+          "n": 24,
+          "passed": 22
+        },
+        {
+          "n": 24,
+          "passed": 22
+        }
+      ],
+      "control.single": [
+        {
+          "n": 98,
+          "passed": 63
+        },
+        {
+          "n": 98,
+          "passed": 84
+        },
+        {
+          "n": 98,
+          "passed": 49
+        },
+        {
+          "n": 98,
+          "passed": 85
+        },
+        {
+          "n": 98,
+          "passed": 87
+        },
+        {
+          "n": 98,
+          "passed": 87
+        },
+        {
+          "n": 98,
+          "passed": 86
+        }
+      ],
+      "goal.complex": [
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        }
+      ],
+      "goal.multi_property": [
+        {
+          "n": 19,
+          "passed": 8
+        },
+        {
+          "n": 19,
+          "passed": 10
+        },
+        {
+          "n": 19,
+          "passed": 4
+        },
+        {
+          "n": 19,
+          "passed": 16
+        },
+        {
+          "n": 19,
+          "passed": 11
+        },
+        {
+          "n": 19,
+          "passed": 13
+        },
+        {
+          "n": 19,
+          "passed": 11
+        }
+      ],
+      "goal.multi_target": [
+        {
+          "n": 11,
+          "passed": 7
+        },
+        {
+          "n": 11,
+          "passed": 7
+        },
+        {
+          "n": 11,
+          "passed": 2
+        },
+        {
+          "n": 11,
+          "passed": 11
+        },
+        {
+          "n": 11,
+          "passed": 8
+        },
+        {
+          "n": 11,
+          "passed": 10
+        },
+        {
+          "n": 11,
+          "passed": 8
+        }
+      ],
+      "goal.single": [
+        {
+          "n": 54,
+          "passed": 37
+        },
+        {
+          "n": 54,
+          "passed": 35
+        },
+        {
+          "n": 54,
+          "passed": 41
+        },
+        {
+          "n": 54,
+          "passed": 53
+        },
+        {
+          "n": 54,
+          "passed": 44
+        },
+        {
+          "n": 54,
+          "passed": 45
+        },
+        {
+          "n": 54,
+          "passed": 41
+        }
+      ],
+      "query.property.device": [
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 6
+        },
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 4
+        },
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 5
+        }
+      ],
+      "query.property.space": [
+        {
+          "n": 57,
+          "passed": 12
+        },
+        {
+          "n": 57,
+          "passed": 41
+        },
+        {
+          "n": 57,
+          "passed": 4
+        },
+        {
+          "n": 57,
+          "passed": 0
+        },
+        {
+          "n": 57,
+          "passed": 39
+        },
+        {
+          "n": 57,
+          "passed": 40
+        },
+        {
+          "n": 57,
+          "passed": 39
+        }
+      ],
+      "query.space.occupants": [
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        }
+      ],
+      "query.space.person_location": [
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        }
+      ],
+      "query.target.comparison.top1": [
+        {
+          "n": 28,
+          "passed": 2
+        },
+        {
+          "n": 28,
+          "passed": 23
+        },
+        {
+          "n": 28,
+          "passed": 0
+        },
+        {
+          "n": 28,
+          "passed": 1
+        },
+        {
+          "n": 28,
+          "passed": 25
+        },
+        {
+          "n": 28,
+          "passed": 23
+        },
+        {
+          "n": 28,
+          "passed": 25
+        }
+      ],
+      "query.target.comparison.topk": [
+        {
+          "n": 17,
+          "passed": 3
+        },
+        {
+          "n": 17,
+          "passed": 13
+        },
+        {
+          "n": 17,
+          "passed": 0
+        },
+        {
+          "n": 17,
+          "passed": 0
+        },
+        {
+          "n": 17,
+          "passed": 16
+        },
+        {
+          "n": 17,
+          "passed": 15
+        },
+        {
+          "n": 17,
+          "passed": 16
+        }
+      ],
+      "query.target.enum": [
+        {
+          "n": 26,
+          "passed": 7
+        },
+        {
+          "n": 26,
+          "passed": 5
+        },
+        {
+          "n": 26,
+          "passed": 1
+        },
+        {
+          "n": 26,
+          "passed": 0
+        },
+        {
+          "n": 26,
+          "passed": 2
+        },
+        {
+          "n": 26,
+          "passed": 1
+        },
+        {
+          "n": 26,
+          "passed": 3
+        }
+      ],
+      "query.target.quantity": [
+        {
+          "n": 17,
+          "passed": 3
+        },
+        {
+          "n": 17,
+          "passed": 4
+        },
+        {
+          "n": 17,
+          "passed": 0
+        },
+        {
+          "n": 17,
+          "passed": 0
+        },
+        {
+          "n": 17,
+          "passed": 2
+        },
+        {
+          "n": 17,
+          "passed": 1
+        },
+        {
+          "n": 17,
+          "passed": 1
+        }
+      ],
+      "workflow.at": [
+        {
+          "n": 9,
+          "passed": 5
+        },
+        {
+          "n": 9,
+          "passed": 6
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 7
+        },
+        {
+          "n": 9,
+          "passed": 6
+        },
+        {
+          "n": 9,
+          "passed": 7
+        },
+        {
+          "n": 9,
+          "passed": 6
+        }
+      ],
+      "workflow.before": [
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 7
+        },
+        {
+          "n": 9,
+          "passed": 9
+        }
+      ],
+      "workflow.condition_delay": [
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 9
+        }
+      ],
+      "workflow.condition_follow": [
+        {
+          "n": 9,
+          "passed": 2
+        },
+        {
+          "n": 9,
+          "passed": 8
+        },
+        {
+          "n": 9,
+          "passed": 6
+        },
+        {
+          "n": 9,
+          "passed": 8
+        },
+        {
+          "n": 9,
+          "passed": 7
+        },
+        {
+          "n": 9,
+          "passed": 7
+        },
+        {
+          "n": 9,
+          "passed": 7
+        }
+      ],
+      "workflow.condition_window": [
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 6
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 10
+        }
+      ],
+      "workflow.environment_before_process": [
+        {
+          "n": 9,
+          "passed": 8
+        },
+        {
+          "n": 9,
+          "passed": 6
+        },
+        {
+          "n": 9,
+          "passed": 6
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 9
+        }
+      ],
+      "workflow.environment_deadline": [
+        {
+          "n": 6,
+          "passed": 4
+        },
+        {
+          "n": 6,
+          "passed": 3
+        },
+        {
+          "n": 6,
+          "passed": 5
+        },
+        {
+          "n": 6,
+          "passed": 5
+        },
+        {
+          "n": 6,
+          "passed": 6
+        },
+        {
+          "n": 6,
+          "passed": 6
+        },
+        {
+          "n": 6,
+          "passed": 6
+        }
+      ],
+      "workflow.single": [
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 3
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 6
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 6
+        }
+      ],
+      "workflow.synchronize": [
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 3
+        },
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 7
+        }
+      ]
+    },
+    "Car": {
+      "aggregate.control": [
+        {
+          "n": 30,
+          "passed": 26
+        },
+        {
+          "n": 30,
+          "passed": 17
+        },
+        {
+          "n": 30,
+          "passed": 7
+        },
+        {
+          "n": 30,
+          "passed": 27
+        },
+        {
+          "n": 30,
+          "passed": 26
+        },
+        {
+          "n": 30,
+          "passed": 27
+        },
+        {
+          "n": 30,
+          "passed": 27
+        }
+      ],
+      "aggregate.control_goal": [
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 3
+        }
+      ],
+      "aggregate.control_query": [
+        {
+          "n": 248,
+          "passed": 44
+        },
+        {
+          "n": 248,
+          "passed": 158
+        },
+        {
+          "n": 248,
+          "passed": 5
+        },
+        {
+          "n": 248,
+          "passed": 4
+        },
+        {
+          "n": 248,
+          "passed": 126
+        },
+        {
+          "n": 248,
+          "passed": 123
+        },
+        {
+          "n": 248,
+          "passed": 127
+        }
+      ],
+      "aggregate.control_query_goal": [
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 3
+        },
+        {
+          "n": 10,
+          "passed": 3
+        }
+      ],
+      "aggregate.goal": [
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 3
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 8
+        }
+      ],
+      "aggregate.query": [
+        {
+          "n": 41,
+          "passed": 9
+        },
+        {
+          "n": 41,
+          "passed": 26
+        },
+        {
+          "n": 41,
+          "passed": 0
+        },
+        {
+          "n": 41,
+          "passed": 1
+        },
+        {
+          "n": 41,
+          "passed": 20
+        },
+        {
+          "n": 41,
+          "passed": 21
+        },
+        {
+          "n": 41,
+          "passed": 23
+        }
+      ],
+      "aggregate.query_goal": [
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 3
+        },
+        {
+          "n": 10,
+          "passed": 3
+        },
+        {
+          "n": 10,
+          "passed": 3
+        }
+      ],
+      "control.complex": [
+        {
+          "n": 77,
+          "passed": 65
+        },
+        {
+          "n": 77,
+          "passed": 53
+        },
+        {
+          "n": 77,
+          "passed": 47
+        },
+        {
+          "n": 77,
+          "passed": 70
+        },
+        {
+          "n": 77,
+          "passed": 70
+        },
+        {
+          "n": 77,
+          "passed": 72
+        },
+        {
+          "n": 77,
+          "passed": 72
+        }
+      ],
+      "control.multi_property": [
+        {
+          "n": 24,
+          "passed": 20
+        },
+        {
+          "n": 24,
+          "passed": 15
+        },
+        {
+          "n": 24,
+          "passed": 13
+        },
+        {
+          "n": 24,
+          "passed": 21
+        },
+        {
+          "n": 24,
+          "passed": 21
+        },
+        {
+          "n": 24,
+          "passed": 21
+        },
+        {
+          "n": 24,
+          "passed": 21
+        }
+      ],
+      "control.multi_target": [
+        {
+          "n": 17,
+          "passed": 15
+        },
+        {
+          "n": 17,
+          "passed": 11
+        },
+        {
+          "n": 17,
+          "passed": 7
+        },
+        {
+          "n": 17,
+          "passed": 15
+        },
+        {
+          "n": 17,
+          "passed": 15
+        },
+        {
+          "n": 17,
+          "passed": 15
+        },
+        {
+          "n": 17,
+          "passed": 15
+        }
+      ],
+      "control.single": [
+        {
+          "n": 38,
+          "passed": 28
+        },
+        {
+          "n": 38,
+          "passed": 26
+        },
+        {
+          "n": 38,
+          "passed": 20
+        },
+        {
+          "n": 38,
+          "passed": 31
+        },
+        {
+          "n": 38,
+          "passed": 35
+        },
+        {
+          "n": 38,
+          "passed": 35
+        },
+        {
+          "n": 38,
+          "passed": 34
+        }
+      ],
+      "goal.complex": [
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 4
+        },
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 1
+        }
+      ],
+      "goal.multi_property": [
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 4
+        },
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 1
+        }
+      ],
+      "goal.multi_target": [
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 0
+        }
+      ],
+      "goal.single": [
+        {
+          "n": 35,
+          "passed": 14
+        },
+        {
+          "n": 35,
+          "passed": 9
+        },
+        {
+          "n": 35,
+          "passed": 11
+        },
+        {
+          "n": 35,
+          "passed": 28
+        },
+        {
+          "n": 35,
+          "passed": 15
+        },
+        {
+          "n": 35,
+          "passed": 15
+        },
+        {
+          "n": 35,
+          "passed": 15
+        }
+      ],
+      "query.property.device": [
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        }
+      ],
+      "query.property.space": [
+        {
+          "n": 19,
+          "passed": 4
+        },
+        {
+          "n": 19,
+          "passed": 13
+        },
+        {
+          "n": 19,
+          "passed": 4
+        },
+        {
+          "n": 19,
+          "passed": 0
+        },
+        {
+          "n": 19,
+          "passed": 8
+        },
+        {
+          "n": 19,
+          "passed": 6
+        },
+        {
+          "n": 19,
+          "passed": 7
+        }
+      ],
+      "query.target.comparison.top1": [
+        {
+          "n": 14,
+          "passed": 1
+        },
+        {
+          "n": 14,
+          "passed": 8
+        },
+        {
+          "n": 14,
+          "passed": 0
+        },
+        {
+          "n": 14,
+          "passed": 0
+        },
+        {
+          "n": 14,
+          "passed": 12
+        },
+        {
+          "n": 14,
+          "passed": 13
+        },
+        {
+          "n": 14,
+          "passed": 12
+        }
+      ],
+      "query.target.comparison.topk": [
+        {
+          "n": 22,
+          "passed": 4
+        },
+        {
+          "n": 22,
+          "passed": 14
+        },
+        {
+          "n": 22,
+          "passed": 1
+        },
+        {
+          "n": 22,
+          "passed": 0
+        },
+        {
+          "n": 22,
+          "passed": 20
+        },
+        {
+          "n": 22,
+          "passed": 17
+        },
+        {
+          "n": 22,
+          "passed": 21
+        }
+      ],
+      "query.target.enum": [
+        {
+          "n": 20,
+          "passed": 2
+        },
+        {
+          "n": 20,
+          "passed": 11
+        },
+        {
+          "n": 20,
+          "passed": 0
+        },
+        {
+          "n": 20,
+          "passed": 0
+        },
+        {
+          "n": 20,
+          "passed": 0
+        },
+        {
+          "n": 20,
+          "passed": 1
+        },
+        {
+          "n": 20,
+          "passed": 0
+        }
+      ],
+      "query.target.quantity": [
+        {
+          "n": 15,
+          "passed": 3
+        },
+        {
+          "n": 15,
+          "passed": 4
+        },
+        {
+          "n": 15,
+          "passed": 0
+        },
+        {
+          "n": 15,
+          "passed": 0
+        },
+        {
+          "n": 15,
+          "passed": 2
+        },
+        {
+          "n": 15,
+          "passed": 2
+        },
+        {
+          "n": 15,
+          "passed": 2
+        }
+      ],
+      "workflow.at": [
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 8
+        }
+      ],
+      "workflow.before": [
+        {
+          "n": 9,
+          "passed": 8
+        },
+        {
+          "n": 9,
+          "passed": 4
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 8
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 9
+        }
+      ],
+      "workflow.condition_delay": [
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 8
+        }
+      ],
+      "workflow.condition_follow": [
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 3
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 8
+        }
+      ],
+      "workflow.condition_window": [
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 3
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 7
+        }
+      ],
+      "workflow.environment_before_process": [
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 4
+        },
+        {
+          "n": 10,
+          "passed": 6
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 8
+        }
+      ],
+      "workflow.environment_deadline": [
+        {
+          "n": 9,
+          "passed": 7
+        },
+        {
+          "n": 9,
+          "passed": 2
+        },
+        {
+          "n": 9,
+          "passed": 8
+        },
+        {
+          "n": 9,
+          "passed": 5
+        },
+        {
+          "n": 9,
+          "passed": 8
+        },
+        {
+          "n": 9,
+          "passed": 8
+        },
+        {
+          "n": 9,
+          "passed": 7
+        }
+      ],
+      "workflow.single": [
+        {
+          "n": 10,
+          "passed": 6
+        },
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 3
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 9
+        }
+      ],
+      "workflow.synchronize": [
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 1
+        },
+        {
+          "n": 10,
+          "passed": 2
+        }
+      ]
+    },
+    "Phone": {
+      "aggregate.control": [
+        {
+          "n": 21,
+          "passed": 16
+        },
+        {
+          "n": 21,
+          "passed": 17
+        },
+        {
+          "n": 21,
+          "passed": 16
+        },
+        {
+          "n": 21,
+          "passed": 17
+        },
+        {
+          "n": 21,
+          "passed": 17
+        },
+        {
+          "n": 21,
+          "passed": 17
+        },
+        {
+          "n": 21,
+          "passed": 17
+        }
+      ],
+      "aggregate.control_query": [
+        {
+          "n": 273,
+          "passed": 190
+        },
+        {
+          "n": 273,
+          "passed": 224
+        },
+        {
+          "n": 273,
+          "passed": 4
+        },
+        {
+          "n": 273,
+          "passed": 18
+        },
+        {
+          "n": 273,
+          "passed": 205
+        },
+        {
+          "n": 273,
+          "passed": 199
+        },
+        {
+          "n": 273,
+          "passed": 198
+        }
+      ],
+      "aggregate.query": [
+        {
+          "n": 32,
+          "passed": 23
+        },
+        {
+          "n": 32,
+          "passed": 23
+        },
+        {
+          "n": 32,
+          "passed": 0
+        },
+        {
+          "n": 32,
+          "passed": 0
+        },
+        {
+          "n": 32,
+          "passed": 28
+        },
+        {
+          "n": 32,
+          "passed": 26
+        },
+        {
+          "n": 32,
+          "passed": 27
+        }
+      ],
+      "control.complex": [
+        {
+          "n": 43,
+          "passed": 42
+        },
+        {
+          "n": 43,
+          "passed": 42
+        },
+        {
+          "n": 43,
+          "passed": 34
+        },
+        {
+          "n": 43,
+          "passed": 43
+        },
+        {
+          "n": 43,
+          "passed": 42
+        },
+        {
+          "n": 43,
+          "passed": 42
+        },
+        {
+          "n": 43,
+          "passed": 41
+        }
+      ],
+      "control.multi_property": [
+        {
+          "n": 17,
+          "passed": 17
+        },
+        {
+          "n": 17,
+          "passed": 16
+        },
+        {
+          "n": 17,
+          "passed": 5
+        },
+        {
+          "n": 17,
+          "passed": 17
+        },
+        {
+          "n": 17,
+          "passed": 17
+        },
+        {
+          "n": 17,
+          "passed": 17
+        },
+        {
+          "n": 17,
+          "passed": 17
+        }
+      ],
+      "control.multi_target": [
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 8
+        }
+      ],
+      "control.single": [
+        {
+          "n": 35,
+          "passed": 27
+        },
+        {
+          "n": 35,
+          "passed": 34
+        },
+        {
+          "n": 35,
+          "passed": 25
+        },
+        {
+          "n": 35,
+          "passed": 30
+        },
+        {
+          "n": 35,
+          "passed": 34
+        },
+        {
+          "n": 35,
+          "passed": 34
+        },
+        {
+          "n": 35,
+          "passed": 34
+        }
+      ],
+      "query.property.device": [
+        {
+          "n": 25,
+          "passed": 5
+        },
+        {
+          "n": 25,
+          "passed": 23
+        },
+        {
+          "n": 25,
+          "passed": 2
+        },
+        {
+          "n": 25,
+          "passed": 4
+        },
+        {
+          "n": 25,
+          "passed": 12
+        },
+        {
+          "n": 25,
+          "passed": 12
+        },
+        {
+          "n": 25,
+          "passed": 12
+        }
+      ],
+      "workflow.at": [
+        {
+          "n": 8,
+          "passed": 5
+        },
+        {
+          "n": 8,
+          "passed": 7
+        },
+        {
+          "n": 8,
+          "passed": 8
+        },
+        {
+          "n": 8,
+          "passed": 7
+        },
+        {
+          "n": 8,
+          "passed": 6
+        },
+        {
+          "n": 8,
+          "passed": 6
+        },
+        {
+          "n": 8,
+          "passed": 6
+        }
+      ],
+      "workflow.before": [
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 9
+        },
+        {
+          "n": 9,
+          "passed": 7
+        },
+        {
+          "n": 9,
+          "passed": 7
+        },
+        {
+          "n": 9,
+          "passed": 9
+        }
+      ],
+      "workflow.condition_delay": [
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 8
+        },
+        {
+          "n": 10,
+          "passed": 9
+        }
+      ],
+      "workflow.condition_follow": [
+        {
+          "n": 10,
+          "passed": 7
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 10
+        }
+      ],
+      "workflow.condition_window": [
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 8
+        }
+      ],
+      "workflow.single": [
+        {
+          "n": 8,
+          "passed": 6
+        },
+        {
+          "n": 8,
+          "passed": 8
+        },
+        {
+          "n": 8,
+          "passed": 6
+        },
+        {
+          "n": 8,
+          "passed": 7
+        },
+        {
+          "n": 8,
+          "passed": 7
+        },
+        {
+          "n": 8,
+          "passed": 7
+        },
+        {
+          "n": 8,
+          "passed": 7
+        }
+      ]
+    },
+    "All": {
+      "query.target.comparison.topk": [
+        {
+          "n": 39,
+          "passed": 7
+        },
+        {
+          "n": 39,
+          "passed": 27
+        },
+        {
+          "n": 39,
+          "passed": 1
+        },
+        {
+          "n": 39,
+          "passed": 0
+        },
+        {
+          "n": 39,
+          "passed": 36
+        },
+        {
+          "n": 39,
+          "passed": 32
+        },
+        {
+          "n": 39,
+          "passed": 37
+        }
+      ],
+      "goal.complex": [
+        {
+          "n": 20,
+          "passed": 10
+        },
+        {
+          "n": 20,
+          "passed": 11
+        },
+        {
+          "n": 20,
+          "passed": 0
+        },
+        {
+          "n": 20,
+          "passed": 13
+        },
+        {
+          "n": 20,
+          "passed": 11
+        },
+        {
+          "n": 20,
+          "passed": 11
+        },
+        {
+          "n": 20,
+          "passed": 11
+        }
+      ],
+      "workflow.condition_follow": [
+        {
+          "n": 29,
+          "passed": 17
+        },
+        {
+          "n": 29,
+          "passed": 21
+        },
+        {
+          "n": 29,
+          "passed": 23
+        },
+        {
+          "n": 29,
+          "passed": 27
+        },
+        {
+          "n": 29,
+          "passed": 25
+        },
+        {
+          "n": 29,
+          "passed": 24
+        },
+        {
+          "n": 29,
+          "passed": 25
+        }
+      ],
+      "query.space.person_location": [
+        {
+          "n": 10,
+          "passed": 2
+        },
+        {
+          "n": 10,
+          "passed": 9
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        }
+      ],
+      "control.multi_property": [
+        {
+          "n": 83,
+          "passed": 68
+        },
+        {
+          "n": 83,
+          "passed": 70
+        },
+        {
+          "n": 83,
+          "passed": 36
+        },
+        {
+          "n": 83,
+          "passed": 77
+        },
+        {
+          "n": 83,
+          "passed": 76
+        },
+        {
+          "n": 83,
+          "passed": 76
+        },
+        {
+          "n": 83,
+          "passed": 78
+        }
+      ],
+      "workflow.before": [
+        {
+          "n": 27,
+          "passed": 26
+        },
+        {
+          "n": 27,
+          "passed": 22
+        },
+        {
+          "n": 27,
+          "passed": 27
+        },
+        {
+          "n": 27,
+          "passed": 27
+        },
+        {
+          "n": 27,
+          "passed": 24
+        },
+        {
+          "n": 27,
+          "passed": 23
+        },
+        {
+          "n": 27,
+          "passed": 27
+        }
+      ],
+      "goal.multi_property": [
+        {
+          "n": 29,
+          "passed": 9
+        },
+        {
+          "n": 29,
+          "passed": 11
+        },
+        {
+          "n": 29,
+          "passed": 4
+        },
+        {
+          "n": 29,
+          "passed": 23
+        },
+        {
+          "n": 29,
+          "passed": 15
+        },
+        {
+          "n": 29,
+          "passed": 15
+        },
+        {
+          "n": 29,
+          "passed": 12
+        }
+      ],
+      "aggregate.control_query_goal": [
+        {
+          "n": 20,
+          "passed": 0
+        },
+        {
+          "n": 20,
+          "passed": 4
+        },
+        {
+          "n": 20,
+          "passed": 1
+        },
+        {
+          "n": 20,
+          "passed": 0
+        },
+        {
+          "n": 20,
+          "passed": 8
+        },
+        {
+          "n": 20,
+          "passed": 5
+        },
+        {
+          "n": 20,
+          "passed": 6
+        }
+      ],
+      "control.complex": [
+        {
+          "n": 217,
+          "passed": 192
+        },
+        {
+          "n": 217,
+          "passed": 183
+        },
+        {
+          "n": 217,
+          "passed": 121
+        },
+        {
+          "n": 217,
+          "passed": 205
+        },
+        {
+          "n": 217,
+          "passed": 202
+        },
+        {
+          "n": 217,
+          "passed": 203
+        },
+        {
+          "n": 217,
+          "passed": 204
+        }
+      ],
+      "aggregate.control": [
+        {
+          "n": 102,
+          "passed": 81
+        },
+        {
+          "n": 102,
+          "passed": 78
+        },
+        {
+          "n": 102,
+          "passed": 40
+        },
+        {
+          "n": 102,
+          "passed": 90
+        },
+        {
+          "n": 102,
+          "passed": 90
+        },
+        {
+          "n": 102,
+          "passed": 91
+        },
+        {
+          "n": 102,
+          "passed": 92
+        }
+      ],
+      "query.property.space": [
+        {
+          "n": 76,
+          "passed": 16
+        },
+        {
+          "n": 76,
+          "passed": 54
+        },
+        {
+          "n": 76,
+          "passed": 8
+        },
+        {
+          "n": 76,
+          "passed": 0
+        },
+        {
+          "n": 76,
+          "passed": 47
+        },
+        {
+          "n": 76,
+          "passed": 46
+        },
+        {
+          "n": 76,
+          "passed": 46
+        }
+      ],
+      "query.target.comparison.top1": [
+        {
+          "n": 42,
+          "passed": 3
+        },
+        {
+          "n": 42,
+          "passed": 31
+        },
+        {
+          "n": 42,
+          "passed": 0
+        },
+        {
+          "n": 42,
+          "passed": 1
+        },
+        {
+          "n": 42,
+          "passed": 37
+        },
+        {
+          "n": 42,
+          "passed": 36
+        },
+        {
+          "n": 42,
+          "passed": 37
+        }
+      ],
+      "aggregate.control_query": [
+        {
+          "n": 1042,
+          "passed": 333
+        },
+        {
+          "n": 1042,
+          "passed": 669
+        },
+        {
+          "n": 1042,
+          "passed": 23
+        },
+        {
+          "n": 1042,
+          "passed": 24
+        },
+        {
+          "n": 1042,
+          "passed": 610
+        },
+        {
+          "n": 1042,
+          "passed": 569
+        },
+        {
+          "n": 1042,
+          "passed": 579
+        }
+      ],
+      "query.space.occupants": [
+        {
+          "n": 10,
+          "passed": 5
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 0
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        },
+        {
+          "n": 10,
+          "passed": 10
+        }
+      ],
+      "workflow.environment_deadline": [
+        {
+          "n": 15,
+          "passed": 11
+        },
+        {
+          "n": 15,
+          "passed": 5
+        },
+        {
+          "n": 15,
+          "passed": 13
+        },
+        {
+          "n": 15,
+          "passed": 10
+        },
+        {
+          "n": 15,
+          "passed": 14
+        },
+        {
+          "n": 15,
+          "passed": 14
+        },
+        {
+          "n": 15,
+          "passed": 13
+        }
+      ],
+      "query.target.quantity": [
+        {
+          "n": 32,
+          "passed": 6
+        },
+        {
+          "n": 32,
+          "passed": 8
+        },
+        {
+          "n": 32,
+          "passed": 0
+        },
+        {
+          "n": 32,
+          "passed": 0
+        },
+        {
+          "n": 32,
+          "passed": 4
+        },
+        {
+          "n": 32,
+          "passed": 3
+        },
+        {
+          "n": 32,
+          "passed": 3
+        }
+      ],
+      "aggregate.query": [
+        {
+          "n": 130,
+          "passed": 61
+        },
+        {
+          "n": 130,
+          "passed": 88
+        },
+        {
+          "n": 130,
+          "passed": 0
+        },
+        {
+          "n": 130,
+          "passed": 1
+        },
+        {
+          "n": 130,
+          "passed": 79
+        },
+        {
+          "n": 130,
+          "passed": 80
+        },
+        {
+          "n": 130,
+          "passed": 80
+        }
+      ],
+      "query.target.enum": [
+        {
+          "n": 46,
+          "passed": 9
+        },
+        {
+          "n": 46,
+          "passed": 16
+        },
+        {
+          "n": 46,
+          "passed": 1
+        },
+        {
+          "n": 46,
+          "passed": 0
+        },
+        {
+          "n": 46,
+          "passed": 2
+        },
+        {
+          "n": 46,
+          "passed": 2
+        },
+        {
+          "n": 46,
+          "passed": 3
+        }
+      ],
+      "workflow.synchronize": [
+        {
+          "n": 20,
+          "passed": 0
+        },
+        {
+          "n": 20,
+          "passed": 3
+        },
+        {
+          "n": 20,
+          "passed": 11
+        },
+        {
+          "n": 20,
+          "passed": 14
+        },
+        {
+          "n": 20,
+          "passed": 5
+        },
+        {
+          "n": 20,
+          "passed": 6
+        },
+        {
+          "n": 20,
+          "passed": 9
+        }
+      ],
+      "control.multi_target": [
+        {
+          "n": 51,
+          "passed": 38
+        },
+        {
+          "n": 51,
+          "passed": 40
+        },
+        {
+          "n": 51,
+          "passed": 18
+        },
+        {
+          "n": 51,
+          "passed": 45
+        },
+        {
+          "n": 51,
+          "passed": 44
+        },
+        {
+          "n": 51,
+          "passed": 44
+        },
+        {
+          "n": 51,
+          "passed": 45
+        }
+      ],
+      "goal.multi_target": [
+        {
+          "n": 21,
+          "passed": 8
+        },
+        {
+          "n": 21,
+          "passed": 7
+        },
+        {
+          "n": 21,
+          "passed": 3
+        },
+        {
+          "n": 21,
+          "passed": 12
+        },
+        {
+          "n": 21,
+          "passed": 8
+        },
+        {
+          "n": 21,
+          "passed": 10
+        },
+        {
+          "n": 21,
+          "passed": 8
+        }
+      ],
+      "aggregate.query_goal": [
+        {
+          "n": 20,
+          "passed": 0
+        },
+        {
+          "n": 20,
+          "passed": 6
+        },
+        {
+          "n": 20,
+          "passed": 2
+        },
+        {
+          "n": 20,
+          "passed": 0
+        },
+        {
+          "n": 20,
+          "passed": 6
+        },
+        {
+          "n": 20,
+          "passed": 9
+        },
+        {
+          "n": 20,
+          "passed": 7
+        }
+      ],
+      "aggregate.control_goal": [
+        {
+          "n": 20,
+          "passed": 8
+        },
+        {
+          "n": 20,
+          "passed": 7
+        },
+        {
+          "n": 20,
+          "passed": 3
+        },
+        {
+          "n": 20,
+          "passed": 14
+        },
+        {
+          "n": 20,
+          "passed": 8
+        },
+        {
+          "n": 20,
+          "passed": 8
+        },
+        {
+          "n": 20,
+          "passed": 11
+        }
+      ],
+      "workflow.condition_window": [
+        {
+          "n": 30,
+          "passed": 21
+        },
+        {
+          "n": 30,
+          "passed": 18
+        },
+        {
+          "n": 30,
+          "passed": 27
+        },
+        {
+          "n": 30,
+          "passed": 27
+        },
+        {
+          "n": 30,
+          "passed": 29
+        },
+        {
+          "n": 30,
+          "passed": 21
+        },
+        {
+          "n": 30,
+          "passed": 25
+        }
+      ],
+      "goal.single": [
+        {
+          "n": 89,
+          "passed": 51
+        },
+        {
+          "n": 89,
+          "passed": 44
+        },
+        {
+          "n": 89,
+          "passed": 52
+        },
+        {
+          "n": 89,
+          "passed": 81
+        },
+        {
+          "n": 89,
+          "passed": 59
+        },
+        {
+          "n": 89,
+          "passed": 60
+        },
+        {
+          "n": 89,
+          "passed": 56
+        }
+      ],
+      "query.property.device": [
+        {
+          "n": 45,
+          "passed": 9
+        },
+        {
+          "n": 45,
+          "passed": 36
+        },
+        {
+          "n": 45,
+          "passed": 4
+        },
+        {
+          "n": 45,
+          "passed": 5
+        },
+        {
+          "n": 45,
+          "passed": 26
+        },
+        {
+          "n": 45,
+          "passed": 27
+        },
+        {
+          "n": 45,
+          "passed": 27
+        }
+      ],
+      "aggregate.goal": [
+        {
+          "n": 20,
+          "passed": 18
+        },
+        {
+          "n": 20,
+          "passed": 8
+        },
+        {
+          "n": 20,
+          "passed": 7
+        },
+        {
+          "n": 20,
+          "passed": 18
+        },
+        {
+          "n": 20,
+          "passed": 19
+        },
+        {
+          "n": 20,
+          "passed": 19
+        },
+        {
+          "n": 20,
+          "passed": 17
+        }
+      ],
+      "workflow.at": [
+        {
+          "n": 27,
+          "passed": 18
+        },
+        {
+          "n": 27,
+          "passed": 15
+        },
+        {
+          "n": 27,
+          "passed": 25
+        },
+        {
+          "n": 27,
+          "passed": 24
+        },
+        {
+          "n": 27,
+          "passed": 21
+        },
+        {
+          "n": 27,
+          "passed": 21
+        },
+        {
+          "n": 27,
+          "passed": 20
+        }
+      ],
+      "control.single": [
+        {
+          "n": 171,
+          "passed": 118
+        },
+        {
+          "n": 171,
+          "passed": 144
+        },
+        {
+          "n": 171,
+          "passed": 94
+        },
+        {
+          "n": 171,
+          "passed": 146
+        },
+        {
+          "n": 171,
+          "passed": 156
+        },
+        {
+          "n": 171,
+          "passed": 156
+        },
+        {
+          "n": 171,
+          "passed": 154
+        }
+      ],
+      "workflow.environment_before_process": [
+        {
+          "n": 19,
+          "passed": 13
+        },
+        {
+          "n": 19,
+          "passed": 6
+        },
+        {
+          "n": 19,
+          "passed": 10
+        },
+        {
+          "n": 19,
+          "passed": 15
+        },
+        {
+          "n": 19,
+          "passed": 17
+        },
+        {
+          "n": 19,
+          "passed": 16
+        },
+        {
+          "n": 19,
+          "passed": 17
+        }
+      ],
+      "workflow.condition_delay": [
+        {
+          "n": 30,
+          "passed": 17
+        },
+        {
+          "n": 30,
+          "passed": 19
+        },
+        {
+          "n": 30,
+          "passed": 26
+        },
+        {
+          "n": 30,
+          "passed": 28
+        },
+        {
+          "n": 30,
+          "passed": 26
+        },
+        {
+          "n": 30,
+          "passed": 25
+        },
+        {
+          "n": 30,
+          "passed": 26
+        }
+      ],
+      "workflow.single": [
+        {
+          "n": 28,
+          "passed": 17
+        },
+        {
+          "n": 28,
+          "passed": 20
+        },
+        {
+          "n": 28,
+          "passed": 12
+        },
+        {
+          "n": 28,
+          "passed": 23
+        },
+        {
+          "n": 28,
+          "passed": 23
+        },
+        {
+          "n": 28,
+          "passed": 22
+        },
+        {
+          "n": 28,
+          "passed": 22
+        }
+      ]
+    }
+  }
+}

@@ -13,6 +13,7 @@
 <link rel="icon" href="assets/logo.png"><link rel="stylesheet" href="assets/site.css">
 <script src="assets/site.js" defer></script>
 <script src="assets/task-wall.js" defer></script>
+<script src="assets/subtask-chart.js" defer></script>
 </head>
 <body>
 <header class="topbar">
@@ -90,6 +91,7 @@
 <div class="wrap wall-bottom"><button type="button" id="wall-prev" aria-label="Scroll task wall left">← Previous</button><span>Validation examples · Coverage varies by domain</span><button type="button" id="wall-next" aria-label="Scroll task wall right">Next →</button></div>
 <dialog id="task-dialog"><div class="task-dialog-top"><span id="dialog-tags"></span><button type="button" id="dialog-close" aria-label="Close task">Close ×</button></div><h3>Task instruction</h3><p id="dialog-instruction"></p><p id="dialog-source"></p></dialog>
 </section>
+<section id="subtask-performance" class="wrap section"><p class="eyebrow">SEVEN MODELS · 32 SUBTASKS</p><h2>Performance across task types</h2><div class="subtask-chart-card"><div class="performance-controls"><label>Domain<select id="performance-domain"><option value="All">All domains</option><option>Home</option><option>Car</option><option>Phone</option></select></label><label>Task family<select id="performance-family"><option value="all">All families</option><option value="query">Query</option><option value="control">Control</option><option value="goal">Goal</option><option value="aggregate">Aggregate</option><option value="workflow">Workflow</option></select></label><span>Test set · Pass@1 (%)</span></div><div id="performance-legend" class="chart-legend" aria-label="Models"></div><div class="performance-scroll"><svg id="performance-chart" role="group" aria-label="Model performance by subtask"></svg></div><div id="performance-detail" class="performance-detail" aria-live="polite"></div><p class="chart-note">Select a point to compare models. All domains pools task counts; gaps indicate no test samples. Scroll horizontally to explore all subtypes.</p></div></section>
 <section id="release" class="wrap section release"><div><p class="eyebrow">RESOURCES</p><h2>Data and code coming soon.</h2><p>Follow the repository for release updates.</p></div><a class="pill primary" href="https://github.com/X-LANCE/SynthDCB">View on GitHub ↗</a></section>
 <section id="citation" class="wrap section citation"><div class="citation-heading"><h2>Citation</h2><button id="copy-citation" type="button">Copy BibTeX</button></div><p>If you find this work useful, please cite:</p><pre><code id="bibtex">@misc{zhu2026synthdcb,
   author = {Zhu, Zichen and Liu, Dingye and Jiang, Nan and Zhang, Danyang and Zheng, Hang and Zheng, Shijie and Zhang, Situo and Lan, Kunyao and Ma, Yingzi and Jiang, Sheng and Chen, Lu and Yu, Kai},
