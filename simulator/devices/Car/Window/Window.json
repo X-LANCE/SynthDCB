@@ -1,0 +1,111 @@
+{
+  "Window": {
+    "meta": {
+      "name": "Window",
+      "description": "Vehicle window. Supports querying and setting the opening percentage. The degree of opening affects illuminance and ambient sound level in the vehicle interior according to conditions outside the vehicle.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "position": {
+          "type": "integer",
+          "description": "Window opening percentage, where 0 is fully closed and 100 is fully open.",
+          "mode": 3,
+          "value": {
+            "default": 0,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_position": {
+          "description": "Return the current window opening percentage without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "position"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "position",
+            "response_key": "position"
+          },
+          "response": {
+            "position": {
+              "type": "integer",
+              "description": "Current opening percentage, where 0 is fully closed and 100 is fully open."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_position": {
+          "description": "Set the window opening percentage to an integer from 0 through 100 inclusive. Invalid values are rejected and leave state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1,
+                "description": "Desired opening percentage.",
+                "examples": [
+                  0,
+                  50,
+                  100
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "position"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "position",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "The opening percentage must be an integer from 0 through 100."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "Resolve the cabin and exterior by their space types in pre_state; the window may be mounted in a seat space. Emit effects to the cabin ID. Each minute while position is greater than zero, move cabin illuminance and ambient noise toward the corresponding exterior values by position percent of each current difference. Round each resulting change to the nearest integer, with half values rounded away from zero, and keep the resulting physical values within their supported bounds. At position zero, neither physical property changes.",
+          "effect_properties": [
+            {
+              "name": "position",
+              "description": "Opening percentage that determines the strength of illuminance and ambient-noise coupling between the exterior and cabin."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

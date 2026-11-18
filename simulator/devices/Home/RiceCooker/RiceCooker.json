@@ -1,0 +1,867 @@
+{
+  "RiceCooker": {
+    "meta": {
+      "name": "RiceCooker",
+      "description": "Rice cooker. Users can query and set the cooking program, rice type or texture, and keep-warm state, and can query the cooking stage and inner-pot state. A cooking program heats in stages; after cooking is complete, the device can enter keep-warm mode without continuing to cook.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "process": {
+      "mode_property": "cooking_program",
+      "start_function": "start_cooking",
+      "pause_function": "pause_cooking",
+      "resume_function": "resume_cooking",
+      "modes": {
+        "white_rice": [
+          {
+            "phase": "heating",
+            "minutes": 20
+          },
+          {
+            "phase": "cooking",
+            "minutes": 25
+          },
+          {
+            "phase": "resting",
+            "minutes": 10
+          }
+        ],
+        "brown_rice": [
+          {
+            "phase": "heating",
+            "minutes": 25
+          },
+          {
+            "phase": "cooking",
+            "minutes": 45
+          },
+          {
+            "phase": "resting",
+            "minutes": 10
+          }
+        ],
+        "quick_cook": [
+          {
+            "phase": "heating",
+            "minutes": 15
+          },
+          {
+            "phase": "cooking",
+            "minutes": 20
+          },
+          {
+            "phase": "resting",
+            "minutes": 5
+          }
+        ],
+        "porridge": [
+          {
+            "phase": "heating",
+            "minutes": 20
+          },
+          {
+            "phase": "cooking",
+            "minutes": 50
+          },
+          {
+            "phase": "resting",
+            "minutes": 10
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the rice cooker is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "cooking_program": {
+          "type": "string",
+          "description": "Selected cooking program.",
+          "mode": 3,
+          "value": {
+            "default": "white_rice",
+            "choices": [
+              "white_rice",
+              "brown_rice",
+              "quick_cook",
+              "porridge"
+            ]
+          }
+        },
+        "rice_type": {
+          "type": "string",
+          "description": "Selected rice type.",
+          "mode": 3,
+          "value": {
+            "default": "white_rice",
+            "choices": [
+              "white_rice",
+              "brown_rice",
+              "mixed_grain"
+            ]
+          }
+        },
+        "texture": {
+          "type": "string",
+          "description": "Desired cooked texture.",
+          "mode": 3,
+          "value": {
+            "default": "standard",
+            "choices": [
+              "soft",
+              "standard",
+              "firm"
+            ]
+          }
+        },
+        "keep_warm": {
+          "type": "boolean",
+          "description": "Whether keep-warm mode is enabled after cooking completes.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "inner_pot_state": {
+          "type": "string",
+          "description": "Simulated state of the inner-pot contents.",
+          "mode": 2,
+          "value": {
+            "default": "empty",
+            "choices": [
+              "empty",
+              "uncooked",
+              "cooking",
+              "cooked"
+            ]
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Current cooking process status.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "running",
+              "paused",
+              "completed"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current cooking stage.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "heating",
+              "cooking",
+              "resting",
+              "completed"
+            ]
+          }
+        },
+        "remaining_minutes": {
+          "type": "integer",
+          "description": "Minutes remaining in the selected cooking program.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "started_at_minute": {
+          "type": "integer",
+          "description": "Elapsed world minute at which the current cooking run origin was established.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "progress_minutes": {
+          "type": "integer",
+          "description": "Completed minutes in the current cooking program.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_cooking_program": {
+          "description": "Return the selected cooking program while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "cooking_program"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cooking_program",
+            "response_key": "cooking_program",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "cooking_program": {
+              "type": "string",
+              "description": "Selected cooking program."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_cooking_program": {
+          "description": "Select a cooking program while powered and idle or completed.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "white_rice",
+                  "brown_rice",
+                  "quick_cook",
+                  "porridge"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "cooking_program"
+          ],
+          "writes": [
+            "cooking_program"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "cooking_program",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_rice_type": {
+          "description": "Return the selected rice type while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "rice_type"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "rice_type",
+            "response_key": "rice_type",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "rice_type": {
+              "type": "string",
+              "description": "Selected rice type."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_rice_type": {
+          "description": "Set the rice type while powered and idle or completed.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "white_rice",
+                  "brown_rice",
+                  "mixed_grain"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "rice_type"
+          ],
+          "writes": [
+            "rice_type"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "rice_type",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_texture": {
+          "description": "Return the selected texture while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "texture"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "texture",
+            "response_key": "texture",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "texture": {
+              "type": "string",
+              "description": "Selected texture."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_texture": {
+          "description": "Set the desired texture while powered and idle or completed.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "soft",
+                  "standard",
+                  "firm"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "texture"
+          ],
+          "writes": [
+            "texture"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "texture",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_keep_warm": {
+          "description": "Return whether keep-warm mode is enabled while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "keep_warm"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "keep_warm",
+            "response_key": "keep_warm",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "keep_warm": {
+              "type": "boolean",
+              "description": "Whether keep-warm mode is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_keep_warm": {
+          "description": "Set keep-warm mode while powered and after cooking has completed. Both enabling and disabling keep-warm require completed status.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "keep_warm"
+          ],
+          "writes": [
+            "keep_warm"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "keep_warm",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": "completed"
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_inner_pot_state": {
+          "description": "Return the simulated inner-pot state while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "inner_pot_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "inner_pot_state",
+            "response_key": "inner_pot_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "inner_pot_state": {
+              "type": "string",
+              "description": "Current simulated inner-pot state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_status": {
+          "description": "Return the cooking process status while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "status",
+            "response_key": "status",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "status": {
+              "type": "string",
+              "description": "Current process status."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_phase": {
+          "description": "Return the current cooking stage while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "phase"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "phase",
+            "response_key": "phase",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "phase": {
+              "type": "string",
+              "description": "Current cooking stage."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_remaining_minutes": {
+          "description": "Return the remaining cooking time while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "remaining_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "remaining_minutes",
+            "response_key": "remaining_minutes",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "remaining_minutes": {
+              "type": "integer",
+              "description": "Minutes remaining."
+            }
+          },
+          "errorcodes": {}
+        },
+        "start_cooking": {
+          "description": "Start the selected cooking program while powered and idle or completed. Progress resets to zero, the inner pot becomes cooking, and keep-warm is reset to false for the new run.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "white_rice",
+                  "brown_rice",
+                  "quick_cook",
+                  "porridge"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "cooking_program",
+            "keep_warm",
+            "inner_pot_state",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "writes": [
+            "cooking_program",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes",
+            "inner_pot_state",
+            "keep_warm"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "mode",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "pause_cooking": {
+          "description": "Pause a running cooking program while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_pause",
+            "preconditions": {
+              "power": true,
+              "status": "running"
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "resume_cooking": {
+          "description": "Resume a paused cooking program while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "progress_minutes"
+          ],
+          "writes": [
+            "started_at_minute",
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_resume",
+            "preconditions": {
+              "power": true,
+              "status": "paused"
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "power",
+            "status"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "Advance a powered running cooking program using elapsed world minutes, preserving paused and unpowered progress. At the exact end, set status and phase to completed, remaining minutes to zero, and inner-pot state to cooked.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the rice cooker is powered."
+            },
+            {
+              "name": "cooking_program",
+              "description": "Selected cooking program."
+            },
+            {
+              "name": "status",
+              "description": "Current process status."
+            },
+            {
+              "name": "phase",
+              "description": "Current cooking stage."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Minutes remaining."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Process origin minute."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Completed process minutes."
+            },
+            {
+              "name": "inner_pot_state",
+              "description": "Simulated inner-pot state."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "On transition into running, establish the process origin as elapsed world minutes minus persisted progress. On power loss, transition running to paused while preserving progress, phase, and remaining time. Powering on does not resume the process.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the rice cooker is powered."
+            },
+            {
+              "name": "status",
+              "description": "Current process status."
+            },
+            {
+              "name": "phase",
+              "description": "Current cooking stage."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Minutes remaining."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Process origin minute."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Completed process minutes."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,331 @@
+{
+  "System": {
+    "domain": "Phone",
+    "class": "System",
+    "description": "Phone system root object, placed in Setting, containing settings modules and applications through contains relations. Supports querying and setting airplane mode; the responses of individual wireless modules are defined by explicit dependencies. System does not duplicate module state or modify the simulation clock.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Display": {
+    "domain": "Phone",
+    "class": "Display",
+    "description": "Display settings, placed in Setting. Supports 0–100% brightness, automatic brightness, dark mode, and screen-off timeouts of 1/2/5/10 minutes. Each setting is stored independently, without changing virtual Space properties.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "WiFi": {
+    "domain": "Phone",
+    "class": "WiFi",
+    "description": "Wireless network settings, placed in Setting. Supports enabling/disabling Wi-Fi, querying saved networks, connecting, disconnecting, and forgetting networks. Connection requires Wi-Fi to be enabled and the network to be saved. Disabling Wi-Fi or forgetting the current network immediately disconnects it. Other network records are preserved, and re-enabling Wi-Fi does not automatically reconnect.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Timer": {
+    "domain": "Phone",
+    "class": "Timer",
+    "description": "Countdown timer application, placed in Application. Duration is 1–60 whole minutes. Supports start, pause, resume, cancel, and queries of read-only progress; duration cannot be changed while running or paused. Reaching zero completes the timer and leaves it in the completed state. Resume preserves elapsed time; cancel resets it to zero.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Application"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Stopwatch": {
+    "domain": "Phone",
+    "class": "Stopwatch",
+    "description": "Stopwatch application, placed in Application. Supports start, pause, resume, reset, and queries. While running, elapsed time accumulates each minute; while paused, it is retained. Reset clears elapsed time and returns to idle. There is no preset completion time.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Application"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Alarm": {
+    "domain": "Phone",
+    "class": "Alarm",
+    "description": "Alarm configuration application, placed in Application. Supports adding, querying, partially updating, deleting, enabling, and disabling multiple alarms. Stores hour, minute, label, enabled state, and a list of weekdays without duplicates. An empty weekday list represents a one-time configuration. Updates preserve unspecified fields and unrelated records.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Application"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "MediaPlayer": {
+    "domain": "Phone",
+    "class": "MediaPlayer",
+    "description": "Media playback application, placed in Application. Supports selecting preset tracks, querying playback state, play, pause, stop, and setting repeat and shuffle. Pause preserves the track and configuration; stop changes only playback state. The virtual Space does not hold physical properties such as sound level.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Application"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Connectivity": {
+    "domain": "Phone",
+    "class": "Connectivity",
+    "description": "Cellular data and network availability settings, placed in Setting and contained by System. Supports querying SIM and cellular service state, enabling/disabling mobile data, setting data roaming permission, and querying the current upstream network and internet availability. SIM slot count is a read-only capability; signal strength, link state, and internet availability are read-only feedback. Effective mobile data availability requires a valid SIM, service coverage, and satisfied airplane-mode dependencies. Enabling the switch does not guarantee connection, and allowing roaming does not mean the device is currently roaming. Wi-Fi connection state is owned by WiFi; this module only references it in its aggregated view.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Bluetooth": {
+    "domain": "Phone",
+    "class": "Bluetooth",
+    "description": "Bluetooth settings, placed in Setting and contained by System. Supports enabling/disabling Bluetooth, scanning simulated nearby devices, querying devices, requesting pairing, unpairing, connecting, and disconnecting, with separate queries for pairing records, active connections, and profiles such as audio. Devices use stable IDs. Scanning, pairing, and connecting require Bluetooth to be enabled and comply with airplane-mode policy. Pairing confirmation may be denied, and a paired device is not guaranteed to connect. Disabling Bluetooth ends active connections but preserves pairing records. Unpairing removes the specified record and ends its connection without affecting other records. Connection capacity and supported profiles are read-only simulation capabilities.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Hotspot": {
+    "domain": "Phone",
+    "class": "Hotspot",
+    "description": "Personal hotspot settings, placed in Setting and contained by System. Supports configuring hotspot name, security method, credentials, and operating band, enabling/disabling the hotspot, and querying operating state and connected clients. Supported bands, client capacity, and Wi-Fi concurrency capability are read-only configuration. The hotspot must be stopped before changing operating parameters; unsupported bands or security configurations are rejected. Hotspot establishment and upstream internet availability are represented separately. Connectivity provides the aggregated upstream state; clients must not be reported as having internet access when no upstream connection exists. Disabling the hotspot disconnects clients but preserves its configuration. Concurrency conflicts with WiFi follow fixed capabilities.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Rotation": {
+    "domain": "Phone",
+    "class": "Rotation",
+    "description": "Screen orientation settings, placed in Setting and contained by System. Supports enabling/disabling automatic rotation, locking a supported orientation when automatic rotation is disabled, and querying actual current orientation. Lockable orientations are read-only capabilities. With automatic rotation enabled, actual orientation is jointly determined by simulated device pose and the foreground application orientation restrictions and cannot be written directly. A lock preference does not guarantee an immediate orientation change in an application with orientation restrictions. This module does not duplicate Display brightness or screen-off settings.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Accessibility": {
+    "domain": "Phone",
+    "class": "Accessibility",
+    "description": "Accessibility and readability settings, placed in Setting and contained by System. Supports adjusting font scaling, enabling/disabling captions and reduced-motion preferences, querying installed and enabled assistive services, and requesting activation or deactivation of a specified service through simulated authorization. Font levels and assistive-service capabilities are read-only configuration. Normalized scales must state their mapping to platform levels; synthetic increments are not native cross-platform constraints. Denied authorization leaves service activation unchanged. Screen-reading capability depends on the services actually enabled; setting a preference alone must not imply that all content can be read aloud. Uses system-settings simulation; querying service state does not mean an ordinary application has permission to enable it.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Flashlight": {
+    "domain": "Phone",
+    "class": "Flashlight",
+    "description": "Flashlight control, placed in Setting and contained by System. Supports turning the light on and off and querying actual light state and current availability. The base class provides fixed brightness. Activation requires an available light resource and system authorization. When camera use or system resource restrictions make it unavailable, activation must not be reported as successful. If the resource is revoked during operation, the actual light turns off. Stores only light controls and feedback, without changing virtual Space illuminance.",
+    "inherited_list": [
+      {
+        "class": "DimmableFlashlight",
+        "description": "Adds flashlight brightness-level control. Supported levels and the maximum level are read-only capabilities. Brightness can be adjusted only while the light is on and the resource is available. Out-of-range levels or unavailable resources cause rejection. Arbitrary percentages are not treated as natively supported brightness precision.",
+        "placement": {
+          "allowed_space_types": [
+            "Setting"
+          ],
+          "min_items_per_world": 0,
+          "max_items_per_world": 1,
+          "min_items_per_space": 0,
+          "max_items_per_space": 1
+        }
+      }
+    ],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Sound": {
+    "domain": "Phone",
+    "class": "Sound",
+    "description": "Sound settings, placed in Setting and contained by System. Supports separate media, ringtone, notification, and alarm volumes, switching among normal, vibrate, and silent modes, setting incoming-call vibration preferences, and selecting ringtones and notification sounds from local synthetic resources. Volumes are represented uniformly as 0–100%, with native-level mappings declared. Fixed platform rules linking volume streams must be explicit; all streams cannot be treated as one master volume. Supports querying the current audio output route and selecting among connected, available outputs. Bluetooth device connections are owned by Bluetooth. Focus affects interruption permission only and does not overwrite stored volumes. The virtual Space does not hold physical sound properties.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Notifications": {
+    "domain": "Phone",
+    "class": "Notifications",
+    "description": "Notification management settings, placed in Setting and contained by System. Supports querying and setting notification permission, alert behavior, and lock-screen content display preferences for each application and its notification channels, querying current synthetic notifications, and dismissing eligible items by ID. Applications, channels, and notifications use stable IDs; partial updates preserve other configuration. Nonexistent IDs and notifications that cannot be dismissed must return explicit failures. Overall application permission, channel configuration, privacy display preferences, and Focus policy jointly determine actual presentation and alerts; allowing notifications does not guarantee immediate sound. Notification-sending authorization is centrally owned by Privacy. This module neither duplicates permission records nor changes Sound volumes.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Focus": {
+    "domain": "Phone",
+    "class": "Focus",
+    "description": "Do-not-disturb and focus settings, placed in Setting and contained by System. Supports adding, querying, partially updating, and deleting rules by stable ID, manually enabling/disabling rules, configuring applications, notification categories, contacts, and repeat-call exceptions allowed to interrupt, and configuring time windows with time zones and repeat days. Rule names are user data; personal, work, and sleep are not fixed cross-platform enumerations. Supports querying the effective policy and its source. Schedules advance with wall-clock time; manual overrides take priority over schedules. Exiting an override reevaluates the current time window, and conflicts between multiple rules are resolved by an explicit fixed priority.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Battery": {
+    "domain": "Phone",
+    "class": "Battery",
+    "description": "Battery and power-saving settings, placed in Setting and contained by System. Supports querying battery percentage, charging state, external power connection, and battery temperature, enabling/disabling power-saving mode, and querying its effective state. Battery level, temperature, and charging state are read-only feedback that changes with simulation time and power conditions; setters cannot specify target measured values. Switching power-saving mode does not instantly change battery level. Charging is determined by external power and system protection conditions. Power-supply restrictions on power-saving mode are defined by a fixed simulation policy.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Location": {
+    "domain": "Phone",
+    "class": "Location",
+    "description": "Location settings, placed in Setting and contained by System. Supports querying and changing the system-wide location switch, querying application location permissions and effective location availability, and requesting the current synthetic location when conditions are satisfied. Per-application foreground, background, and precision authorizations are owned and modified by Privacy; this module only references them. Position, accuracy, and sample time are read-only feedback. Even when the system-wide switch is enabled, application authorization, running state, and simulated location-source availability must be satisfied. Failures must not fabricate successful locations. Disabling the switch stops new location acquisition.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Privacy": {
+    "domain": "Phone",
+    "class": "Privacy",
+    "description": "Application permission and privacy management, placed in Setting and contained by System. Supports querying authorization by stable application ID and permission type, initiating simulated permission requests, and granting or revoking modifiable permissions through authorized system-settings operations. Covers camera, microphone, location, and notification-sending permissions. Location authorization distinguishes while-in-use, background, and approximate or precise access; valid combinations and supported levels are defined by fixed platform configuration. Pending, granted, and denied requests must be represented separately; a returned request does not imply authorization success. Updates preserve other applications and permission records. Supports querying current camera and microphone usage feedback. Effective access is constrained jointly by authorization, system resources, and relevant master switches.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "ScreenCapture": {
+    "domain": "Phone",
+    "class": "ScreenCapture",
+    "description": "Screenshot and screen recording application, placed in Application and contained by System. Supports requesting simulated capture authorization, taking screenshots, starting and stopping screen recording, querying authorization and recording state, and querying or deleting screenshot and completed recording records by stable ID. Records contain only metadata such as type, time, and duration; no actual images or videos are generated. Authorization may be denied or revoked, and protected content or resource conflicts may block capture. Failures create no successful records, and repeated recording starts are rejected. Recording duration uses monotonic time. Normal stopping creates a completed record; authorization revocation or resource loss terminates recording with an explicitly marked interrupted result. Enabling microphone audio recording additionally requires Privacy authorization; screen capture authorization does not replace microphone permission.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Application"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "SystemSettings": {
+    "domain": "Phone",
+    "class": "SystemSettings",
+    "description": "System preference settings, placed in Setting and contained by System. Supports querying and setting the system language and specified application languages, toggling automatic date/time and automatic time zone, setting manual date/time or time zone, and querying and changing default application roles. Available languages, application-supported languages, and role candidates are read-only configuration. An application language may follow the system. Changing a role requires candidate eligibility checks and simulated user confirmation; denial preserves the original setting. Manual wall-clock changes are prohibited while automatic time is enabled, and manual time-zone selection is prohibited while automatic time zone is enabled. Automatic synchronization uses only a local simulated time source without network access. Adjustments affect the phone wall-clock offset and time zone, not the world monotonic clock, and must not move Timer or Stopwatch backward.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "Setting"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  }
+}

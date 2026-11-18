@@ -1,0 +1,304 @@
+{
+  "DoorLock": {
+    "meta": {
+      "name": "DoorLock",
+      "description": "Smart door lock. Users can query the lock's open or closed state and perform lock and unlock actions. The device provides multiple identity-verification methods and allows individual methods to be enabled or disabled.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the door lock is powered and available for public operation.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "lock_state": {
+          "type": "string",
+          "description": "Current lock state.",
+          "mode": 2,
+          "value": {
+            "default": "locked",
+            "choices": [
+              "locked",
+              "unlocked"
+            ]
+          }
+        },
+        "verification_methods": {
+          "type": "dict",
+          "description": "Identity-verification methods and whether each method is enabled.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "fingerprint": {
+                "enabled": true
+              },
+              "pin": {
+                "enabled": true
+              },
+              "card": {
+                "enabled": true
+              },
+              "mobile_credential": {
+                "enabled": true
+              }
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_lock_state": {
+          "description": "Return the current lock state. This operation fails while the door lock is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "lock_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "lock_state",
+            "response_key": "lock_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "lock_state": {
+              "type": "string",
+              "description": "The current lock state, either locked or unlocked."
+            }
+          },
+          "errorcodes": {}
+        },
+        "lock": {
+          "description": "Lock the door. If it is already locked, the operation succeeds without changing state. This operation fails while powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "lock_state"
+          ],
+          "writes": [
+            "lock_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "lock_state": {
+                "value": "locked"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "lock_state": {
+              "type": "string",
+              "description": "The resulting lock state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "unlock": {
+          "description": "Unlock the door. If it is already unlocked, the operation succeeds without changing state. This operation fails while powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "lock_state"
+          ],
+          "writes": [
+            "lock_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "lock_state": {
+                "value": "unlocked"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "lock_state": {
+              "type": "string",
+              "description": "The resulting lock state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_verification_methods": {
+          "description": "Return all configured identity-verification methods and their enabled states. This operation fails while powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "verification_methods"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "verification_methods",
+            "response_key": "verification_methods",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "verification_methods": {
+              "type": "object",
+              "description": "Mapping of verification method identifiers to records containing an enabled boolean."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_verification_method_enabled": {
+          "description": "Enable or disable one existing identity-verification method. Unknown method identifiers fail without changing state. This operation fails while powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "method_id": {
+                "type": "string",
+                "description": "Existing verification method identifier, such as fingerprint, pin, card, or mobile_credential.",
+                "pattern": "^[a-z_][a-z0-9_]*$"
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether the selected verification method should be enabled."
+              }
+            },
+            "required": [
+              "method_id",
+              "enabled"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "verification_methods"
+          ],
+          "writes": [
+            "verification_methods"
+          ],
+          "semantics": {
+            "kind": "collection_update",
+            "property": "verification_methods",
+            "id_parameter": "method_id",
+            "fields": {
+              "enabled": {
+                "parameter": "enabled"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "method_id": {
+              "type": "string",
+              "description": "The updated verification method identifier."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "The resulting enabled state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

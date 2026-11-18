@@ -1,0 +1,263 @@
+{
+  "VehicleSecurity": {
+    "meta": {
+      "name": "VehicleSecurity",
+      "description": "Vehicle anti-theft and parked security module. Supports arming, disarming, and querying security state and the current trigger reason. Triggers arise from configured local sensor events. Dismissing an alarm requires authorization; door lock state is still read from Door, and arming does not mean the doors are locked. Recording requests are delegated to Dashcam; an alarm trigger does not mean a recording has been saved.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "security_state": {
+          "type": "string",
+          "description": "Current anti-theft state. Alarm indicates that a configured local sensor triggered while the system was armed.",
+          "mode": 2,
+          "value": {
+            "default": "disarmed",
+            "choices": [
+              "disarmed",
+              "armed",
+              "alarm"
+            ]
+          }
+        },
+        "trigger_reason": {
+          "type": "string",
+          "description": "Reason for the current alarm. It is none unless security_state is alarm.",
+          "mode": 2,
+          "value": {
+            "default": "none",
+            "choices": [
+              "none",
+              "door_opened",
+              "glass_break",
+              "interior_motion",
+              "vehicle_tampering"
+            ]
+          }
+        },
+        "dismissal_authorized": {
+          "type": "boolean",
+          "description": "Whether the configured local authorization source currently permits dismissal of an active alarm. This module records only the authorization result and does not validate credentials.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_security_state": {
+          "description": "Return the current security state without changing it. The result does not report or imply any Door lock state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "security_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "security_state",
+            "response_key": "security_state"
+          },
+          "response": {
+            "security_state": {
+              "type": "string",
+              "description": "Current state: disarmed, armed, or alarm."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_trigger_reason": {
+          "description": "Return the current alarm trigger reason without changing state. The result is none when no alarm is active.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "trigger_reason"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "trigger_reason",
+            "response_key": "trigger_reason"
+          },
+          "response": {
+            "trigger_reason": {
+              "type": "string",
+              "description": "Current trigger reason, or none when no alarm is active."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_dismissal_authorized": {
+          "description": "Return whether the configured local authorization source currently permits dismissal of an active alarm. This query does not perform authentication or change authorization.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "dismissal_authorized"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "dismissal_authorized",
+            "response_key": "dismissal_authorized"
+          },
+          "response": {
+            "dismissal_authorized": {
+              "type": "boolean",
+              "description": "Whether alarm dismissal is currently authorized."
+            }
+          },
+          "errorcodes": {}
+        },
+        "arm": {
+          "description": "Arm the anti-theft system while it is disarmed. This action clears any stale trigger reason, does not change Door lock state, and does not request Dashcam recording. A request made from armed or alarm state is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "security_state"
+          ],
+          "writes": [
+            "security_state",
+            "trigger_reason"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "security_state": {
+                "value": "armed"
+              },
+              "trigger_reason": {
+                "value": "none"
+              }
+            },
+            "preconditions": {
+              "security_state": "disarmed"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The security system can be armed only while disarmed."
+          }
+        },
+        "disarm": {
+          "description": "Disarm an armed system that has not triggered and clear the trigger reason. An active alarm must instead be dismissed with dismiss_alarm, which requires authorization. Rejected requests leave state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "security_state"
+          ],
+          "writes": [
+            "security_state",
+            "trigger_reason"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "security_state": {
+                "value": "disarmed"
+              },
+              "trigger_reason": {
+                "value": "none"
+              }
+            },
+            "preconditions": {
+              "security_state": "armed"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "Ordinary disarming is allowed only from armed state; an active alarm requires authorized dismissal."
+          }
+        },
+        "dismiss_alarm": {
+          "description": "Dismiss an active alarm and return the system to disarmed state, clearing the trigger reason. The action succeeds only while an alarm is active and dismissal_authorized is true. Authorization is supplied by the configured local authorization source; this action does not accept or validate credentials. Failure leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "security_state",
+            "dismissal_authorized"
+          ],
+          "writes": [
+            "security_state",
+            "trigger_reason"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "security_state": {
+                "value": "disarmed"
+              },
+              "trigger_reason": {
+                "value": "none"
+              }
+            },
+            "preconditions": {
+              "security_state": "alarm",
+              "dismissal_authorized": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "Alarm dismissal requires an active alarm and current authorization from the configured local authorization source."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "dependency_changed": {
+          "description": "Mirror the configured local authorization decision into dismissal_authorized. While security_state is armed, an active configured security sensor changes security_state to alarm and records its reported reason. If multiple sensor reasons become active together, select the first by this fixed precedence: door_opened, glass_break, interior_motion, vehicle_tampering. Sensor activity is ignored while disarmed, and an existing alarm preserves its recorded trigger reason until dismissed.",
+          "effect_properties": [
+            {
+              "name": "security_state",
+              "description": "Determines whether configured sensor activity can trigger an alarm or whether an existing alarm must be preserved."
+            },
+            {
+              "name": "trigger_reason",
+              "description": "Preserves the reason already recorded for an active alarm."
+            },
+            {
+              "name": "dismissal_authorized",
+              "description": "Stores the current authorization result supplied by the configured local authorization source."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:capability",
+  "title": "Declared device function and process semantics",
+  "$defs": {
+    "names": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z_][a-z0-9_]*$"}},
+    "binding": {
+      "oneOf": [
+        {"type": "object", "required": ["parameter"], "properties": {"parameter": {"type": "string"}}, "additionalProperties": false},
+        {"type": "object", "required": ["value"], "properties": {"value": {}}, "additionalProperties": false}
+      ]
+    },
+    "semantics": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {"enum": ["read", "set", "update", "collection_add", "collection_update", "collection_delete", "collection_read", "process_start", "process_pause", "process_resume", "custom"]},
+        "property": {"type": "string"},
+        "parameter": {"type": "string"},
+        "response_key": {"type": "string"},
+        "id_parameter": {"type": "string"},
+        "fields": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/binding"}},
+        "preconditions": {"type": "object", "description": "Property conditions: literal equality, {one_of: [values]}, or {contains_key: {parameter: name}} for collection membership. A contains_key parameter must bind to that property's keys through argument_sources."},
+        "mode_parameter": {"type": "string"},
+        "reason": {"type": "string", "minLength": 1}
+      },
+      "allOf": [
+        {"if": {"properties": {"kind": {"enum": ["read", "set", "collection_add", "collection_update", "collection_delete", "collection_read"]}}}, "then": {"required": ["property"]}},
+        {"if": {"properties": {"kind": {"enum": ["read", "collection_read"]}}}, "then": {"required": ["response_key"]}},
+        {"if": {"properties": {"kind": {"const": "set"}}}, "then": {"required": ["parameter"]}},
+        {"if": {"properties": {"kind": {"enum": ["collection_update", "collection_delete", "collection_read"]}}}, "then": {"required": ["id_parameter"]}},
+        {"if": {"properties": {"kind": {"enum": ["update", "collection_add", "collection_update"]}}}, "then": {"required": ["fields"]}},
+        {"if": {"properties": {"kind": {"const": "process_start"}}}, "then": {"required": ["mode_parameter"]}},
+        {"if": {"properties": {"kind": {"const": "custom"}}}, "then": {"required": ["reason"]}}
+      ],
+      "additionalProperties": false
+    },
+    "function": {
+      "type": "object",
+      "not": {"required": ["arguments"]},
+      "required": ["parameters_schema", "mutation", "reads", "writes", "semantics"],
+      "properties": {
+        "parameters_schema": {
+          "type": "object", "required": ["type", "properties", "required", "additionalProperties"],
+          "properties": {"type": {"const": "object"}, "properties": {"type": "object"}, "required": {"$ref": "#/$defs/names"}, "additionalProperties": {"const": false}}
+        },
+        "mutation": {"type": "boolean"},
+        "reads": {"$ref": "#/$defs/names"},
+        "writes": {"$ref": "#/$defs/names"},
+        "semantics": {"$ref": "#/$defs/semantics"},
+        "argument_sources": {
+          "type": "object", "additionalProperties": {
+            "type": "object", "required": ["property", "field"],
+            "properties": {"property": {"type": "string"}, "field": {"type": "string"}}, "additionalProperties": false
+          }
+        }
+      }
+    },
+    "process": {
+      "type": "object",
+      "required": ["mode_property", "start_function", "modes"],
+      "properties": {
+        "mode_property": {"type": "string"},
+        "start_function": {"type": "string"},
+        "pause_function": {"type": "string"},
+        "resume_function": {"type": "string"},
+        "modes": {
+          "type": "object", "minProperties": 1, "additionalProperties": {
+            "type": "array", "minItems": 1, "items": {
+              "type": "object", "required": ["phase", "minutes"],
+              "properties": {"phase": {"type": "string", "minLength": 1}, "minutes": {"oneOf": [{"type": "integer", "minimum": 1}, {"type": "object", "required": ["property"], "properties": {"property": {"type": "string", "minLength": 1}}, "additionalProperties": false}]}},
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

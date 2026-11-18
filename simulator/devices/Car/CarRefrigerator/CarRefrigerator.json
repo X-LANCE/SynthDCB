@@ -1,0 +1,281 @@
+{
+  "CarRefrigerator": {
+    "meta": {
+      "name": "CarRefrigerator",
+      "description": "Vehicle refrigerator. Supports switching on and off, target temperature, and queries of internal temperature and operating state. Internal temperature changes through the cooling process and is separate from the shared cabin temperature. The base class cannot actively heat.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the vehicle refrigerator is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "target_temperature": {
+          "type": "integer",
+          "description": "Requested refrigerator internal temperature.",
+          "mode": 3,
+          "value": {
+            "default": 4,
+            "unit": "degC",
+            "minimum": 0,
+            "maximum": 15,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "internal_temperature": {
+          "type": "integer",
+          "description": "Current temperature inside the refrigerator compartment. This value is separate from cabin temperature and is updated by the cooling process.",
+          "mode": 2,
+          "value": {
+            "default": 20,
+            "unit": "degC",
+            "minimum": -50,
+            "maximum": 80,
+            "step": 1,
+            "step_origin": -50
+          }
+        },
+        "operating_state": {
+          "type": "string",
+          "description": "Cooling activity recorded by the most recent minute update while the device is accessible.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "cooling"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_target_temperature": {
+          "description": "Return the configured target temperature in degrees Celsius. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "target_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_temperature",
+            "response_key": "target_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "target_temperature": {
+              "type": "integer",
+              "description": "Configured refrigerator target temperature in degrees Celsius."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The refrigerator must be powered on."
+          }
+        },
+        "set_target_temperature": {
+          "description": "Set the target temperature to an integer from 0 through 15 degrees Celsius. The base refrigerator cools toward the target but does not actively heat if its internal temperature is already below the target. Invalid input or an off power state leaves all properties unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 15,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The refrigerator must be powered on.",
+            "INVALID_INPUT_ERROR": "Target temperature must be an integer from 0 through 15 degrees Celsius."
+          }
+        },
+        "get_internal_temperature": {
+          "description": "Return the current refrigerator-compartment temperature in degrees Celsius. This is not the shared cabin temperature. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "internal_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "internal_temperature",
+            "response_key": "internal_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "internal_temperature": {
+              "type": "integer",
+              "description": "Current temperature inside the refrigerator compartment in degrees Celsius."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The refrigerator must be powered on."
+          }
+        },
+        "get_operating_state": {
+          "description": "Return whether the refrigerator was idle or cooling at the most recent minute update. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "operating_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "operating_state",
+            "response_key": "operating_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "operating_state": {
+              "type": "string",
+              "description": "Most recently evaluated activity: idle or cooling."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The refrigerator must be powered on."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "Each minute while powered, lower internal_temperature toward target_temperature by at most 1 degree Celsius and report cooling while the temperature remains above the target. Stop at the target. If internal_temperature is at or below the target, leave it unchanged and report idle; never raise the internal temperature. While unpowered, leave internal_temperature unchanged and report idle.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether the cooling process may run."
+            },
+            {
+              "name": "target_temperature",
+              "description": "Lower temperature limit approached by active cooling."
+            },
+            {
+              "name": "internal_temperature",
+              "description": "Current compartment temperature used to determine cooling progress."
+            },
+            {
+              "name": "operating_state",
+              "description": "Activity state updated by each minute evaluation to cooling or idle."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

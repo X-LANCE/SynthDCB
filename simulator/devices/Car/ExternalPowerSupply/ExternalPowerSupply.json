@@ -1,0 +1,461 @@
+{
+  "ExternalPowerSupply": {
+    "meta": {
+      "name": "ExternalPowerSupply",
+      "description": "Vehicle external power supply module. Supports starting and stopping output, setting a reserve battery threshold, and querying actual output power, connection state, and protection reasons. Starting requires a connected external load and sufficient energy conditions. Output stops when the reserve threshold or a protection condition is reached.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "output_active": {
+          "type": "boolean",
+          "description": "Whether the module is currently supplying external power.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        },
+        "reserve_percent": {
+          "type": "integer",
+          "description": "Battery percentage reserved from external discharge. Output cannot operate when battery_percent is at or below this threshold.",
+          "mode": 3,
+          "value": {
+            "default": 20,
+            "unit": "percent",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "output_power": {
+          "type": "integer",
+          "description": "Actual measured external output power. It equals load_power_demand while output is active and permitted, and is zero while output is stopped.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "W",
+            "minimum": 0,
+            "maximum": 6000,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "load_connected": {
+          "type": "boolean",
+          "description": "Whether an external electrical load is currently connected.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        },
+        "battery_percent": {
+          "type": "integer",
+          "description": "Current vehicle battery percentage used to enforce the external-discharge reserve threshold.",
+          "mode": 2,
+          "value": {
+            "default": 60,
+            "unit": "percent",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "load_power_demand": {
+          "type": "integer",
+          "description": "Power requested by the connected external load, bounded by this simulated module's 6000 W rating.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "W",
+            "minimum": 0,
+            "maximum": 6000,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "protection_reason": {
+          "type": "string",
+          "description": "Current condition that blocks or stopped external output. Reserve protection is derived from battery_percent and reserve_percent; other conditions are supplied by deterministic feedback.",
+          "mode": 2,
+          "value": {
+            "default": "none",
+            "choices": [
+              "none",
+              "reserve_threshold_reached",
+              "insufficient_energy",
+              "overload",
+              "overtemperature",
+              "system_fault"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_output_active": {
+          "description": "Return whether external power is currently being supplied.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "output_active"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "output_active",
+            "response_key": "output_active"
+          },
+          "response": {
+            "output_active": {
+              "type": "boolean",
+              "description": "Whether external power output is active."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_reserve_percent": {
+          "description": "Return the configured external-discharge battery reserve threshold.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "reserve_percent"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "reserve_percent",
+            "response_key": "reserve_percent"
+          },
+          "response": {
+            "reserve_percent": {
+              "type": "integer",
+              "description": "Configured battery reserve threshold in percent."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_reserve_percent": {
+          "description": "Set the reserve threshold to an integer from 0 through 100 percent. After assignment, if battery_percent is at or below the new threshold, active output stops, output_power becomes zero, and protection_reason becomes reserve_threshold_reached unless another reported protection reason is already active. If the battery is above the new threshold and the previous reason was reserve_threshold_reached, that reason is cleared to none; output does not restart automatically. Invalid input leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1,
+                "description": "Desired reserve threshold in percent.",
+                "examples": [
+                  20,
+                  30,
+                  50
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "battery_percent",
+            "output_active",
+            "protection_reason"
+          ],
+          "writes": [
+            "reserve_percent",
+            "output_active",
+            "output_power",
+            "protection_reason"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "reserve_percent",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Reserve percentage must be an integer from 0 through 100."
+          }
+        },
+        "get_output_power": {
+          "description": "Return actual measured external output power in watts. Stopped output always reports zero.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "output_power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "output_power",
+            "response_key": "output_power"
+          },
+          "response": {
+            "output_power": {
+              "type": "integer",
+              "description": "Actual external output power from 0 through 6000 W."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_load_connected": {
+          "description": "Return whether an external electrical load is connected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "load_connected"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "load_connected",
+            "response_key": "load_connected"
+          },
+          "response": {
+            "load_connected": {
+              "type": "boolean",
+              "description": "Whether an external load is connected."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_battery_percent": {
+          "description": "Return the battery percentage currently used for reserve-threshold protection.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "battery_percent"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "battery_percent",
+            "response_key": "battery_percent"
+          },
+          "response": {
+            "battery_percent": {
+              "type": "integer",
+              "description": "Current battery percentage."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_load_power_demand": {
+          "description": "Return the power currently requested by the connected external load.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "load_power_demand"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "load_power_demand",
+            "response_key": "load_power_demand"
+          },
+          "response": {
+            "load_power_demand": {
+              "type": "integer",
+              "description": "Connected-load power demand from 0 through 6000 W."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_protection_reason": {
+          "description": "Return the current energy or protection condition blocking external output. A value of none means no energy or protection restriction is active.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "protection_reason"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "protection_reason",
+            "response_key": "protection_reason"
+          },
+          "response": {
+            "protection_reason": {
+              "type": "string",
+              "description": "Current output protection reason."
+            }
+          },
+          "errorcodes": {}
+        },
+        "report_feedback": {
+          "description": "Apply one complete deterministic feedback sample. The supplied connection, battery percentage, and load demand replace their previous values. A supplied protection reason other than none takes priority; otherwise protection_reason becomes reserve_threshold_reached when battery_percent is at or below reserve_percent, or none when it is above the threshold. If output is active, it remains active with output_power equal to load_power_demand only when the load is connected and the resulting protection reason is none. Otherwise output stops and output_power becomes zero. Inactive output remains stopped with zero output power. Invalid input leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "load_connected": {
+                "type": "boolean",
+                "description": "Whether the external load is connected."
+              },
+              "battery_percent": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1,
+                "description": "Current battery percentage."
+              },
+              "load_power_demand": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 6000,
+                "multipleOf": 1,
+                "description": "Current connected-load demand in watts."
+              },
+              "protection_reason": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "insufficient_energy",
+                  "overload",
+                  "overtemperature",
+                  "system_fault"
+                ],
+                "description": "Reported non-reserve protection condition.",
+                "examples": [
+                  "none",
+                  "overload",
+                  "overtemperature"
+                ]
+              }
+            },
+            "required": [
+              "load_connected",
+              "battery_percent",
+              "load_power_demand",
+              "protection_reason"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "output_active",
+            "reserve_percent"
+          ],
+          "writes": [
+            "load_connected",
+            "battery_percent",
+            "load_power_demand",
+            "protection_reason",
+            "output_active",
+            "output_power"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The feedback sample derives reserve protection and conditionally stops output or maps load demand to measured output; this conditional multi-property mapping is not expressible by the standard update semantics."
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Feedback values must satisfy their declared types and ranges."
+          }
+        },
+        "start_output": {
+          "description": "Start external power output. The action succeeds only while output is stopped, a load is connected, and protection_reason is none. A none protection reason establishes that the latest battery feedback is above reserve_percent and no other reported protection condition is active. On success, output_active becomes true and output_power becomes the current load_power_demand. A rejected request leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "output_active",
+            "load_connected",
+            "load_power_demand",
+            "protection_reason"
+          ],
+          "writes": [
+            "output_active",
+            "output_power"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Starting requires preconditions and copies the current load_power_demand property into output_power, which cannot be represented by literal or parameter update bindings."
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "Output must be stopped, a load must be connected, and protection_reason must be none."
+          }
+        },
+        "stop_output": {
+          "description": "Stop external power output from any state and set measured output power to zero. Reserve configuration and feedback states are preserved.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "output_active",
+            "output_power"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "output_active": {
+                "value": false
+              },
+              "output_power": {
+                "value": 0
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:target",
+  "title": "DCB private target.json",
+  "type": "object",
+  "required": [
+    "objects",
+    "spaces",
+    "runtime",
+    "expected_answers",
+    "expected_reports",
+    "required_memory_ids",
+    "time_constraint"
+  ],
+  "properties": {
+    "evaluation_end_minute": {"type": "integer", "minimum": 1},
+    "workflow": {"$ref": "urn:dcb:v2:schema:workflow"},
+    "objects": {"$ref": "#/$defs/targetMap"},
+    "spaces": {"$ref": "#/$defs/targetMap"},
+    "runtime": {
+      "type": "object",
+      "properties": {
+        "time_state": {"$ref": "#/$defs/assertionMap"},
+        "weather_state": {"$ref": "#/$defs/assertionMap"}
+      },
+      "additionalProperties": false,
+      "default": {}
+    },
+    "expected_answers": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/expectedAnswer"}
+    },
+    "expected_reports": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/expectedReport"}
+    },
+    "required_memory_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"}
+    },
+    "expected_memory_mutations": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/expectedMemoryMutation"}
+    },
+    "time_constraint": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/atTime"},
+        {"$ref": "#/$defs/deadlineTime"},
+        {"$ref": "#/$defs/forTime"},
+        {"$ref": "#/$defs/synchronizeTime"}
+      ]
+    }
+  },
+  "$defs": {
+    "expectedMemoryMutation": {
+      "type": "object",
+      "required": ["operation", "source", "fact"],
+      "properties": {
+        "operation": {"type": "string", "enum": ["create", "update"]},
+        "source": {"$ref": "#/$defs/propertyRef"},
+        "user_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+        "memory_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+        "reference_content": {"type": "string", "minLength": 1},
+        "fact": {
+          "type": "object",
+          "required": ["subject", "property", "value"],
+          "properties": {
+            "subject": {"type": "string", "minLength": 1},
+            "property": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+            "value": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"operation": {"const": "update"}}},
+          "then": {"required": ["memory_id"]},
+          "else": {"not": {"required": ["memory_id"]}}
+        }
+      ],
+      "additionalProperties": false
+    },
+    "expectedAnswer": {
+      "type": "object",
+      "required": ["value", "match"],
+      "properties": {
+        "value": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"},
+        "match": {"const": "exact"}
+      },
+      "additionalProperties": false
+    },
+    "expectedReport": {
+      "type": "object",
+      "required": [
+        "atom_id",
+        "status",
+        "reason_code",
+        "affected_properties",
+        "match"
+      ],
+      "properties": {
+        "description": {"type": "string"},
+        "atom_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+        "status": {"type": "string", "enum": ["infeasible", "blocked"]},
+        "reason_code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{1,63}$"},
+        "affected_properties": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "match": {"const": "exact"}
+      },
+      "additionalProperties": false
+    },
+    "propertyRef": {
+      "type": "object",
+      "required": ["scope", "target_id", "property"],
+      "properties": {
+        "scope": {"type": "string", "enum": ["object", "space", "runtime"]},
+        "target_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+        "property": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"}
+      },
+      "additionalProperties": false
+    },
+    "timeBase": {
+      "type": "object",
+      "required": ["kind", "target_paths"],
+      "properties": {
+        "kind": {"type": "string"},
+        "target_paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/propertyRef"}
+        }
+      }
+    },
+    "atTime": {
+      "type": "object",
+      "required": ["kind", "target_paths", "elapsed_minutes"],
+      "properties": {
+        "kind": {"const": "at"},
+        "target_paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/propertyRef"}
+        },
+        "elapsed_minutes": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "deadlineTime": {
+      "type": "object",
+      "required": ["kind", "target_paths", "deadline_elapsed_minutes"],
+      "properties": {
+        "kind": {"type": "string", "enum": ["by", "within"]},
+        "target_paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/propertyRef"}
+        },
+        "deadline_elapsed_minutes": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "forTime": {
+      "type": "object",
+      "required": ["kind", "target_paths", "duration_minutes"],
+      "properties": {
+        "kind": {"const": "for"},
+        "target_paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/propertyRef"}
+        },
+        "duration_minutes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "synchronizeTime": {
+      "type": "object",
+      "required": ["kind", "window_minutes", "targets"],
+      "properties": {
+        "kind": {"const": "synchronize"},
+        "window_minutes": {"type": "integer", "minimum": 0},
+        "targets": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["atom_id", "target_paths"],
+            "properties": {
+              "atom_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+              "target_paths": {
+                "type": "array",
+                "minItems": 1,
+                "items": {"$ref": "#/$defs/propertyRef"}
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "assertionMap": {
+      "type": "object",
+      "propertyNames": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+      "additionalProperties": {"$ref": "#/$defs/assertion"}
+    },
+    "targetMap": {
+      "type": "object",
+      "propertyNames": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+      "additionalProperties": {
+        "type": "object",
+        "required": ["properties"],
+        "properties": {
+          "properties": {
+            "allOf": [
+              {"$ref": "#/$defs/assertionMap"},
+              {"minProperties": 1}
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "default": {}
+    },
+    "assertion": {
+      "oneOf": [
+        {"$ref": "#/$defs/collectionChange"},
+        {"$ref": "#/$defs/eq"},
+        {"$ref": "#/$defs/oneOfValues"},
+        {"$ref": "#/$defs/range"},
+        {"$ref": "#/$defs/gte"},
+        {"$ref": "#/$defs/lte"},
+        {"$ref": "#/$defs/deltaAtLeast"},
+        {"$ref": "#/$defs/closerTo"},
+        {"$ref": "#/$defs/unchanged"}
+      ]
+    },
+    "eq": {
+      "type": "object",
+      "required": ["op", "value"],
+      "properties": {
+        "op": {"const": "eq"},
+        "value": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+      },
+      "additionalProperties": false
+    },
+    "oneOfValues": {
+      "type": "object",
+      "required": ["op", "values"],
+      "properties": {
+        "op": {"const": "one_of"},
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "collectionChange": {
+      "type": "object",
+      "required": ["op", "add", "update", "remove"],
+      "properties": {
+        "op": {"const": "collection_change"},
+        "add": {"type": "array", "items": {"type": "object"}},
+        "update": {"type": "object", "additionalProperties": {"type": "object", "minProperties": 1}},
+        "remove": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "range": {
+      "type": "object",
+      "required": ["op", "min", "max"],
+      "properties": {
+        "op": {"const": "range"},
+        "min": {"type": "number"},
+        "max": {"type": "number"}
+      },
+      "additionalProperties": false
+    },
+    "gte": {
+      "type": "object",
+      "required": ["op", "value"],
+      "properties": {
+        "op": {"const": "gte"},
+        "value": {"type": "number"}
+      },
+      "additionalProperties": false
+    },
+    "lte": {
+      "type": "object",
+      "required": ["op", "value"],
+      "properties": {
+        "op": {"const": "lte"},
+        "value": {"type": "number"}
+      },
+      "additionalProperties": false
+    },
+    "deltaAtLeast": {
+      "type": "object",
+      "required": ["op", "direction", "value"],
+      "properties": {
+        "op": {"const": "delta_at_least"},
+        "direction": {"type": "string", "enum": ["increase", "decrease"]},
+        "value": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "closerTo": {
+      "type": "object",
+      "required": ["op", "value"],
+      "properties": {
+        "op": {"const": "closer_to"},
+        "value": {"type": "number"},
+        "min_improvement": {"type": "number", "minimum": 0, "default": 0}
+      },
+      "additionalProperties": false
+    },
+    "unchanged": {
+      "type": "object",
+      "required": ["op"],
+      "properties": {
+        "op": {"const": "unchanged"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

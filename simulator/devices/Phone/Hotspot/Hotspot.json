@@ -1,0 +1,810 @@
+{
+  "Hotspot": {
+    "meta": {
+      "name": "Hotspot",
+      "description": "Personal hotspot settings, placed in Setting and contained by System. Supports configuring hotspot name, security method, credentials, and operating band, enabling/disabling the hotspot, and querying operating state and connected clients. Supported bands, client capacity, and Wi-Fi concurrency capability are read-only configuration. The hotspot must be stopped before changing operating parameters; unsupported bands or security configurations are rejected. Hotspot establishment and upstream internet availability are represented separately. Connectivity provides the aggregated upstream state; clients must not be reported as having internet access when no upstream connection exists. Disabling the hotspot disconnects clients but preserves its configuration. Concurrency conflicts with WiFi follow fixed capabilities.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether the personal hotspot is enabled. Enabling succeeds only when the fixed Wi-Fi concurrency capability permits the current Wi-Fi state.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "operating_state": {
+          "type": "string",
+          "description": "Resolved hotspot operating state. Stopped means no hotspot is established; active means the local hotspot is established independently of upstream internet availability.",
+          "mode": 2,
+          "value": {
+            "default": "stopped",
+            "choices": [
+              "stopped",
+              "active"
+            ]
+          }
+        },
+        "hotspot_name": {
+          "type": "string",
+          "description": "Broadcast hotspot name. It contains 1 through 32 printable ASCII characters and may be changed only while the hotspot is stopped.",
+          "mode": 3,
+          "value": {
+            "default": "DCB-Hotspot",
+            "pattern": "^[ -~]{1,32}$",
+            "max_length": 32
+          }
+        },
+        "security_method": {
+          "type": "string",
+          "description": "Security method used by the hotspot. This model supports WPA2-Personal and WPA3-Personal, and the value may be changed only while the hotspot is stopped.",
+          "mode": 3,
+          "value": {
+            "default": "wpa2_personal",
+            "choices": [
+              "wpa2_personal",
+              "wpa3_personal"
+            ]
+          }
+        },
+        "credential": {
+          "type": "string",
+          "description": "Synthetic hotspot credential containing 8 through 63 printable ASCII characters. It is configuration state only and is not an authentication claim. It may be changed only while the hotspot is stopped.",
+          "mode": 3,
+          "value": {
+            "default": "dcbhotspot1",
+            "pattern": "^[ -~]{8,63}$",
+            "max_length": 63
+          }
+        },
+        "operating_band": {
+          "type": "string",
+          "description": "Configured hotspot operating band. The selected value must be one of the fixed supported bands and may be changed only while the hotspot is stopped.",
+          "mode": 3,
+          "value": {
+            "default": "2_4_ghz",
+            "choices": [
+              "2_4_ghz",
+              "5_ghz"
+            ]
+          }
+        },
+        "supported_bands": {
+          "type": "dict",
+          "description": "Fixed supported-band configuration keyed by band identifier. A true value means the band is supported by this simulated device.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "2_4_ghz": true,
+              "5_ghz": true
+            }
+          }
+        },
+        "client_capacity": {
+          "type": "integer",
+          "description": "Fixed maximum number of clients that can be connected to this simulated hotspot at one time.",
+          "mode": 2,
+          "value": {
+            "default": 8,
+            "unit": "clients",
+            "minimum": 1,
+            "maximum": 8,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "wifi_concurrency_supported": {
+          "type": "boolean",
+          "description": "Fixed capability indicating whether Wi-Fi client operation and hotspot operation may be active concurrently.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        },
+        "wifi_conflict": {
+          "type": "boolean",
+          "description": "Whether WiFi.enabled is true while concurrent Wi-Fi and hotspot operation is unsupported.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        },
+        "upstream_available": {
+          "type": "boolean",
+          "description": "A local copy of Connectivity.internet_available, representing aggregated upstream internet availability independently of whether the local hotspot is established.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        },
+        "connected_clients": {
+          "type": "dict",
+          "description": "Current hotspot clients keyed by stable synthetic client ID. Each record contains a client_name string and an internet_access boolean. A newly connected client starts with internet_access false. Dependency synchronization sets internet_access true only while the hotspot is active and Connectivity.internet_available is true.",
+          "mode": 2,
+          "value": {
+            "default": {}
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_enabled": {
+          "description": "Return whether the personal hotspot is enabled.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "enabled",
+            "response_key": "enabled",
+            "preconditions": {}
+          },
+          "response": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether the hotspot is enabled."
+            }
+          }
+        },
+        "set_enabled": {
+          "description": "Enable or disable the hotspot. Enabling establishes the hotspot immediately with operating_state active, but is rejected when wifi_conflict is true; a rejected call leaves all state unchanged. Disabling is always permitted, sets operating_state to stopped, and disconnects all clients while preserving the hotspot name, security method, credential, and operating band.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "description": "True to establish the hotspot or false to stop it.",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "enabled"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "wifi_conflict"
+          ],
+          "writes": [
+            "enabled",
+            "operating_state",
+            "connected_clients"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "enabled",
+            "parameter": "enabled",
+            "preconditions": {}
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The hotspot cannot be enabled while a Wi-Fi concurrency conflict exists."
+          }
+        },
+        "get_operating_state": {
+          "description": "Return whether the local hotspot is stopped or active. This state does not imply that upstream internet is available.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "operating_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "operating_state",
+            "response_key": "operating_state",
+            "preconditions": {}
+          },
+          "response": {
+            "operating_state": {
+              "type": "string",
+              "description": "The resolved hotspot operating state: stopped or active."
+            }
+          }
+        },
+        "get_hotspot_name": {
+          "description": "Return the configured hotspot broadcast name.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "hotspot_name"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "hotspot_name",
+            "response_key": "hotspot_name",
+            "preconditions": {}
+          },
+          "response": {
+            "hotspot_name": {
+              "type": "string",
+              "description": "The configured hotspot broadcast name."
+            }
+          }
+        },
+        "set_hotspot_name": {
+          "description": "Set the hotspot broadcast name to 1 through 32 printable ASCII characters. The hotspot must be stopped. Invalid names or an active hotspot leave the existing name unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "hotspot_name": {
+                "type": "string",
+                "description": "New hotspot broadcast name.",
+                "minLength": 1,
+                "maxLength": 32,
+                "pattern": "^[ -~]{1,32}$",
+                "examples": [
+                  "My-Hotspot",
+                  "Travel Network"
+                ]
+              }
+            },
+            "required": [
+              "hotspot_name"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "operating_state"
+          ],
+          "writes": [
+            "hotspot_name"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "hotspot_name",
+            "parameter": "hotspot_name",
+            "preconditions": {
+              "operating_state": "stopped"
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The hotspot must be stopped before changing its name."
+          }
+        },
+        "get_security_method": {
+          "description": "Return the configured hotspot security method.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "security_method"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "security_method",
+            "response_key": "security_method",
+            "preconditions": {}
+          },
+          "response": {
+            "security_method": {
+              "type": "string",
+              "description": "The configured WPA2-Personal or WPA3-Personal security method."
+            }
+          }
+        },
+        "set_security_method": {
+          "description": "Set the hotspot security method to WPA2-Personal or WPA3-Personal. The hotspot must be stopped. Unsupported values or an active hotspot leave the existing method unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "security_method": {
+                "type": "string",
+                "description": "Supported hotspot security method.",
+                "enum": [
+                  "wpa2_personal",
+                  "wpa3_personal"
+                ],
+                "examples": [
+                  "wpa2_personal",
+                  "wpa3_personal"
+                ]
+              }
+            },
+            "required": [
+              "security_method"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "operating_state"
+          ],
+          "writes": [
+            "security_method"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "security_method",
+            "parameter": "security_method",
+            "preconditions": {
+              "operating_state": "stopped"
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The hotspot must be stopped before changing its security method."
+          }
+        },
+        "get_credential": {
+          "description": "Return the configured synthetic hotspot credential. The value is local simulation configuration and does not prove identity or grant access to an external service.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "credential"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "credential",
+            "response_key": "credential",
+            "preconditions": {}
+          },
+          "response": {
+            "credential": {
+              "type": "string",
+              "description": "The configured synthetic hotspot credential."
+            }
+          }
+        },
+        "set_credential": {
+          "description": "Set the synthetic hotspot credential to 8 through 63 printable ASCII characters. The hotspot must be stopped. Invalid credentials or an active hotspot leave the existing credential unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "credential": {
+                "type": "string",
+                "description": "New synthetic WPA-Personal credential.",
+                "minLength": 8,
+                "maxLength": 63,
+                "pattern": "^[ -~]{8,63}$",
+                "examples": [
+                  "securepass1",
+                  "travel-network-2026"
+                ]
+              }
+            },
+            "required": [
+              "credential"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "operating_state"
+          ],
+          "writes": [
+            "credential"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "credential",
+            "parameter": "credential",
+            "preconditions": {
+              "operating_state": "stopped"
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The hotspot must be stopped before changing its credential."
+          }
+        },
+        "get_operating_band": {
+          "description": "Return the configured hotspot operating band.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "operating_band"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "operating_band",
+            "response_key": "operating_band",
+            "preconditions": {}
+          },
+          "response": {
+            "operating_band": {
+              "type": "string",
+              "description": "The configured 2.4 GHz or 5 GHz operating band."
+            }
+          }
+        },
+        "set_operating_band": {
+          "description": "Set the hotspot operating band to a fixed supported value. The hotspot must be stopped, and operating_band must be an existing key in supported_bands. Unsupported bands or an active hotspot leave the current band unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "operating_band": {
+                "type": "string",
+                "description": "Supported hotspot operating band.",
+                "enum": [
+                  "2_4_ghz",
+                  "5_ghz"
+                ],
+                "examples": [
+                  "2_4_ghz",
+                  "5_ghz"
+                ]
+              }
+            },
+            "required": [
+              "operating_band"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "operating_state",
+            "supported_bands"
+          ],
+          "writes": [
+            "operating_band"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "operating_band",
+            "parameter": "operating_band",
+            "preconditions": {
+              "operating_state": "stopped",
+              "supported_bands": {
+                "contains_key": {
+                  "parameter": "operating_band"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "operating_band": {
+              "property": "supported_bands",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The hotspot must be stopped before changing its operating band.",
+            "NOT_FOUND": "The selected operating band is not supported by this device."
+          }
+        },
+        "get_supported_bands": {
+          "description": "Return the fixed dictionary of hotspot bands supported by this simulated device.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "supported_bands"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "supported_bands",
+            "response_key": "supported_bands",
+            "preconditions": {}
+          },
+          "response": {
+            "supported_bands": {
+              "type": "object",
+              "description": "Fixed supported-band dictionary keyed by band identifier."
+            }
+          }
+        },
+        "get_client_capacity": {
+          "description": "Return the fixed maximum number of simultaneously connected hotspot clients.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "client_capacity"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "client_capacity",
+            "response_key": "client_capacity",
+            "preconditions": {}
+          },
+          "response": {
+            "client_capacity": {
+              "type": "integer",
+              "description": "Maximum simultaneous hotspot client count."
+            }
+          }
+        },
+        "get_wifi_concurrency_supported": {
+          "description": "Return whether this simulated device supports concurrent Wi-Fi client and hotspot operation.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "wifi_concurrency_supported"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "wifi_concurrency_supported",
+            "response_key": "wifi_concurrency_supported",
+            "preconditions": {}
+          },
+          "response": {
+            "wifi_concurrency_supported": {
+              "type": "boolean",
+              "description": "Fixed Wi-Fi and hotspot concurrency capability."
+            }
+          }
+        },
+        "get_wifi_conflict": {
+          "description": "Return whether WiFi.enabled is true while this device does not support concurrent Wi-Fi client and hotspot operation.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "wifi_conflict"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "wifi_conflict",
+            "response_key": "wifi_conflict",
+            "preconditions": {}
+          },
+          "response": {
+            "wifi_conflict": {
+              "type": "boolean",
+              "description": "Whether hotspot activation is currently blocked by enabled Wi-Fi and the fixed concurrency capability."
+            }
+          }
+        },
+        "get_upstream_available": {
+          "description": "Return the locally synchronized value of Connectivity.internet_available. This value does not indicate whether the hotspot itself is active.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "upstream_available"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "upstream_available",
+            "response_key": "upstream_available",
+            "preconditions": {}
+          },
+          "response": {
+            "upstream_available": {
+              "type": "boolean",
+              "description": "Current aggregated upstream internet availability copied from Connectivity.internet_available."
+            }
+          }
+        },
+        "get_connected_clients": {
+          "description": "Return the current client dictionary. Each client record reports internet_access as true only when the hotspot is active and the synchronized Connectivity.internet_available value is true.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "connected_clients"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "connected_clients",
+            "response_key": "connected_clients",
+            "preconditions": {}
+          },
+          "response": {
+            "connected_clients": {
+              "type": "object",
+              "description": "Current hotspot clients keyed by stable synthetic client ID."
+            }
+          }
+        },
+        "connect_client": {
+          "description": "Connect one synthetic client to the active hotspot and return its generated stable client ID. The hotspot must be active, and the number of existing clients must be less than client_capacity. The new record preserves every existing client and contains the supplied client_name with internet_access initially false; dependency synchronization may subsequently mark retained clients as having internet access only when the hotspot remains active and Connectivity.internet_available is true. Invalid names, an inactive hotspot, or a full hotspot leave the collection unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "client_name": {
+                "type": "string",
+                "description": "Display name for the synthetic client.",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[ -~]{1,64}$",
+                "examples": [
+                  "Tablet",
+                  "Work Laptop"
+                ]
+              }
+            },
+            "required": [
+              "client_name"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "operating_state",
+            "client_capacity",
+            "connected_clients"
+          ],
+          "writes": [
+            "connected_clients"
+          ],
+          "semantics": {
+            "kind": "collection_add",
+            "property": "connected_clients",
+            "response_key": "client_id",
+            "fields": {
+              "client_name": {
+                "parameter": "client_name"
+              },
+              "internet_access": {
+                "value": false
+              }
+            },
+            "preconditions": {
+              "operating_state": "active"
+            }
+          },
+          "response": {
+            "client_id": {
+              "type": "string",
+              "description": "Generated stable ID of the connected synthetic client."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The hotspot must be active before a client can connect.",
+            "CAPACITY_REACHED": "The number of connected clients is already equal to the fixed client capacity."
+          }
+        },
+        "disconnect_client": {
+          "description": "Disconnect one existing synthetic client by ID. The selected record is removed while every other connected-client record is preserved. A nonexistent client ID is rejected and leaves the collection unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "client_id": {
+                "type": "string",
+                "description": "An existing synthetic client ID.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "client_1"
+                ]
+              }
+            },
+            "required": [
+              "client_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "connected_clients"
+          ],
+          "writes": [
+            "connected_clients"
+          ],
+          "semantics": {
+            "kind": "collection_delete",
+            "property": "connected_clients",
+            "id_parameter": "client_id",
+            "preconditions": {
+              "connected_clients": {
+                "contains_key": {
+                  "parameter": "client_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "client_id": {
+              "property": "connected_clients",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The connected client ID does not exist."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "dependency_changed": {
+          "description": "When dependency state changes, copy the boolean Connectivity.internet_available property into upstream_available. Compute wifi_conflict as true exactly when wifi_concurrency_supported is false and the boolean WiFi.enabled property is true; otherwise compute it as false. When the computed conflict is true, set enabled to false, set operating_state to stopped, and remove all connected clients. When no conflict exists, preserve enabled and operating_state. For every retained client, preserve its ID and client_name and set internet_access to true exactly when operating_state is active and the copied upstream_available value is true; otherwise set internet_access to false. Repeating the event with unchanged dependency values produces no further state change.",
+          "effect_properties": [
+            {
+              "name": "enabled",
+              "description": "Current hotspot enabled state, cleared when the deterministically computed Wi-Fi conflict is true."
+            },
+            {
+              "name": "operating_state",
+              "description": "Resolved local hotspot state used to determine client internet-access feedback and changed to stopped on a Wi-Fi conflict."
+            },
+            {
+              "name": "wifi_concurrency_supported",
+              "description": "Fixed local capability combined with WiFi.enabled to compute wifi_conflict."
+            },
+            {
+              "name": "wifi_conflict",
+              "description": "Local derived state that is true exactly when concurrency is unsupported and WiFi.enabled is true."
+            },
+            {
+              "name": "upstream_available",
+              "description": "Local upstream feedback copied exactly from Connectivity.internet_available."
+            },
+            {
+              "name": "connected_clients",
+              "description": "Current clients removed on a Wi-Fi conflict or otherwise retained with internet_access recomputed from operating_state and upstream_available."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

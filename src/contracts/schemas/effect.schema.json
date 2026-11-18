@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:effect",
+  "title": "DCB v2 effect",
+  "oneOf": [
+    {"$ref": "#/$defs/setContribution"},
+    {"$ref": "#/$defs/delta"},
+    {"$ref": "#/$defs/approach"}
+  ],
+  "$defs": {
+    "envelope": {
+      "type": "object",
+      "required": ["trigger", "source", "target", "function", "parameters"],
+      "properties": {
+        "trigger": {"type": "string", "enum": ["after_action", "tick"]},
+        "source": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+        "target": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+        "function": {
+          "type": "string",
+          "enum": ["set_contribution", "delta", "approach"]
+        },
+        "parameters": {"type": "object"}
+      },
+      "additionalProperties": false
+    },
+    "numericParameters": {
+      "type": "object",
+      "required": ["property", "value", "unit"],
+      "properties": {
+        "property": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+        "value": {"type": "number"},
+        "unit": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "setContribution": {
+      "allOf": [
+        {"$ref": "#/$defs/envelope"},
+        {
+          "type": "object",
+          "properties": {
+            "function": {"const": "set_contribution"},
+            "parameters": {"$ref": "#/$defs/numericParameters"}
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "delta": {
+      "allOf": [
+        {"$ref": "#/$defs/envelope"},
+        {
+          "type": "object",
+          "properties": {
+            "function": {"const": "delta"},
+            "parameters": {"$ref": "#/$defs/numericParameters"}
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "approach": {
+      "allOf": [
+        {"$ref": "#/$defs/envelope"},
+        {
+          "type": "object",
+          "properties": {
+            "function": {"const": "approach"},
+            "parameters": {
+              "type": "object",
+              "required": ["property", "value", "rate_per_minute", "unit"],
+              "properties": {
+                "property": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+                "value": {"type": "number"},
+                "rate_per_minute": {"type": "number", "exclusiveMinimum": 0},
+                "unit": {"type": "string", "minLength": 1}
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}

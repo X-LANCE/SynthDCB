@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:audit-record",
+  "title": "DCB v2 audit record",
+  "type": "object",
+  "required": [
+    "record_id",
+    "sequence",
+    "record_type",
+    "simulation_time",
+    "status",
+    "events",
+    "effects",
+    "state_diff"
+  ],
+  "properties": {
+    "record_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "sequence": {"type": "integer", "minimum": 1},
+    "record_type": {
+      "type": "string",
+      "enum": [
+        "command",
+        "time_advance",
+        "tick",
+        "turn_boundary",
+        "termination",
+        "target_derivation",
+        "validation"
+      ]
+    },
+    "simulation_time": {"$ref": "urn:dcb:v2:schema:common#/$defs/timeState"},
+    "status": {
+      "type": "string",
+      "enum": ["committed", "rejected", "rolled_back", "observed"]
+    },
+    "links": {
+      "type": "object",
+      "properties": {
+        "call_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+        "turn_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+        "action_record_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"}
+      },
+      "additionalProperties": false
+    },
+    "command": {"$ref": "urn:dcb:v2:schema:command"},
+    "result": {
+      "type": "object",
+      "required": ["code", "data"],
+      "properties": {
+        "code": {"$ref": "urn:dcb:v2:schema:common#/$defs/commandCode"},
+        "data": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+      },
+      "additionalProperties": false
+    },
+    "events": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/eventRecord"}
+    },
+    "effects": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/effectApplication"}
+    },
+    "state_diff": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/stateDiff"}
+    },
+    "time_advance": {"$ref": "#/$defs/timeAdvance"},
+    "termination": {"$ref": "urn:dcb:v2:schema:termination"},
+    "error": {"$ref": "urn:dcb:v2:schema:common#/$defs/error"}
+  },
+  "$defs": {
+    "eventRecord": {
+      "type": "object",
+      "required": ["trigger", "source", "hook", "status"],
+      "properties": {
+        "trigger": {"type": "string", "enum": ["after_action", "tick", "dependency_changed"]},
+        "source": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+        "hook": {"type": "string", "enum": ["_on_after_action", "_on_tick", "_on_dependency_changed", "natural_dynamics"]},
+        "status": {"type": "string", "enum": ["dispatched", "skipped", "failed"]},
+        "changed_properties": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "effectApplication": {
+      "type": "object",
+      "required": ["effect", "before", "after", "status"],
+      "properties": {
+        "effect": {"$ref": "urn:dcb:v2:schema:effect"},
+        "before": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"},
+        "raw_value": {"type": "number"},
+        "clamped_value": {"type": "number"},
+        "normalized_value": {"type": "number"},
+        "after": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"},
+        "status": {"type": "string", "enum": ["applied", "rejected", "rolled_back"]},
+        "error": {"$ref": "urn:dcb:v2:schema:common#/$defs/error"}
+      },
+      "additionalProperties": false
+    },
+    "stateDiff": {
+      "type": "object",
+      "required": ["scope", "target_id", "property", "before", "after"],
+      "properties": {
+        "scope": {"type": "string", "enum": ["object", "space", "runtime"]},
+        "target_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+        "property": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+        "before": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"},
+        "after": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+      },
+      "additionalProperties": false
+    },
+    "timeAdvance": {
+      "type": "object",
+      "required": [
+        "cause",
+        "requested_minutes",
+        "minutes",
+        "limit_reached",
+        "tick_sequences"
+      ],
+      "properties": {
+        "cause": {"type": "string", "enum": ["explicit", "after_action", "after_turn", "post_agent"]},
+        "requested_minutes": {"type": "integer", "minimum": 0},
+        "minutes": {"type": "integer", "minimum": 0},
+        "limit_reached": {"type": "boolean"},
+        "action_record_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+        "turn_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+        "tick_sequences": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 1}
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"record_type": {"const": "time_advance"}}},
+      "then": {"required": ["time_advance"]}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "termination"}}},
+      "then": {"required": ["termination"]}
+    }
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "compact_studio",
+  "spaces": [
+    {"id": "entryway", "type": "entryway", "floor": 1},
+    {"id": "living_room", "type": "living_room", "floor": 1},
+    {"id": "kitchen", "type": "kitchen", "floor": 1},
+    {"id": "bathroom", "type": "bathroom", "floor": 1},
+    {"id": "balcony", "type": "balcony", "floor": 1}
+  ],
+  "connections": [
+    {"space_1": "entryway", "space_2": "living_room", "type": "passage", "current_state": "open"},
+    {"space_1": "living_room", "space_2": "kitchen", "type": "passage", "current_state": "open"},
+    {"space_1": "living_room", "space_2": "bathroom", "type": "door", "current_state": "closed"},
+    {"space_1": "living_room", "space_2": "balcony", "type": "window", "current_state": "closed"}
+  ]
+}

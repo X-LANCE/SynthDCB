@@ -1,0 +1,264 @@
+{
+  "HeadUpDisplay": {
+    "meta": {
+      "name": "HeadUpDisplay",
+      "description": "Head-up display module, instantiated only for vehicle models equipped with the corresponding hardware. Supports enabling/disabling the display, brightness, and projection position adjustment. Displays information supplied by vehicle and navigation modules without holding a second set of speed or route state. Projection range and supported display content are fixed capabilities; augmented reality and automated driving are not implicit base capabilities.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether the head-up display is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "brightness": {
+          "type": "integer",
+          "description": "Normalized display brightness percentage within the hardware-supported brightness range.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "%"
+          }
+        },
+        "projection_position": {
+          "type": "integer",
+          "description": "Normalized projection position within the hardware-supported adjustment range, where 0 is the lowest position and 100 is the highest.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "%"
+          }
+        },
+        "supported_content": {
+          "type": "string",
+          "description": "Fixed content capability profile indicating that the display can present information supplied by vehicle and navigation modules.",
+          "mode": 2,
+          "value": {
+            "default": "vehicle_and_navigation",
+            "choices": [
+              "vehicle_and_navigation"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_enabled": {
+          "description": "Return whether the head-up display is enabled without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "enabled",
+            "response_key": "enabled"
+          },
+          "response": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether the head-up display is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_enabled": {
+          "description": "Enable or disable the head-up display. The brightness and projection position settings are preserved when the display is disabled. Invalid input is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "enabled"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "enabled",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_brightness": {
+          "description": "Return the normalized head-up display brightness percentage without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "brightness"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "brightness",
+            "response_key": "brightness"
+          },
+          "response": {
+            "brightness": {
+              "type": "integer",
+              "description": "Normalized brightness percentage from 0 through 100."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_brightness": {
+          "description": "Set the normalized head-up display brightness to an integer percentage from 0 through 100. The setting may be configured while the display is disabled and takes effect when enabled. Invalid input is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "brightness",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Brightness must be an integer from 0 through 100."
+          }
+        },
+        "get_projection_position": {
+          "description": "Return the normalized projection position without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "projection_position"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "projection_position",
+            "response_key": "projection_position"
+          },
+          "response": {
+            "projection_position": {
+              "type": "integer",
+              "description": "Normalized projection position from 0 at the lowest supported position to 100 at the highest."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_projection_position": {
+          "description": "Set the normalized projection position to an integer percentage from 0 through 100 within the hardware-supported adjustment range. The setting may be configured while the display is disabled. Invalid input is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "projection_position"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "projection_position",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Projection position must be an integer from 0 through 100."
+          }
+        },
+        "get_supported_content": {
+          "description": "Return the fixed supported-content capability profile. This reports the categories of externally supplied information the display can present and does not return or duplicate current speed, route, or navigation state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "supported_content"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "supported_content",
+            "response_key": "supported_content"
+          },
+          "response": {
+            "supported_content": {
+              "type": "string",
+              "description": "Fixed supported-content capability profile."
+            }
+          },
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,915 @@
+{
+  "Focus": {
+    "meta": {
+      "name": "Focus",
+      "description": "Do-not-disturb and focus settings, placed in Setting and contained by System. Supports adding, querying, partially updating, and deleting rules by stable ID, manually enabling/disabling rules, configuring applications, notification categories, contacts, and repeat-call exceptions allowed to interrupt, and configuring time windows with time zones and repeat days. Rule names are user data; personal, work, and sleep are not fixed cross-platform enumerations. Supports querying the effective policy and its source. Schedules advance with wall-clock time; manual overrides take priority over schedules. Exiting an override reevaluates the current time window, and conflicts between multiple rules are resolved by an explicit fixed priority.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "rules": {
+          "type": "dict",
+          "description": "Focus rules keyed by stable synthetic rule ID. Each record contains a user-defined name, eligibility setting, immutable conflict priority, interruption exceptions, and one repeating wall-clock time window. A window starts inclusively and ends exclusively; an equal start and end denotes a full local day. For an overnight window, repeat_days refers to the local day on which the window starts.",
+          "mode": 2,
+          "value": {
+            "default": {},
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "allowed_applications": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "uniqueItems": true,
+                    "maxItems": 64
+                  },
+                  "allowed_categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "uniqueItems": true,
+                    "maxItems": 32
+                  },
+                  "allowed_contacts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "uniqueItems": true,
+                    "maxItems": 64
+                  },
+                  "allow_repeat_callers": {
+                    "type": "boolean"
+                  },
+                  "schedule_enabled": {
+                    "type": "boolean"
+                  },
+                  "start_time": {
+                    "type": "string",
+                    "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+                  },
+                  "end_time": {
+                    "type": "string",
+                    "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "repeat_days": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "monday",
+                        "tuesday",
+                        "wednesday",
+                        "thursday",
+                        "friday",
+                        "saturday",
+                        "sunday"
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 7,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "enabled",
+                  "priority",
+                  "allowed_applications",
+                  "allowed_categories",
+                  "allowed_contacts",
+                  "allow_repeat_callers",
+                  "schedule_enabled",
+                  "start_time",
+                  "end_time",
+                  "timezone",
+                  "repeat_days"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "manual_override_rule_id": {
+          "type": "string",
+          "description": "Stable ID of the manually active rule, or an empty string when schedules determine the effective policy. A missing or disabled referenced rule is cleared during reevaluation.",
+          "mode": 2,
+          "value": {
+            "default": "",
+            "pattern": "^[A-Za-z0-9_-]*$",
+            "max_length": 128
+          }
+        },
+        "effective_rule_id": {
+          "type": "string",
+          "description": "Stable ID of the rule currently supplying the effective focus policy, or an empty string when no focus rule is active.",
+          "mode": 2,
+          "value": {
+            "default": "",
+            "pattern": "^[A-Za-z0-9_-]*$",
+            "max_length": 128
+          }
+        },
+        "effective_source": {
+          "type": "string",
+          "description": "Source that selected the effective policy: manual for a valid manual override, schedule for a matching time window, or none when no rule is active.",
+          "mode": 2,
+          "value": {
+            "default": "none",
+            "choices": [
+              "none",
+              "manual",
+              "schedule"
+            ]
+          }
+        },
+        "effective_policy": {
+          "type": "dict",
+          "description": "Resolved interruption policy copied from the effective rule. An empty dictionary means no focus policy is active.",
+          "mode": 2,
+          "value": {
+            "default": {},
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "maxProperties": 0,
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "allowed_applications": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "allowed_categories": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "allowed_contacts": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "allow_repeat_callers": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "allowed_applications",
+                    "allowed_categories",
+                    "allowed_contacts",
+                    "allow_repeat_callers"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "add_rule": {
+          "description": "Add a focus rule and return its new stable synthetic ID. The name is user data. Priority is fixed for the lifetime of the rule and is used only to resolve simultaneous scheduled rules. Timezone must be a valid IANA time-zone identifier available to the simulation. Invalid input creates no record. After insertion, the effective policy is immediately reevaluated.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "examples": [
+                  "Project deadline",
+                  "Quiet evenings"
+                ]
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether the rule is eligible for manual activation and scheduled selection."
+              },
+              "priority": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1,
+                "description": "Immutable conflict priority; larger values win."
+              },
+              "allowed_applications": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "uniqueItems": true,
+                "maxItems": 64
+              },
+              "allowed_categories": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "uniqueItems": true,
+                "maxItems": 32
+              },
+              "allowed_contacts": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "uniqueItems": true,
+                "maxItems": 64
+              },
+              "allow_repeat_callers": {
+                "type": "boolean"
+              },
+              "schedule_enabled": {
+                "type": "boolean"
+              },
+              "start_time": {
+                "type": "string",
+                "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$",
+                "examples": [
+                  "09:00",
+                  "22:30"
+                ]
+              },
+              "end_time": {
+                "type": "string",
+                "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$",
+                "examples": [
+                  "17:00",
+                  "07:00"
+                ]
+              },
+              "timezone": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "examples": [
+                  "UTC",
+                  "Europe/London",
+                  "Asia/Tokyo"
+                ]
+              },
+              "repeat_days": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday",
+                    "saturday",
+                    "sunday"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 7,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "name",
+              "enabled",
+              "priority",
+              "allowed_applications",
+              "allowed_categories",
+              "allowed_contacts",
+              "allow_repeat_callers",
+              "schedule_enabled",
+              "start_time",
+              "end_time",
+              "timezone",
+              "repeat_days"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "rules",
+            "manual_override_rule_id"
+          ],
+          "writes": [
+            "rules",
+            "effective_rule_id",
+            "effective_source",
+            "effective_policy"
+          ],
+          "semantics": {
+            "kind": "collection_add",
+            "property": "rules",
+            "response_key": "rule_id",
+            "fields": {
+              "name": {
+                "parameter": "name"
+              },
+              "enabled": {
+                "parameter": "enabled"
+              },
+              "priority": {
+                "parameter": "priority"
+              },
+              "allowed_applications": {
+                "parameter": "allowed_applications"
+              },
+              "allowed_categories": {
+                "parameter": "allowed_categories"
+              },
+              "allowed_contacts": {
+                "parameter": "allowed_contacts"
+              },
+              "allow_repeat_callers": {
+                "parameter": "allow_repeat_callers"
+              },
+              "schedule_enabled": {
+                "parameter": "schedule_enabled"
+              },
+              "start_time": {
+                "parameter": "start_time"
+              },
+              "end_time": {
+                "parameter": "end_time"
+              },
+              "timezone": {
+                "parameter": "timezone"
+              },
+              "repeat_days": {
+                "parameter": "repeat_days"
+              }
+            },
+            "preconditions": {}
+          },
+          "response": {
+            "rule_id": {
+              "type": "string",
+              "description": "New stable synthetic rule ID."
+            }
+          },
+          "errorcodes": {
+            "INVALID_TIMEZONE": "The supplied timezone is not a valid supported IANA time-zone identifier.",
+            "INVALID_ARGUMENT": "One or more rule fields are invalid."
+          }
+        },
+        "get_rule": {
+          "description": "Return one focus rule by stable ID without changing focus state. An unknown ID is rejected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "rule_1"
+                ]
+              }
+            },
+            "required": [
+              "rule_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "rules"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "rules",
+            "id_parameter": "rule_id",
+            "response_key": "rule",
+            "preconditions": {
+              "rules": {
+                "contains_key": {
+                  "parameter": "rule_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "rule_id": {
+              "property": "rules",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "rule": {
+              "type": "object",
+              "description": "The complete stored focus rule."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The requested rule ID does not exist."
+          }
+        },
+        "update_rule": {
+          "description": "Partially update an existing focus rule. Omitted fields remain unchanged, and immutable priority cannot be changed. Disabling the manually selected rule causes immediate reevaluation to clear that override and select the current scheduled rule, if any. Timezone must be a valid supported IANA identifier. Invalid input or an unknown ID leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "allowed_applications": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "uniqueItems": true,
+                "maxItems": 64
+              },
+              "allowed_categories": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "uniqueItems": true,
+                "maxItems": 32
+              },
+              "allowed_contacts": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "uniqueItems": true,
+                "maxItems": 64
+              },
+              "allow_repeat_callers": {
+                "type": "boolean"
+              },
+              "schedule_enabled": {
+                "type": "boolean"
+              },
+              "start_time": {
+                "type": "string",
+                "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+              },
+              "end_time": {
+                "type": "string",
+                "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+              },
+              "timezone": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "examples": [
+                  "UTC",
+                  "America/New_York"
+                ]
+              },
+              "repeat_days": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday",
+                    "saturday",
+                    "sunday"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 7,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "rule_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "rules",
+            "manual_override_rule_id"
+          ],
+          "writes": [
+            "rules",
+            "manual_override_rule_id",
+            "effective_rule_id",
+            "effective_source",
+            "effective_policy"
+          ],
+          "semantics": {
+            "kind": "collection_update",
+            "property": "rules",
+            "id_parameter": "rule_id",
+            "fields": {
+              "name": {
+                "parameter": "name"
+              },
+              "enabled": {
+                "parameter": "enabled"
+              },
+              "allowed_applications": {
+                "parameter": "allowed_applications"
+              },
+              "allowed_categories": {
+                "parameter": "allowed_categories"
+              },
+              "allowed_contacts": {
+                "parameter": "allowed_contacts"
+              },
+              "allow_repeat_callers": {
+                "parameter": "allow_repeat_callers"
+              },
+              "schedule_enabled": {
+                "parameter": "schedule_enabled"
+              },
+              "start_time": {
+                "parameter": "start_time"
+              },
+              "end_time": {
+                "parameter": "end_time"
+              },
+              "timezone": {
+                "parameter": "timezone"
+              },
+              "repeat_days": {
+                "parameter": "repeat_days"
+              }
+            },
+            "preconditions": {
+              "rules": {
+                "contains_key": {
+                  "parameter": "rule_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "rule_id": {
+              "property": "rules",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The requested rule ID does not exist.",
+            "INVALID_TIMEZONE": "The supplied timezone is not a valid supported IANA time-zone identifier.",
+            "INVALID_ARGUMENT": "One or more supplied fields are invalid."
+          }
+        },
+        "delete_rule": {
+          "description": "Delete an existing focus rule while preserving every other rule. If the deleted rule supplied the manual override or effective policy, immediate reevaluation clears that reference and selects the current scheduled winner, if any.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "rule_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "rules",
+            "manual_override_rule_id"
+          ],
+          "writes": [
+            "rules",
+            "manual_override_rule_id",
+            "effective_rule_id",
+            "effective_source",
+            "effective_policy"
+          ],
+          "semantics": {
+            "kind": "collection_delete",
+            "property": "rules",
+            "id_parameter": "rule_id",
+            "preconditions": {
+              "rules": {
+                "contains_key": {
+                  "parameter": "rule_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "rule_id": {
+              "property": "rules",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The requested rule ID does not exist."
+          }
+        },
+        "activate_rule_manually": {
+          "description": "Manually activate an existing enabled rule. The selected rule immediately overrides every scheduled rule until the override is cleared. An unknown or disabled rule is rejected and leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "rule_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "rules",
+            "manual_override_rule_id"
+          ],
+          "writes": [
+            "manual_override_rule_id",
+            "effective_rule_id",
+            "effective_source",
+            "effective_policy"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "manual_override_rule_id": {
+                "parameter": "rule_id"
+              }
+            },
+            "preconditions": {
+              "rules": {
+                "contains_key": {
+                  "parameter": "rule_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "rule_id": {
+              "property": "rules",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The requested rule ID does not exist.",
+            "PRECONDITION_FAILED": "The requested rule is disabled and cannot be manually activated."
+          }
+        },
+        "clear_manual_override": {
+          "description": "End the current manual override by clearing its rule ID. The operation is idempotent when no override exists, and the effective policy is immediately reevaluated from the current wall-clock schedules.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "rules",
+            "manual_override_rule_id"
+          ],
+          "writes": [
+            "manual_override_rule_id",
+            "effective_rule_id",
+            "effective_source",
+            "effective_policy"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "manual_override_rule_id": {
+                "value": ""
+              }
+            },
+            "preconditions": {}
+          }
+        },
+        "get_manual_override_rule_id": {
+          "description": "Return the stable ID selected as the manual override, or an empty string when no manual override exists.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "manual_override_rule_id"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "manual_override_rule_id",
+            "response_key": "manual_override_rule_id",
+            "preconditions": {}
+          },
+          "response": {
+            "manual_override_rule_id": {
+              "type": "string",
+              "description": "Current manual override rule ID, or an empty string."
+            }
+          }
+        },
+        "get_effective_rule_id": {
+          "description": "Return the stable ID of the rule currently supplying the effective policy, or an empty string if no rule is active.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "effective_rule_id"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "effective_rule_id",
+            "response_key": "effective_rule_id",
+            "preconditions": {}
+          },
+          "response": {
+            "effective_rule_id": {
+              "type": "string",
+              "description": "Effective rule ID, or an empty string when focus is inactive."
+            }
+          }
+        },
+        "get_effective_source": {
+          "description": "Return whether the effective focus policy comes from a manual override, a schedule, or no active rule.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "effective_source"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "effective_source",
+            "response_key": "effective_source",
+            "preconditions": {}
+          },
+          "response": {
+            "effective_source": {
+              "type": "string",
+              "description": "One of manual, schedule, or none."
+            }
+          }
+        },
+        "get_effective_policy": {
+          "description": "Return the currently resolved interruption exceptions. The returned dictionary is empty when no focus rule is active.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "effective_policy"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "effective_policy",
+            "response_key": "effective_policy",
+            "preconditions": {}
+          },
+          "response": {
+            "effective_policy": {
+              "type": "object",
+              "description": "Resolved allowed applications, categories, contacts, and repeat-caller setting, or an empty dictionary."
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "Each simulated minute, reevaluates rule windows using wall-clock time in each rule's configured time zone. A valid enabled manual override remains authoritative. Otherwise, enabled scheduled rules whose windows currently match compete by immutable priority, with larger values winning and the lexicographically smallest stable rule ID breaking equal-priority ties. The selected rule's interruption exceptions become effective; if no rule matches, the effective rule ID and policy are cleared and the source becomes none.",
+          "effect_properties": [
+            {
+              "name": "rules",
+              "description": "Stored rules containing eligibility, priorities, policies, time zones, repeat days, and time windows."
+            },
+            {
+              "name": "manual_override_rule_id",
+              "description": "Manual selection that takes precedence over scheduled rules."
+            },
+            {
+              "name": "effective_rule_id",
+              "description": "Currently resolved rule ID updated by reevaluation."
+            },
+            {
+              "name": "effective_source",
+              "description": "Currently resolved policy source updated by reevaluation."
+            },
+            {
+              "name": "effective_policy",
+              "description": "Currently resolved interruption policy updated by reevaluation."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "After a successful state-changing action, immediately reevaluates the effective policy. A deleted, missing, or disabled manual rule clears the manual override. A valid manual rule wins; otherwise the current time windows, immutable priorities, and stable-ID tie-break determine the scheduled winner. This makes rule edits, deletion, manual activation, and override exit observable without waiting for the next minute.",
+          "effect_properties": [
+            {
+              "name": "rules",
+              "description": "Stored rules used to validate manual selection and resolve current schedules."
+            },
+            {
+              "name": "manual_override_rule_id",
+              "description": "Manual selection to validate, retain, or clear."
+            },
+            {
+              "name": "effective_rule_id",
+              "description": "Currently resolved rule ID updated after actions."
+            },
+            {
+              "name": "effective_source",
+              "description": "Currently resolved policy source updated after actions."
+            },
+            {
+              "name": "effective_policy",
+              "description": "Currently resolved interruption policy updated after actions."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

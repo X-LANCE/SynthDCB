@@ -1,0 +1,40 @@
+{
+  "domain": "Phone",
+  "property_catalog": "phone.property-specs.json",
+  "space_type_limits": {
+    "Setting": 1,
+    "Application": 1
+  },
+  "person_names": [],
+  "runtime": {
+    "time_policy": {
+      "sleep_time_default_minutes": 1,
+      "after_action_default_minutes": 0,
+      "after_turn_default_minutes": 0
+    },
+    "time_state": {
+      "date": "2026-09-07",
+      "clock": "12:00",
+      "elapsed_minutes": 0,
+      "timezone": "Asia/Shanghai"
+    },
+    "weather_state": {},
+    "dynamics": []
+  },
+  "domain_metadata": {
+    "info": {
+      "name": "Phone",
+      "description": "Phone settings and applications organized in virtual spaces"
+    },
+    "connections": [],
+    "relations": []
+  },
+  "scene_metadata": {},
+  "layouts": [
+    {
+      "id": "single_phone",
+      "path": "layouts/single_phone.json"
+    }
+  ],
+  "containment_root_class": "System"
+}

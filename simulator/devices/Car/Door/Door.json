@@ -1,0 +1,273 @@
+{
+  "Door": {
+    "meta": {
+      "name": "Door",
+      "description": "Vehicle door lock and door state module, instantiated for each actual side door or tailgate. Supports locking, unlocking, and querying lock state, door opening/closing state, and closure feedback; a locked door is not necessarily closed. The base class does not provide powered opening or closing; manual operation is updated through local environment actions. Door opening and closing contribute to exchange between the corresponding Space and the outside.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "locked": {
+          "type": "boolean",
+          "description": "Whether the door lock is engaged. This state does not imply that the door is physically closed.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        },
+        "door_state": {
+          "type": "string",
+          "description": "Physical door position reported by local manual environment actions.",
+          "mode": 2,
+          "value": {
+            "default": "closed",
+            "choices": [
+              "closed",
+              "ajar",
+              "open"
+            ]
+          }
+        },
+        "closure_feedback": {
+          "type": "boolean",
+          "description": "Whether the door is fully closed and latched. Manual environment actions set this to true only after complete closure.",
+          "mode": 2,
+          "value": {
+            "default": true
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_locked": {
+          "description": "Return whether the door lock is engaged. The result does not indicate whether the door is physically closed.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "locked"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "locked",
+            "response_key": "locked"
+          },
+          "response": {
+            "locked": {
+              "type": "boolean",
+              "description": "Whether the door lock is engaged."
+            }
+          },
+          "errorcodes": {}
+        },
+        "lock": {
+          "description": "Engage the door lock without changing the physical door position or closure feedback. The action is idempotent and may be used even when the door is open or ajar.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "locked"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "locked": {
+                "value": true
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "unlock": {
+          "description": "Disengage the door lock without changing the physical door position or closure feedback. The action is idempotent.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "locked"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "locked": {
+                "value": false
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_door_state": {
+          "description": "Return the manually reported physical door position: closed, ajar, or open. This function does not move the door.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "door_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "door_state",
+            "response_key": "door_state"
+          },
+          "response": {
+            "door_state": {
+              "type": "string",
+              "description": "Physical door position: closed, ajar, or open."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_closure_feedback": {
+          "description": "Return whether the door is fully closed and latched. This feedback is independent of the lock state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "closure_feedback"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "closure_feedback",
+            "response_key": "closure_feedback"
+          },
+          "response": {
+            "closure_feedback": {
+              "type": "boolean",
+              "description": "Whether the door is fully closed and latched."
+            }
+          },
+          "errorcodes": {}
+        },
+        "manual_open": {
+          "description": "Record a local manual action that places the door in the fully open position. This is not a powered opening command. The door state and closure feedback are updated atomically, and the lock state is unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "door_state",
+            "closure_feedback"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "door_state": {
+                "value": "open"
+              },
+              "closure_feedback": {
+                "value": false
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "manual_set_ajar": {
+          "description": "Record a local manual action that leaves the door partially closed or unlatched. This is not a powered movement command. The door state and closure feedback are updated atomically, and the lock state is unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "door_state",
+            "closure_feedback"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "door_state": {
+                "value": "ajar"
+              },
+              "closure_feedback": {
+                "value": false
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "manual_close": {
+          "description": "Record a local manual action that fully closes and latches the door. This is not a powered closing command. The door state and closure feedback are updated atomically, and the lock state is unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "door_state",
+            "closure_feedback"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "door_state": {
+                "value": "closed"
+              },
+              "closure_feedback": {
+                "value": true
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "For a seat-mounted door, use the cabin space resolved by type; for a trunk or cargo door, use its own space. Each minute while closure_feedback is false, move the corresponding interior Space temperature and noise fully to the current exterior values to represent exchange through the unsealed opening. When closure_feedback is true, produce no exchange effect.",
+          "effect_properties": [
+            {
+              "name": "closure_feedback",
+              "description": "Determines whether the door is sealed or permits exchange with the exterior."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

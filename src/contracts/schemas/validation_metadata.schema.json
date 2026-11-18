@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:validation-metadata",
+  "title": "DCB v2 private validated candidate metadata",
+  "type": "object",
+  "required": [
+    "authoring_run_id",
+    "scenario_id",
+    "contract_version",
+    "validated",
+    "reference_source",
+    "reference_repairs",
+    "termination",
+    "gates",
+    "meta"
+  ],
+  "properties": {
+    "authoring_run_id": {
+      "$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"
+    },
+    "scenario_id": {
+      "$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"
+    },
+    "contract_version": {
+      "const": "2.8.0"
+    },
+    "validated": {
+      "const": true
+    },
+    "reference_source": {
+      "type": "string",
+      "enum": [
+        "ground_truth",
+        "repair"
+      ]
+    },
+    "reference_repairs": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "termination": {
+      "$ref": "urn:dcb:v2:schema:termination"
+    },
+    "meta": {
+      "type": "object",
+      "required": [
+        "task_family",
+        "task_subtype",
+        "atoms",
+        "constraints",
+        "expected_outcome",
+        "answer_plans",
+        "selection_plans",
+        "sampling",
+        "derived"
+      ],
+      "properties": {
+        "task_family": {
+          "$ref": "urn:dcb:v2:schema:task#/$defs/taskFamily"
+        },
+        "task_subtype": {
+          "$ref": "urn:dcb:v2:schema:task#/$defs/taskSubtype"
+        },
+        "atoms": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "kind",
+              "depends_on",
+              "spec"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "control",
+                  "query",
+                  "goal",
+                  "memory",
+                  "workflow"
+                ]
+              },
+              "depends_on": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"
+                }
+              },
+              "spec": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"
+          }
+        },
+        "expected_outcome": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"
+          }
+        },
+        "answer_plans": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"
+            }
+          }
+        },
+        "selection_plans": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"
+            }
+          }
+        },
+        "sampling": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"
+          }
+        },
+        "derived": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "gates": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "PASS",
+          "FAIL"
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

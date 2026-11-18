@@ -1,0 +1,610 @@
+{
+  "DualLayerCurtain": {
+    "meta": {
+      "name": "DualLayerCurtain",
+      "description": "A dual-layer curtain variant. It provides separate open or closed states and opening percentages for the sheer and fabric layers, which can be controlled independently; the overall light-blocking effect is determined jointly by both layers.",
+      "version": "1.0.0",
+      "from": "../Curtain.json"
+    },
+    "properties": {
+      "update": {
+        "position": {
+          "type": "integer",
+          "description": "Derived overall opening percentage, equal to the lower of the sheer and fabric layer opening percentages.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "sheer_open_state": {
+          "type": "string",
+          "description": "Whether the sheer layer is open or closed. It is closed at 0 percent and open above 0 percent.",
+          "mode": 3,
+          "value": {
+            "default": "closed",
+            "choices": [
+              "open",
+              "closed"
+            ]
+          }
+        },
+        "sheer_position": {
+          "type": "integer",
+          "description": "Opening percentage of the sheer layer, where 0 is fully closed and 100 is fully open.",
+          "mode": 3,
+          "value": {
+            "default": 0,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "fabric_open_state": {
+          "type": "string",
+          "description": "Whether the fabric layer is open or closed. It is closed at 0 percent and open above 0 percent.",
+          "mode": 3,
+          "value": {
+            "default": "closed",
+            "choices": [
+              "open",
+              "closed"
+            ]
+          }
+        },
+        "fabric_position": {
+          "type": "integer",
+          "description": "Opening percentage of the fabric layer, where 0 is fully closed and 100 is fully open.",
+          "mode": 3,
+          "value": {
+            "default": 0,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_open_state": {
+          "description": "Return the derived overall curtain state. It is open only when both layer positions are above 0; otherwise it is closed.",
+          "response": {
+            "open_state": {
+              "type": "string",
+              "description": "Derived overall state: open when both layer positions are above 0, otherwise closed."
+            }
+          },
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "open_state",
+            "position",
+            "sheer_position",
+            "fabric_position"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "open_state",
+            "response_key": "open_state"
+          }
+        },
+        "set_open_state": {
+          "description": "Set both layers to fully open or fully closed and recompute the derived overall state and position.",
+          "response": {},
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "Desired overall curtain state.",
+                "enum": [
+                  "open",
+                  "closed"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "open_state",
+            "position",
+            "sheer_open_state",
+            "sheer_position",
+            "fabric_open_state",
+            "fabric_position"
+          ],
+          "writes": [
+            "open_state",
+            "position",
+            "sheer_open_state",
+            "sheer_position",
+            "fabric_open_state",
+            "fabric_position"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "For open, set both layer positions to 100; for closed, set both to 0. Derive each layer state from its position, derive overall open_state as open only when both positions are above 0, and derive position as the lower layer position."
+          }
+        },
+        "get_position": {
+          "description": "Return the derived overall opening percentage, equal to the lower of the two layer positions.",
+          "response": {
+            "position": {
+              "type": "integer",
+              "description": "Derived overall opening percentage from 0 to 100."
+            }
+          },
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "position",
+            "sheer_position",
+            "fabric_position"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "position",
+            "response_key": "position"
+          }
+        },
+        "set_position": {
+          "description": "Set both layer positions to the requested opening percentage and recompute all derived states.",
+          "response": {},
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Shared opening percentage for both layers.",
+                "minimum": 0,
+                "maximum": 100,
+                "examples": [
+                  0,
+                  25,
+                  50,
+                  100
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "position",
+            "open_state",
+            "sheer_open_state",
+            "sheer_position",
+            "fabric_open_state",
+            "fabric_position"
+          ],
+          "writes": [
+            "position",
+            "open_state",
+            "sheer_open_state",
+            "sheer_position",
+            "fabric_open_state",
+            "fabric_position"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Set both layer positions to the requested value, derive each layer state as closed at 0 or open above 0, derive overall open_state as open only when both positions are above 0, and derive overall position as the lower layer position."
+          }
+        },
+        "open_incrementally": {
+          "description": "Increase both layer positions by the requested positive number of percentage points, capped at 100, and recompute all derived states.",
+          "response": {},
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "percentage_points": {
+                "type": "integer",
+                "description": "Positive number of percentage points.",
+                "minimum": 1,
+                "maximum": 100,
+                "examples": [
+                  5,
+                  10,
+                  25
+                ]
+              }
+            },
+            "required": [
+              "percentage_points"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "position",
+            "open_state",
+            "sheer_open_state",
+            "sheer_position",
+            "fabric_open_state",
+            "fabric_position"
+          ],
+          "writes": [
+            "position",
+            "open_state",
+            "sheer_open_state",
+            "sheer_position",
+            "fabric_open_state",
+            "fabric_position"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Increase both layer positions by percentage_points, cap each at 100, and recompute each layer state, overall open_state, and overall position."
+          }
+        },
+        "close_incrementally": {
+          "description": "Decrease both layer positions by the requested positive number of percentage points, floored at 0, and recompute all derived states.",
+          "response": {},
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "percentage_points": {
+                "type": "integer",
+                "description": "Positive number of percentage points.",
+                "minimum": 1,
+                "maximum": 100,
+                "examples": [
+                  5,
+                  10,
+                  25
+                ]
+              }
+            },
+            "required": [
+              "percentage_points"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "position",
+            "open_state",
+            "sheer_open_state",
+            "sheer_position",
+            "fabric_open_state",
+            "fabric_position"
+          ],
+          "writes": [
+            "position",
+            "open_state",
+            "sheer_open_state",
+            "sheer_position",
+            "fabric_open_state",
+            "fabric_position"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Decrease both layer positions by percentage_points, floor each at 0, and recompute each layer state, overall open_state, and overall position."
+          }
+        },
+        "get_sheer_open_state": {
+          "description": "Return the sheer layer's derived open or closed state.",
+          "response": {
+            "sheer_open_state": {
+              "type": "string",
+              "description": "Sheer layer state."
+            }
+          },
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "sheer_open_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "sheer_open_state",
+            "response_key": "sheer_open_state"
+          }
+        },
+        "set_sheer_open_state": {
+          "description": "Set the sheer layer to fully open or fully closed and recompute the derived overall state and position.",
+          "response": {},
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "Desired sheer layer state.",
+                "enum": [
+                  "open",
+                  "closed"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "sheer_open_state",
+            "sheer_position",
+            "open_state",
+            "position",
+            "fabric_position"
+          ],
+          "writes": [
+            "sheer_open_state",
+            "sheer_position",
+            "open_state",
+            "position"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Set sheer_position to 100 for open or 0 for closed, derive sheer_open_state consistently, then derive overall open_state and position."
+          }
+        },
+        "get_sheer_position": {
+          "description": "Return the sheer layer opening percentage.",
+          "response": {
+            "sheer_position": {
+              "type": "integer",
+              "description": "Sheer opening percentage from 0 to 100."
+            }
+          },
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "sheer_position"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "sheer_position",
+            "response_key": "sheer_position"
+          }
+        },
+        "set_sheer_position": {
+          "description": "Set the sheer layer opening percentage and recompute its state and the derived overall values.",
+          "response": {},
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Sheer opening percentage.",
+                "minimum": 0,
+                "maximum": 100,
+                "examples": [
+                  0,
+                  50,
+                  100
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "sheer_position",
+            "sheer_open_state",
+            "open_state",
+            "position",
+            "fabric_position"
+          ],
+          "writes": [
+            "sheer_position",
+            "sheer_open_state",
+            "open_state",
+            "position"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Set sheer_position to value, derive sheer_open_state as closed at 0 or open above 0, then derive overall open_state and position."
+          }
+        },
+        "get_fabric_open_state": {
+          "description": "Return the fabric layer's derived open or closed state.",
+          "response": {
+            "fabric_open_state": {
+              "type": "string",
+              "description": "Fabric layer state."
+            }
+          },
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "fabric_open_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fabric_open_state",
+            "response_key": "fabric_open_state"
+          }
+        },
+        "set_fabric_open_state": {
+          "description": "Set the fabric layer to fully open or fully closed and recompute the derived overall state and position.",
+          "response": {},
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "Desired fabric layer state.",
+                "enum": [
+                  "open",
+                  "closed"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "fabric_open_state",
+            "fabric_position",
+            "open_state",
+            "position",
+            "sheer_position"
+          ],
+          "writes": [
+            "fabric_open_state",
+            "fabric_position",
+            "open_state",
+            "position"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Set fabric_position to 100 for open or 0 for closed, derive fabric_open_state consistently, then derive overall open_state and position."
+          }
+        },
+        "get_fabric_position": {
+          "description": "Return the fabric layer opening percentage.",
+          "response": {
+            "fabric_position": {
+              "type": "integer",
+              "description": "Fabric opening percentage from 0 to 100."
+            }
+          },
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "fabric_position"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fabric_position",
+            "response_key": "fabric_position"
+          }
+        },
+        "set_fabric_position": {
+          "description": "Set the fabric layer opening percentage and recompute its state and the derived overall values.",
+          "response": {},
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Fabric opening percentage.",
+                "minimum": 0,
+                "maximum": 100,
+                "examples": [
+                  0,
+                  50,
+                  100
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "fabric_position",
+            "fabric_open_state",
+            "open_state",
+            "position",
+            "sheer_position"
+          ],
+          "writes": [
+            "fabric_position",
+            "fabric_open_state",
+            "open_state",
+            "position"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Set fabric_position to value, derive fabric_open_state as closed at 0 or open above 0, then derive overall open_state and position."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "After a successful public curtain mutation, contribute 6 lux multiplied by the sheer opening fraction and the fabric opening fraction to the containing space illuminance, including zero when either layer is fully closed.",
+          "effect_properties": [
+            {
+              "name": "sheer_position",
+              "description": "Opening percentage of the sheer layer used to determine the illuminance contribution."
+            },
+            {
+              "name": "fabric_position",
+              "description": "Opening percentage of the fabric layer used to determine the illuminance contribution."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

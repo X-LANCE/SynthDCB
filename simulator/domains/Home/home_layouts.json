@@ -1,0 +1,75 @@
+{
+  "domain": "Home",
+  "property_catalog": "home.property-specs.json",
+  "space_type_limits": {
+    "living_room": 1,
+    "bedroom": 3,
+    "bathroom": 3,
+    "kitchen": 1,
+    "dining_room": 1,
+    "study_room": 1,
+    "hallway": 1,
+    "balcony": 1,
+    "stairs": 1,
+    "garage": 1,
+    "exterior": 1,
+    "garden": 1,
+    "entryway": 1,
+    "laundry_room": 1,
+    "storage_room": 2,
+    "basement": 1,
+    "attic": 1
+  },
+  "person_names": [
+    "Alex", "Anna", "Ben", "Bella", "Chris", "Chloe", "David", "Diana",
+    "Ethan", "Emma", "Frank", "Fiona", "George", "Grace", "Henry", "Hannah",
+    "Ian", "Isabella", "Jack", "Jessica", "Kevin", "Kate", "Leo", "Lily",
+    "Michael", "Mia", "Noah", "Natalie", "Oliver", "Olivia", "Peter", "Penny",
+    "Quentin", "Quinn", "Ryan", "Rachel", "Sam", "Sarah", "Tom", "Taylor",
+    "Ulysses", "Ursula", "Victor", "Victoria", "William", "Wendy", "Xavier", "Xena",
+    "York", "Yvonne", "Zachary", "Zoe"
+  ],
+  "runtime": {
+    "time_policy": {
+      "sleep_time_default_minutes": 1,
+      "after_action_default_minutes": 0,
+      "after_turn_default_minutes": 0
+    },
+    "time_state": {
+      "date": "2026-07-22",
+      "clock": "14:00",
+      "elapsed_minutes": 0,
+      "timezone": "Asia/Shanghai"
+    },
+    "weather_state": {
+      "condition": "sunny",
+      "temperature_c": 32.0,
+      "humidity_percent": 72.0,
+      "air_quality_index": 25,
+      "wind_speed_mps": 2.5
+    },
+    "dynamics": []
+  },
+  "domain_metadata": {
+    "info": {
+      "name": "Home",
+      "description": "Generated Home world"
+    },
+    "connections": []
+  },
+  "scene_metadata": {
+    "layout_scope": "Home fixed layout catalog"
+  },
+  "layouts": [
+    {"id": "compact_studio", "path": "layouts/compact_studio.json"},
+    {"id": "one_bedroom_apartment", "path": "layouts/one_bedroom_apartment.json"},
+    {"id": "two_bedroom_apartment", "path": "layouts/two_bedroom_apartment.json"},
+    {"id": "work_from_home_apartment", "path": "layouts/work_from_home_apartment.json"},
+    {"id": "loft_apartment", "path": "layouts/loft_apartment.json"},
+    {"id": "duplex_townhouse", "path": "layouts/duplex_townhouse.json"},
+    {"id": "suburban_garage_house", "path": "layouts/suburban_garage_house.json"},
+    {"id": "garden_house", "path": "layouts/garden_house.json"},
+    {"id": "basement_family_house", "path": "layouts/basement_family_house.json"},
+    {"id": "large_family_house", "path": "layouts/large_family_house.json"}
+  ]
+}

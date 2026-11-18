@@ -1,0 +1,253 @@
+{
+  "DriveSettings": {
+    "meta": {
+      "name": "DriveSettings",
+      "description": "Vehicle driving preference module. Supports selecting a driving mode configured for the vehicle model and querying the requested and effective modes. Available modes, applicable powertrain types, and switching conditions are fixed configuration. Driving modes change powertrain response strategies without directly setting speed or gear or completing a driving task.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "requested_mode": {
+          "type": "string",
+          "description": "Identifier of the most recently accepted driving-mode request. An empty string means no mode has been requested.",
+          "mode": 3,
+          "value": {
+            "default": "",
+            "pattern": "^$|^[A-Za-z0-9_-]{1,32}$",
+            "max_length": 32
+          }
+        },
+        "effective_mode": {
+          "type": "string",
+          "description": "Identifier of the driving mode currently effective in the simulated powertrain strategy. An empty string means no configured mode is effective.",
+          "mode": 2,
+          "value": {
+            "default": "",
+            "pattern": "^$|^[A-Za-z0-9_-]{1,32}$",
+            "max_length": 32
+          }
+        },
+        "configured_modes": {
+          "type": "dict",
+          "description": "Read-only vehicle-model configuration keyed by selectable driving-mode identifier. Each record contains the powertrain types to which the mode applies and its fixed switching condition. The baseline configuration provides a standard mode applicable to electric, hybrid, and internal-combustion powertrains.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "standard": {
+                "applicable_powertrain_types": [
+                  "electric",
+                  "hybrid",
+                  "internal_combustion"
+                ],
+                "switching_condition": "unconditional"
+              }
+            },
+            "schema": {
+              "type": "object",
+              "minProperties": 1,
+              "propertyNames": {
+                "pattern": "^[A-Za-z0-9_-]{1,32}$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "applicable_powertrain_types": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32
+                    }
+                  },
+                  "switching_condition": {
+                    "type": "string",
+                    "const": "unconditional"
+                  }
+                },
+                "required": [
+                  "applicable_powertrain_types",
+                  "switching_condition"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_requested_mode": {
+          "description": "Return the most recently accepted driving-mode request without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "requested_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "requested_mode",
+            "response_key": "requested_mode"
+          },
+          "response": {
+            "requested_mode": {
+              "type": "string",
+              "description": "Requested configured mode identifier, or an empty string when none has been requested."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_effective_mode": {
+          "description": "Return the driving mode currently effective in the simulated powertrain strategy without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "effective_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "effective_mode",
+            "response_key": "effective_mode"
+          },
+          "response": {
+            "effective_mode": {
+              "type": "string",
+              "description": "Effective configured mode identifier, or an empty string when no mode is effective."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_mode_configuration": {
+          "description": "Return the fixed configuration for one available driving mode, including its applicable powertrain types and switching condition. An unknown mode identifier is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,32}$",
+                "maxLength": 32,
+                "examples": [
+                  "standard"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "configured_modes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "configured_modes",
+            "id_parameter": "mode",
+            "response_key": "mode_configuration",
+            "preconditions": {
+              "configured_modes": {
+                "contains_key": {
+                  "parameter": "mode"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "mode": {
+              "property": "configured_modes",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "mode_configuration": {
+              "type": "object",
+              "description": "Fixed mode record containing applicable_powertrain_types and switching_condition."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The requested driving mode is not configured for this vehicle model."
+          }
+        },
+        "select_drive_mode": {
+          "description": "Select a driving mode configured for this vehicle model. Under the fixed unconditional switching policy, a valid selection atomically updates both requested_mode and effective_mode. Unknown mode identifiers are rejected and leave all state unchanged. This action changes only driving preferences and does not set vehicle speed or gear.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,32}$",
+                "maxLength": 32,
+                "examples": [
+                  "standard"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "configured_modes"
+          ],
+          "writes": [
+            "requested_mode",
+            "effective_mode"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "requested_mode": {
+                "parameter": "mode"
+              },
+              "effective_mode": {
+                "parameter": "mode"
+              }
+            },
+            "preconditions": {
+              "configured_modes": {
+                "contains_key": {
+                  "parameter": "mode"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "mode": {
+              "property": "configured_modes",
+              "field": "$key"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The requested driving mode is not configured for this vehicle model."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

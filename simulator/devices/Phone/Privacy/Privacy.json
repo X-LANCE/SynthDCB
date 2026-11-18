@@ -1,0 +1,782 @@
+{
+  "Privacy": {
+    "meta": {
+      "name": "Privacy",
+      "description": "Application permission and privacy management, placed in Setting and contained by System. Supports querying authorization by stable application ID and permission type, initiating simulated permission requests, and granting or revoking modifiable permissions through authorized system-settings operations. Covers camera, microphone, location, and notification-sending permissions. Location authorization distinguishes while-in-use, background, and approximate or precise access; valid combinations and supported levels are defined by fixed platform configuration. Pending, granted, and denied requests must be represented separately; a returned request does not imply authorization success. Updates preserve other applications and permission records. Supports querying current camera and microphone usage feedback. Effective access is constrained jointly by authorization, system resources, and relevant master switches.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "app_permissions": {
+          "type": "dict",
+          "description": "Authorization records keyed by stable synthetic application ID. Each application contains camera, microphone, location, and notifications records. Every record stores authorization and whether system settings may modify it; location additionally stores scope and accuracy.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "camera_app": {
+                "camera": {
+                  "authorization": "granted",
+                  "modifiable": true,
+                  "scope": "not_applicable",
+                  "accuracy": "not_applicable"
+                },
+                "microphone": {
+                  "authorization": "granted",
+                  "modifiable": true,
+                  "scope": "not_applicable",
+                  "accuracy": "not_applicable"
+                },
+                "location": {
+                  "authorization": "denied",
+                  "modifiable": true,
+                  "scope": "not_applicable",
+                  "accuracy": "not_applicable"
+                },
+                "notifications": {
+                  "authorization": "granted",
+                  "modifiable": true,
+                  "scope": "not_applicable",
+                  "accuracy": "not_applicable"
+                }
+              },
+              "maps": {
+                "camera": {
+                  "authorization": "denied",
+                  "modifiable": true,
+                  "scope": "not_applicable",
+                  "accuracy": "not_applicable"
+                },
+                "microphone": {
+                  "authorization": "denied",
+                  "modifiable": true,
+                  "scope": "not_applicable",
+                  "accuracy": "not_applicable"
+                },
+                "location": {
+                  "authorization": "granted",
+                  "modifiable": true,
+                  "scope": "while_in_use",
+                  "accuracy": "precise"
+                },
+                "notifications": {
+                  "authorization": "granted",
+                  "modifiable": true,
+                  "scope": "not_applicable",
+                  "accuracy": "not_applicable"
+                }
+              }
+            }
+          }
+        },
+        "permission_requests": {
+          "type": "dict",
+          "description": "Permission requests keyed by stable generated request ID. Each record stores the application, permission, requested location level where applicable, and a status of pending, granted, or denied. Resolving one request preserves all other request records.",
+          "mode": 2,
+          "value": {
+            "default": {}
+          }
+        },
+        "platform_config": {
+          "type": "dict",
+          "description": "Fixed read-only platform configuration defining supported permission types, location scopes, location accuracy levels, valid location combinations, and the not-applicable marker used for non-location permissions.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "permission_types": [
+                "camera",
+                "microphone",
+                "location",
+                "notifications"
+              ],
+              "location_scopes": [
+                "while_in_use",
+                "background"
+              ],
+              "location_accuracies": [
+                "approximate",
+                "precise"
+              ],
+              "valid_location_combinations": [
+                {
+                  "scope": "while_in_use",
+                  "accuracy": "approximate"
+                },
+                {
+                  "scope": "while_in_use",
+                  "accuracy": "precise"
+                },
+                {
+                  "scope": "background",
+                  "accuracy": "approximate"
+                },
+                {
+                  "scope": "background",
+                  "accuracy": "precise"
+                }
+              ],
+              "not_applicable": "not_applicable"
+            }
+          }
+        },
+        "platform_conditions": {
+          "type": "dict",
+          "description": "Read-only feedback for each supported permission type indicating whether its system resource is available and its relevant master switch is enabled. These conditions constrain effective access but do not alter stored authorization.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "camera": {
+                "resource_available": true,
+                "master_enabled": true
+              },
+              "microphone": {
+                "resource_available": true,
+                "master_enabled": true
+              },
+              "location": {
+                "resource_available": true,
+                "master_enabled": true
+              },
+              "notifications": {
+                "resource_available": true,
+                "master_enabled": true
+              }
+            }
+          }
+        },
+        "camera_in_use": {
+          "type": "boolean",
+          "description": "Whether an application is currently using the camera according to system privacy feedback. This becomes false when the corresponding resource or master switch prevents use.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        },
+        "microphone_in_use": {
+          "type": "boolean",
+          "description": "Whether an application is currently using the microphone according to system privacy feedback. This becomes false when the corresponding resource or master switch prevents use.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_authorization": {
+          "description": "Return the stored authorization record for an existing application and one supported permission type. This reports authorization only; it does not imply that the resource and master-switch conditions currently allow effective access.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "app_id": {
+                "type": "string",
+                "description": "An existing stable application ID.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "camera_app",
+                  "maps"
+                ]
+              },
+              "permission": {
+                "type": "string",
+                "description": "The permission type to query.",
+                "enum": [
+                  "camera",
+                  "microphone",
+                  "location",
+                  "notifications"
+                ],
+                "examples": [
+                  "camera",
+                  "location"
+                ]
+              }
+            },
+            "required": [
+              "app_id",
+              "permission"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "app_permissions"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The authorization record is nested first by application ID and then by permission type, which cannot be selected by the collection_read vocabulary.",
+            "preconditions": {
+              "app_permissions": {
+                "contains_key": {
+                  "parameter": "app_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "app_id": {
+              "property": "app_permissions",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "authorization_record": {
+              "type": "object",
+              "description": "The stored authorization, modifiability, scope, and accuracy record for the selected application permission."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The application ID does not exist."
+          }
+        },
+        "get_effective_access": {
+          "description": "Return whether an existing application currently has effective access to the selected permission. Access is effective only when stored authorization is granted, the corresponding system resource is available, and the relevant master switch is enabled. The response also includes the stored location scope and accuracy when location is selected. This query changes no state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "app_id": {
+                "type": "string",
+                "description": "An existing stable application ID.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "camera_app",
+                  "maps"
+                ]
+              },
+              "permission": {
+                "type": "string",
+                "description": "The permission type whose effective access is queried.",
+                "enum": [
+                  "camera",
+                  "microphone",
+                  "location",
+                  "notifications"
+                ],
+                "examples": [
+                  "microphone",
+                  "notifications"
+                ]
+              }
+            },
+            "required": [
+              "app_id",
+              "permission"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "app_permissions",
+            "platform_conditions"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Effective access must select a nested authorization record and combine it with the resource and master-switch conditions for the requested permission.",
+            "preconditions": {
+              "app_permissions": {
+                "contains_key": {
+                  "parameter": "app_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "app_id": {
+              "property": "app_permissions",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "effective_access": {
+              "type": "boolean",
+              "description": "Whether authorization and current platform conditions jointly allow access."
+            },
+            "authorization": {
+              "type": "string",
+              "description": "The stored granted or denied authorization."
+            },
+            "scope": {
+              "type": "string",
+              "description": "The stored location scope, or not_applicable for another permission."
+            },
+            "accuracy": {
+              "type": "string",
+              "description": "The stored location accuracy, or not_applicable for another permission."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The application ID does not exist."
+          }
+        },
+        "get_permission_requests": {
+          "description": "Return all permission-request records keyed by request ID. Pending, granted, and denied records remain distinct, and reading them changes no authorization.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "permission_requests"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "permission_requests",
+            "response_key": "permission_requests",
+            "preconditions": {}
+          },
+          "response": {
+            "permission_requests": {
+              "type": "object",
+              "description": "The complete dictionary of permission requests keyed by stable request ID."
+            }
+          }
+        },
+        "get_permission_request": {
+          "description": "Return one existing permission-request record by stable request ID without changing its status or any authorization.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string",
+                "description": "An existing permission-request ID.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "request_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "permission_requests"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "permission_requests",
+            "id_parameter": "request_id",
+            "response_key": "permission_request",
+            "preconditions": {
+              "permission_requests": {
+                "contains_key": {
+                  "parameter": "request_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "request_id": {
+              "property": "permission_requests",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "permission_request": {
+              "type": "object",
+              "description": "The selected permission-request record."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The permission-request ID does not exist."
+          }
+        },
+        "get_platform_config": {
+          "description": "Return the fixed platform permission configuration, including supported permission types and valid location scope and accuracy combinations.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "platform_config"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "platform_config",
+            "response_key": "platform_config",
+            "preconditions": {}
+          },
+          "response": {
+            "platform_config": {
+              "type": "object",
+              "description": "The fixed supported permission and location-level configuration."
+            }
+          }
+        },
+        "get_platform_conditions": {
+          "description": "Return current resource-availability and master-switch feedback for camera, microphone, location, and notifications without changing authorization or feedback.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "platform_conditions"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "platform_conditions",
+            "response_key": "platform_conditions",
+            "preconditions": {}
+          },
+          "response": {
+            "platform_conditions": {
+              "type": "object",
+              "description": "Current resource and master-switch conditions by permission type."
+            }
+          }
+        },
+        "get_camera_in_use": {
+          "description": "Return current system privacy feedback indicating whether the camera is in use.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "camera_in_use"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "camera_in_use",
+            "response_key": "camera_in_use",
+            "preconditions": {}
+          },
+          "response": {
+            "camera_in_use": {
+              "type": "boolean",
+              "description": "Whether the camera is currently in use."
+            }
+          }
+        },
+        "get_microphone_in_use": {
+          "description": "Return current system privacy feedback indicating whether the microphone is in use.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "microphone_in_use"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "microphone_in_use",
+            "response_key": "microphone_in_use",
+            "preconditions": {}
+          },
+          "response": {
+            "microphone_in_use": {
+              "type": "boolean",
+              "description": "Whether the microphone is currently in use."
+            }
+          }
+        },
+        "request_permission": {
+          "description": "Create a new pending permission request for an existing application and return its generated request ID. For location, requested_scope must be while_in_use or background and requested_accuracy must be approximate or precise, and the pair must appear in the fixed valid-location combinations. For camera, microphone, or notifications, both values must be not_applicable. Invalid combinations leave all requests and authorizations unchanged. Creating a request does not grant authorization.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "app_id": {
+                "type": "string",
+                "description": "An existing stable application ID requesting permission.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "camera_app",
+                  "maps"
+                ]
+              },
+              "permission": {
+                "type": "string",
+                "description": "The requested permission type.",
+                "enum": [
+                  "camera",
+                  "microphone",
+                  "location",
+                  "notifications"
+                ]
+              },
+              "requested_scope": {
+                "type": "string",
+                "description": "Requested location scope, or not_applicable for a non-location permission.",
+                "enum": [
+                  "not_applicable",
+                  "while_in_use",
+                  "background"
+                ]
+              },
+              "requested_accuracy": {
+                "type": "string",
+                "description": "Requested location accuracy, or not_applicable for a non-location permission.",
+                "enum": [
+                  "not_applicable",
+                  "approximate",
+                  "precise"
+                ]
+              }
+            },
+            "required": [
+              "app_id",
+              "permission",
+              "requested_scope",
+              "requested_accuracy"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "app_permissions",
+            "permission_requests",
+            "platform_config"
+          ],
+          "writes": [
+            "permission_requests"
+          ],
+          "semantics": {
+            "kind": "collection_add",
+            "property": "permission_requests",
+            "response_key": "request_id",
+            "fields": {
+              "app_id": {
+                "parameter": "app_id"
+              },
+              "permission": {
+                "parameter": "permission"
+              },
+              "requested_scope": {
+                "parameter": "requested_scope"
+              },
+              "requested_accuracy": {
+                "parameter": "requested_accuracy"
+              },
+              "status": {
+                "value": "pending"
+              }
+            },
+            "preconditions": {
+              "app_permissions": {
+                "contains_key": {
+                  "parameter": "app_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "app_id": {
+              "property": "app_permissions",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "request_id": {
+              "type": "string",
+              "description": "The generated stable ID of the new pending request."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The application ID does not exist.",
+            "INVALID_LOCATION_LEVEL": "The supplied scope and accuracy are invalid for the selected permission or are not a supported location combination."
+          }
+        },
+        "resolve_permission_request": {
+          "description": "Resolve one pending permission request as granted or denied. Granting updates only the corresponding application permission, using the request's validated location scope and accuracy for location. Denying stores denied authorization with not_applicable scope and accuracy. The request record is retained with its final status, and all unrelated applications, permissions, and requests are preserved. A missing or already resolved request leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string",
+                "description": "The ID of an existing pending permission request.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128
+              },
+              "decision": {
+                "type": "string",
+                "description": "The simulated user decision for the pending request.",
+                "enum": [
+                  "granted",
+                  "denied"
+                ]
+              }
+            },
+            "required": [
+              "request_id",
+              "decision"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "app_permissions",
+            "permission_requests",
+            "platform_config"
+          ],
+          "writes": [
+            "app_permissions",
+            "permission_requests"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Resolving a request atomically updates one request record and its corresponding nested application-permission record, which spans two collections and cannot be expressed by one collection semantic.",
+            "preconditions": {
+              "permission_requests": {
+                "contains_key": {
+                  "parameter": "request_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "request_id": {
+              "property": "permission_requests",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The permission-request ID does not exist.",
+            "PRECONDITION_FAILED": "The selected permission request is not pending.",
+            "INVALID_LOCATION_LEVEL": "The stored request does not contain a supported location combination."
+          }
+        },
+        "set_authorization": {
+          "description": "Set one modifiable application permission through the simulated authorized system-settings interface. For granted location authorization, scope must be while_in_use or background and accuracy must be approximate or precise, with the pair present in the fixed valid-location combinations. For denied location authorization and for every non-location permission, scope and accuracy must both be not_applicable. Invalid values, unknown applications, and non-modifiable records leave all state unchanged. This operation does not create or resolve a permission request and preserves every unrelated record.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "app_id": {
+                "type": "string",
+                "description": "An existing stable application ID.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "camera_app",
+                  "maps"
+                ]
+              },
+              "permission": {
+                "type": "string",
+                "description": "The permission type to change.",
+                "enum": [
+                  "camera",
+                  "microphone",
+                  "location",
+                  "notifications"
+                ]
+              },
+              "authorization": {
+                "type": "string",
+                "description": "The desired stored authorization.",
+                "enum": [
+                  "granted",
+                  "denied"
+                ]
+              },
+              "scope": {
+                "type": "string",
+                "description": "Location scope for granted location access, otherwise not_applicable.",
+                "enum": [
+                  "not_applicable",
+                  "while_in_use",
+                  "background"
+                ]
+              },
+              "accuracy": {
+                "type": "string",
+                "description": "Location accuracy for granted location access, otherwise not_applicable.",
+                "enum": [
+                  "not_applicable",
+                  "approximate",
+                  "precise"
+                ]
+              }
+            },
+            "required": [
+              "app_id",
+              "permission",
+              "authorization",
+              "scope",
+              "accuracy"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "app_permissions",
+            "platform_config"
+          ],
+          "writes": [
+            "app_permissions"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The operation must atomically validate conditional location combinations and modify one permission nested within an application record while preserving all sibling records.",
+            "preconditions": {
+              "app_permissions": {
+                "contains_key": {
+                  "parameter": "app_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "app_id": {
+              "property": "app_permissions",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The application ID does not exist.",
+            "NOT_MODIFIABLE": "The selected permission record cannot be changed through system settings.",
+            "INVALID_LOCATION_LEVEL": "The supplied scope and accuracy are invalid for the selected permission or authorization."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "dependency_changed": {
+          "description": "When privacy master switches, system-resource availability, or camera and microphone activity feedback changes, updates the corresponding platform conditions and usage indicators. Camera or microphone usage is cleared whenever its resource is unavailable or its master switch is disabled. Restoring a condition does not by itself report new resource use and does not change stored application authorization.",
+          "effect_properties": [
+            {
+              "name": "platform_conditions",
+              "description": "Current resource-availability and master-switch feedback for each supported permission type."
+            },
+            {
+              "name": "camera_in_use",
+              "description": "Current camera usage feedback, constrained by camera resource and master-switch conditions."
+            },
+            {
+              "name": "microphone_in_use",
+              "description": "Current microphone usage feedback, constrained by microphone resource and master-switch conditions."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

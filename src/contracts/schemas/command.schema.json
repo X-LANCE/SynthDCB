@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:command",
+  "title": "DCB v2 command",
+  "type": "object",
+  "required": ["target", "function", "parameters"],
+  "properties": {
+    "target": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+    "function": {"$ref": "urn:dcb:v2:schema:common#/$defs/functionName"},
+    "parameters": {
+      "type": "object",
+      "additionalProperties": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+    }
+  },
+  "additionalProperties": false
+}

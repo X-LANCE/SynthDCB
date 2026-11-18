@@ -1,0 +1,244 @@
+{
+  "WaterHeater": {
+    "meta": {
+      "name": "WaterHeater",
+      "description": "Water heater. Users can query and set the target outlet-water temperature and heating state.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the water heater is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "target_outlet_temperature": {
+          "type": "float",
+          "description": "Target outlet-water temperature.",
+          "mode": 3,
+          "value": {
+            "default": 45.0,
+            "unit": "degC",
+            "minimum": 0.0,
+            "maximum": 100.0,
+            "step": 0.5,
+            "step_origin": 0.0,
+            "precision": 1
+          }
+        },
+        "heating_state": {
+          "type": "boolean",
+          "description": "Whether heating is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_target_outlet_temperature": {
+          "description": "Return the configured target outlet-water temperature. This operation fails while the water heater is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "target_outlet_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_outlet_temperature",
+            "response_key": "target_outlet_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "target_outlet_temperature": {
+              "type": "number",
+              "description": "Target outlet-water temperature in degrees Celsius."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_target_outlet_temperature": {
+          "description": "Set the target outlet-water temperature while powered on. The value must be between 0.0 and 100.0 degrees Celsius in 0.5-degree increments; invalid values leave the state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 100.0,
+                "multipleOf": 0.5,
+                "description": "Target outlet-water temperature in degrees Celsius.",
+                "examples": [
+                  40.0,
+                  55.5
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "target_outlet_temperature"
+          ],
+          "writes": [
+            "target_outlet_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_outlet_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_heating_state": {
+          "description": "Return whether heating is enabled. This operation fails while the water heater is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "heating_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "heating_state",
+            "response_key": "heating_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "heating_state": {
+              "type": "boolean",
+              "description": "Whether heating is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_heating_state": {
+          "description": "Enable or disable heating while powered on. This changes the heating enable state; invalid requests leave the state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether heating should be enabled."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "heating_state"
+          ],
+          "writes": [
+            "heating_state"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "heating_state",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

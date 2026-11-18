@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:trajectory",
+  "title": "DCB v2 replayable trajectory",
+  "type": "object",
+  "required": [
+    "trajectory_id",
+    "world_id",
+    "task_id",
+    "source",
+    "records"
+  ],
+  "properties": {
+    "trajectory_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "world_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "task_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "source": {
+      "type": "string",
+      "enum": ["ground_truth", "agent", "replay", "repair"]
+    },
+    "records": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {"$ref": "#/$defs/toolExchange"},
+          {"$ref": "#/$defs/turnBoundaryRecord"},
+          {"$ref": "#/$defs/terminationRecord"}
+        ]
+      },
+      "contains": {"$ref": "#/$defs/terminationRecord"},
+      "minContains": 1,
+      "maxContains": 1
+    }
+  },
+  "$defs": {
+    "toolExchange": {
+      "type": "object",
+      "required": ["kind", "call", "result"],
+      "properties": {
+        "kind": {"const": "tool_exchange"},
+        "call": {"$ref": "urn:dcb:v2:schema:tool-call"},
+        "result": {"$ref": "urn:dcb:v2:schema:tool-result"}
+      },
+      "additionalProperties": false
+    },
+    "turnBoundaryRecord": {
+      "type": "object",
+      "required": ["kind", "boundary"],
+      "properties": {
+        "kind": {"const": "turn_boundary"},
+        "boundary": {"$ref": "urn:dcb:v2:schema:turn-boundary"}
+      },
+      "additionalProperties": false
+    },
+    "terminationRecord": {
+      "type": "object",
+      "required": ["kind", "termination"],
+      "properties": {
+        "kind": {"const": "termination"},
+        "termination": {"$ref": "urn:dcb:v2:schema:termination"},
+        "result": {
+          "type": "object",
+          "required": ["status", "code"],
+          "properties": {
+            "status": {"const": "ended"},
+            "code": {"enum": ["EMPTY_TOOL_CALL_LIST", "SESSION_FINISH", "TURN_LIMIT_REACHED", "TIME_LIMIT_REACHED"]}
+          },
+          "additionalProperties": false
+        }
+      },
+      "oneOf": [
+        {"properties": {"termination": {"properties": {"reason": {"const": "agent_stopped"}}}, "result": {"properties": {"code": {"const": "EMPTY_TOOL_CALL_LIST"}}}}},
+        {"properties": {"termination": {"properties": {"reason": {"const": "session_finish"}}}, "result": {"properties": {"code": {"const": "SESSION_FINISH"}}}}},
+        {"properties": {"termination": {"properties": {"reason": {"const": "max_turns"}}}, "result": {"properties": {"code": {"const": "TURN_LIMIT_REACHED"}}}}},
+        {"properties": {"termination": {"properties": {"reason": {"const": "elapsed_time_limit"}}}, "result": {"properties": {"code": {"const": "TIME_LIMIT_REACHED"}}}}}
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

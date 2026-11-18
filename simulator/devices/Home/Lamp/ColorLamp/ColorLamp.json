@@ -1,0 +1,408 @@
+{
+  "ColorLamp": {
+    "meta": {
+      "name": "ColorLamp",
+      "description": "A lamp subclass that supports colored lighting and adds light-mode and color states to the base lamp. In white-light mode, color temperature can be adjusted but colored light cannot; in color mode, light color can be adjusted globally or by color channel but color temperature cannot. Brightness can be adjusted in both modes, and space illuminance remains determined by the inherited power and brightness states.",
+      "version": "1.0.0",
+      "from": "../Lamp.json"
+    },
+    "properties": {
+      "update": {
+        "light_mode": {
+          "type": "string",
+          "description": "Current light mode. In white mode, color temperature is adjustable and colored light is unavailable. In color mode, color is adjustable and color temperature is unavailable. The setting persists while the lamp is off and is publicly accessible only while the lamp is on.",
+          "mode": 3,
+          "value": {
+            "default": "white",
+            "choices": [
+              "white",
+              "color"
+            ]
+          }
+        },
+        "color": {
+          "type": "string",
+          "description": "Configured global light color as a six-digit hexadecimal RGB value in the form #RRGGBB. It is publicly accessible and adjustable only while the lamp is powered on in color mode.",
+          "mode": 3,
+          "value": {
+            "default": "#FFFFFF",
+            "pattern": "^#[0-9A-Fa-f]{6}$",
+            "max_length": 7
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_light_mode": {
+          "description": "Return the current light mode. The lamp must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "light_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "light_mode",
+            "response_key": "light_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "light_mode": {
+              "type": "string",
+              "description": "Either white or color."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to read light mode."
+          }
+        },
+        "set_light_mode": {
+          "description": "Set the light mode to white or color. The lamp must be powered on. White mode enables color-temperature control and color mode enables color control.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "white",
+                  "color"
+                ],
+                "description": "Target light mode."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "light_mode"
+          ],
+          "writes": [
+            "light_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "light_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to change light mode.",
+            "INVALID_INPUT_ERROR": "Light mode must be white or color."
+          }
+        },
+        "get_color": {
+          "description": "Return the configured global hexadecimal RGB color. The lamp must be powered on and in color mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "light_mode",
+            "color"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "color",
+            "response_key": "color",
+            "preconditions": {
+              "power": true,
+              "light_mode": "color"
+            }
+          },
+          "response": {
+            "color": {
+              "type": "string",
+              "description": "Six-digit hexadecimal RGB color in the form #RRGGBB."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to read color.",
+            "WRONG_MODE": "Color is accessible only in color mode."
+          }
+        },
+        "set_color": {
+          "description": "Set the global light color to a six-digit hexadecimal RGB value. The lamp must be powered on and in color mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$",
+                "maxLength": 7,
+                "description": "Target RGB color, for example #FF8800.",
+                "examples": [
+                  "#FF0000",
+                  "#00FF00",
+                  "#0000FF"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "light_mode",
+            "color"
+          ],
+          "writes": [
+            "color"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "color",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "light_mode": "color"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to change color.",
+            "WRONG_MODE": "Color is adjustable only in color mode.",
+            "INVALID_INPUT_ERROR": "Color must be a hexadecimal RGB string in the form #RRGGBB."
+          }
+        },
+        "set_color_channel": {
+          "description": "Set one RGB channel to an integer from 0 through 255. The lamp must be powered on and in color mode. Only the selected channel changes; the other channels are preserved.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "string",
+                "enum": [
+                  "red",
+                  "green",
+                  "blue"
+                ],
+                "description": "RGB channel to change."
+              },
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255,
+                "description": "Target intensity for the selected channel."
+              }
+            },
+            "required": [
+              "channel",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "light_mode",
+            "color"
+          ],
+          "writes": [
+            "color"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Update exactly one selected RGB channel while preserving the other two channels.",
+            "preconditions": {
+              "power": true,
+              "light_mode": "color"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to change color.",
+            "WRONG_MODE": "Color channels are adjustable only in color mode.",
+            "INVALID_INPUT_ERROR": "Channel must be red, green, or blue and its value must be an integer from 0 through 255."
+          }
+        },
+        "get_color_temperature": {
+          "description": "Return the configured color temperature in kelvin. The lamp must be powered on and in white-light mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "light_mode",
+            "color_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "color_temperature",
+            "response_key": "color_temperature",
+            "preconditions": {
+              "power": true,
+              "light_mode": "white"
+            }
+          },
+          "response": {
+            "color_temperature": {
+              "type": "integer",
+              "description": "Color temperature in kelvin."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to read color temperature.",
+            "WRONG_MODE": "Color temperature is accessible only in white-light mode."
+          }
+        },
+        "set_color_temperature": {
+          "description": "Set color temperature to an integer from 1000 K through 6500 K in 100 K increments. The lamp must be powered on and in white-light mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 6500,
+                "multipleOf": 100,
+                "description": "Target color temperature in kelvin."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "light_mode",
+            "color_temperature"
+          ],
+          "writes": [
+            "color_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "color_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "light_mode": "white"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to change color temperature.",
+            "WRONG_MODE": "Color temperature is adjustable only in white-light mode.",
+            "INVALID_INPUT_ERROR": "Color temperature must be an integer from 1000 through 6500 K in 100 K increments."
+          }
+        },
+        "increase_color_temperature": {
+          "description": "Increase color temperature by the requested number of 100 K steps, defaulting to 1, capped at 6500 K. The lamp must be powered on and in white-light mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1,
+                "description": "Number of 100 K steps."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "light_mode",
+            "color_temperature"
+          ],
+          "writes": [
+            "color_temperature"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Increase color temperature by the supplied number of 100 K steps and cap the result at 6500 K.",
+            "preconditions": {
+              "power": true,
+              "light_mode": "white"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to increase color temperature.",
+            "WRONG_MODE": "Color temperature is adjustable only in white-light mode.",
+            "INVALID_INPUT_ERROR": "The step count must be an integer of at least 1."
+          }
+        },
+        "decrease_color_temperature": {
+          "description": "Decrease color temperature by the requested number of 100 K steps, defaulting to 1, floored at 1000 K. The lamp must be powered on and in white-light mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1,
+                "description": "Number of 100 K steps."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "light_mode",
+            "color_temperature"
+          ],
+          "writes": [
+            "color_temperature"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Decrease color temperature by the supplied number of 100 K steps and floor the result at 1000 K.",
+            "preconditions": {
+              "power": true,
+              "light_mode": "white"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to decrease color temperature.",
+            "WRONG_MODE": "Color temperature is adjustable only in white-light mode.",
+            "INVALID_INPUT_ERROR": "The step count must be an integer of at least 1."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

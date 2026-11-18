@@ -1,0 +1,472 @@
+{
+  "SurveillanceCamera": {
+    "meta": {
+      "name": "SurveillanceCamera",
+      "description": "Surveillance camera. Users can query the video-monitoring state and set camera power, horizontal and vertical pan-tilt directions, night-vision mode, and motion-tracking state.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the surveillance camera is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "video_monitoring": {
+          "type": "boolean",
+          "description": "Whether video monitoring is active.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "horizontal_pan": {
+          "type": "string",
+          "description": "Horizontal pan direction of the camera.",
+          "mode": 3,
+          "value": {
+            "default": "center",
+            "choices": [
+              "left",
+              "center",
+              "right"
+            ]
+          }
+        },
+        "vertical_pan": {
+          "type": "string",
+          "description": "Vertical tilt direction of the camera.",
+          "mode": 3,
+          "value": {
+            "default": "center",
+            "choices": [
+              "up",
+              "center",
+              "down"
+            ]
+          }
+        },
+        "night_vision": {
+          "type": "string",
+          "description": "Night-vision operating mode.",
+          "mode": 3,
+          "value": {
+            "default": "auto",
+            "choices": [
+              "auto",
+              "on",
+              "off"
+            ]
+          }
+        },
+        "motion_tracking": {
+          "type": "boolean",
+          "description": "Whether automatic motion tracking is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_video_monitoring": {
+          "description": "Return whether video monitoring is active. The camera must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "video_monitoring"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "video_monitoring",
+            "response_key": "video_monitoring",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "video_monitoring": {
+              "type": "boolean",
+              "description": "Whether video monitoring is active."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_video_monitoring": {
+          "description": "Enable or disable video monitoring. The camera must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether video monitoring should be active."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "video_monitoring"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "video_monitoring",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_horizontal_pan": {
+          "description": "Return the horizontal pan direction. The camera must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "horizontal_pan"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "horizontal_pan",
+            "response_key": "horizontal_pan",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "horizontal_pan": {
+              "type": "string",
+              "description": "The current horizontal pan direction."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_horizontal_pan": {
+          "description": "Set the horizontal pan direction to left, center, or right. The camera must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "left",
+                  "center",
+                  "right"
+                ],
+                "description": "The desired horizontal pan direction."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "horizontal_pan"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "horizontal_pan",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_vertical_pan": {
+          "description": "Return the vertical tilt direction. The camera must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "vertical_pan"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "vertical_pan",
+            "response_key": "vertical_pan",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "vertical_pan": {
+              "type": "string",
+              "description": "The current vertical tilt direction."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_vertical_pan": {
+          "description": "Set the vertical tilt direction to up, center, or down. The camera must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "up",
+                  "center",
+                  "down"
+                ],
+                "description": "The desired vertical tilt direction."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "vertical_pan"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "vertical_pan",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_night_vision": {
+          "description": "Return the night-vision mode. The camera must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "night_vision"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "night_vision",
+            "response_key": "night_vision",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "night_vision": {
+              "type": "string",
+              "description": "The current night-vision mode."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_night_vision": {
+          "description": "Set night vision to auto, on, or off. The camera must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "on",
+                  "off"
+                ],
+                "description": "The desired night-vision mode."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "night_vision"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "night_vision",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_motion_tracking": {
+          "description": "Return whether motion tracking is enabled. The camera must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "motion_tracking"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "motion_tracking",
+            "response_key": "motion_tracking",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "motion_tracking": {
+              "type": "boolean",
+              "description": "Whether motion tracking is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_motion_tracking": {
+          "description": "Enable or disable motion tracking. The camera must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether motion tracking should be enabled."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "motion_tracking"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "motion_tracking",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

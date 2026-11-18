@@ -1,0 +1,281 @@
+{
+  "Sunshade": {
+    "meta": {
+      "name": "Sunshade",
+      "description": "Independent powered sunshade. Supports querying and setting the shade opening, stopping motion, and querying motion feedback. The degree of shading affects light and solar heat load in the corresponding area without changing the glass opening. Instantiate only for an independent shading mechanism not already owned by an existing Sunroof module, avoiding two sets of state for the same shade. Candidate selection and spatial/environmental constraints apply; action contracts are simulation designs.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether electrical power is available for shade movement and non-power public operations. Turning power off suspends movement while retaining the current opening and target.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "opening": {
+          "type": "integer",
+          "description": "Current physical shade opening percentage. Zero is fully closed for maximum shading, and 100 is fully open.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "target_opening": {
+          "type": "integer",
+          "description": "Internally retained opening percentage toward which the shade moves when powered.",
+          "mode": 0,
+          "value": {
+            "default": 0,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "motion_state": {
+          "type": "string",
+          "description": "Directional motion feedback. Opening or closing indicates the pending movement direction; movement is suspended while power is off.",
+          "mode": 2,
+          "value": {
+            "default": "stopped",
+            "choices": [
+              "opening",
+              "closing",
+              "stopped"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_opening": {
+          "description": "Return the current physical shade opening percentage without changing state. This function is unavailable while power is off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "opening"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "opening",
+            "response_key": "opening",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "opening": {
+              "type": "integer",
+              "description": "Current opening percentage from 0 for fully closed through 100 for fully open."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The sunshade must be powered on."
+          }
+        },
+        "set_opening": {
+          "description": "Command an integer opening percentage from 0 through 100 while powered. A value above the current opening starts or retargets opening motion; a value below it starts or retargets closing motion. A value equal to the current opening stops motion immediately. The shade subsequently moves by up to 20 percentage points per minute and stops exactly at the target. Invalid input or unavailable power leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Desired shade opening percentage.",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "opening"
+          ],
+          "writes": [
+            "target_opening",
+            "motion_state"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The command stores a target and derives opening, closing, or stopped motion from the target relative to the current physical opening.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The sunshade must be powered on.",
+            "INVALID_INPUT_ERROR": "Opening must be an integer from 0 through 100."
+          }
+        },
+        "stop_motion": {
+          "description": "Stop shade motion at its current physical opening while powered. The current opening becomes the retained target, so later ticks do not resume the interrupted command. Calling this while already stopped is idempotent. If power is off, the operation is rejected without mutation.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "opening"
+          ],
+          "writes": [
+            "target_opening",
+            "motion_state"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Stopping copies the current opening into the internal target and changes motion feedback to stopped.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The sunshade must be powered on."
+          }
+        },
+        "get_motion_state": {
+          "description": "Return whether the shade has an opening, closing, or stopped motion state without changing state. This function is unavailable while power is off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "motion_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "motion_state",
+            "response_key": "motion_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "motion_state": {
+              "type": "string",
+              "description": "Current directional motion feedback: opening, closing, or stopped."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The sunshade must be powered on."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While powered, move opening toward target_opening by up to 20 percentage points per elapsed minute in the indicated direction and stop exactly at the target. While unpowered, do not advance the opening or discard the pending target. For each elapsed minute, set the transmitted illuminance contribution in the containing Space to opening multiplied by 10 lux and add opening divided by 1000 degrees Celsius to that Space's temperature as solar heat load. These passive effects depend on physical opening even while power is off; a fully closed shade contributes zero transmitted illuminance and zero solar heating.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether pending shade movement may advance."
+            },
+            {
+              "name": "opening",
+              "description": "Determines current transmitted illuminance and solar heat load and is advanced only while powered."
+            },
+            {
+              "name": "target_opening",
+              "description": "Defines the retained endpoint toward which the powered shade moves."
+            },
+            {
+              "name": "motion_state",
+              "description": "Defines the pending movement direction and changes to stopped when the target is reached."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

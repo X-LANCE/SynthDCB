@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:memory",
+  "title": "DCB private task-scoped memory fixture",
+  "type": "object",
+  "required": ["scope_id", "records"],
+  "properties": {
+    "scope_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "records": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 8,
+      "items": {"$ref": "#/$defs/memoryRecord"}
+    }
+  },
+  "$defs": {
+    "memoryRecord": {
+      "type": "object",
+      "required": ["memory_id", "content"],
+      "properties": {
+        "memory_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+        "content": {"type": "string", "minLength": 1},
+        "user_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

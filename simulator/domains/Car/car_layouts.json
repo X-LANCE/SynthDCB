@@ -1,0 +1,80 @@
+{
+  "domain": "Car",
+  "property_catalog": "car.property-specs.json",
+  "space_type_limits": {
+    "cabin": 1,
+    "driver_seat": 1,
+    "front_passenger_seat": 1,
+    "passenger_seat": 5,
+    "trunk": 1,
+    "cargo_bed": 1,
+    "exterior": 1,
+    "propulsion": 1,
+    "fuel_energy": 1,
+    "electric_energy": 1,
+    "hybrid_energy": 1,
+    "multimedia": 1
+  },
+  "person_names": [],
+  "runtime": {
+    "time_policy": {
+      "sleep_time_default_minutes": 1,
+      "after_action_default_minutes": 0,
+      "after_turn_default_minutes": 0
+    },
+    "time_state": {
+      "date": "2026-09-07",
+      "clock": "12:00",
+      "elapsed_minutes": 0,
+      "timezone": "Asia/Shanghai"
+    },
+    "weather_state": {},
+    "dynamics": []
+  },
+  "domain_metadata": {
+    "info": {
+      "name": "Car",
+      "description": "Car cabin, seats, physical storage and virtual systems"
+    },
+    "connections": []
+  },
+  "scene_metadata": {},
+  "layouts": [
+    {
+      "id": "five_seat_fuel",
+      "path": "layouts/five_seat_fuel.json"
+    },
+    {
+      "id": "five_seat_electric",
+      "path": "layouts/five_seat_electric.json"
+    },
+    {
+      "id": "five_seat_hybrid",
+      "path": "layouts/five_seat_hybrid.json"
+    },
+    {
+      "id": "seven_seat_fuel",
+      "path": "layouts/seven_seat_fuel.json"
+    },
+    {
+      "id": "seven_seat_electric",
+      "path": "layouts/seven_seat_electric.json"
+    },
+    {
+      "id": "seven_seat_hybrid",
+      "path": "layouts/seven_seat_hybrid.json"
+    },
+    {
+      "id": "pickup_fuel",
+      "path": "layouts/pickup_fuel.json"
+    },
+    {
+      "id": "pickup_electric",
+      "path": "layouts/pickup_electric.json"
+    },
+    {
+      "id": "pickup_hybrid",
+      "path": "layouts/pickup_hybrid.json"
+    }
+  ]
+}

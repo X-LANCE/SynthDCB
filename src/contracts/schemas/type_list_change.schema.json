@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:type-list-change",
+  "title": "Object-class list generation changes",
+  "type": "object",
+  "properties": {
+    "delete_list": {
+      "type": "array",
+      "description": "Existing top-level base-class keys to delete before applying the returned class entries.",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Za-z0-9]*$"
+      },
+      "uniqueItems": true
+    }
+  },
+  "patternProperties": {
+    "^[A-Z][A-Za-z0-9]*$": {
+      "type": "object",
+      "required": [
+        "domain",
+        "class",
+        "description",
+        "inherited_list"
+      ],
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "class": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Za-z0-9]*$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "base_only": {
+          "type": "boolean",
+          "description": "Whether this top-level class is only a shared base and must not be instantiated directly."
+        },
+        "inherited_list": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "class",
+              "description"
+            ],
+            "properties": {
+              "class": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Za-z0-9]*$"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

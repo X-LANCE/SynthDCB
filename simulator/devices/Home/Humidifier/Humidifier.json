@@ -1,0 +1,342 @@
+{
+  "Humidifier": {
+    "meta": {
+      "name": "Humidifier",
+      "description": "Humidifier. Users can query and set power, sleep mode, target humidity, and humidification intensity. When the device is on and the humidity of its space is below the target, it gradually increases humidity according to the humidification intensity; it produces no further humidification effect when turned off or when the space has reached the target humidity. Current space humidity is provided by the containing space.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the humidifier is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "sleep_mode": {
+          "type": "boolean",
+          "description": "Whether sleep mode is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "target_humidity": {
+          "type": "integer",
+          "description": "Desired humidity for the containing space.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "unit": "%RH",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "humidification_intensity": {
+          "type": "string",
+          "description": "Humidification output intensity.",
+          "mode": 3,
+          "value": {
+            "default": "medium",
+            "choices": [
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_sleep_mode": {
+          "description": "Return the sleep mode setting while the humidifier is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "sleep_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "sleep_mode",
+            "response_key": "sleep_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "sleep_mode": {
+              "type": "boolean",
+              "description": "Whether sleep mode is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_sleep_mode": {
+          "description": "Enable or disable sleep mode while the humidifier is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Requested sleep mode setting."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "sleep_mode"
+          ],
+          "writes": [
+            "sleep_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "sleep_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_target_humidity": {
+          "description": "Return the target humidity while the humidifier is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "target_humidity"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_humidity",
+            "response_key": "target_humidity",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "target_humidity": {
+              "type": "integer",
+              "description": "Configured target humidity in percent relative humidity."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_target_humidity": {
+          "description": "Set the target humidity to an integer from 0 through 100 while the humidifier is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Target humidity in percent relative humidity."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "target_humidity"
+          ],
+          "writes": [
+            "target_humidity"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_humidity",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_humidification_intensity": {
+          "description": "Return the humidification intensity while the humidifier is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "humidification_intensity"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "humidification_intensity",
+            "response_key": "humidification_intensity",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "humidification_intensity": {
+              "type": "string",
+              "description": "Current humidification intensity."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_humidification_intensity": {
+          "description": "Set humidification intensity to low, medium, or high while the humidifier is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "description": "Requested humidification intensity."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "humidification_intensity"
+          ],
+          "writes": [
+            "humidification_intensity"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "humidification_intensity",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "On each tick, while powered, increase the containing space's humidity by a deterministic contribution when its current humidity is below target_humidity. The contribution is 1 percentage point at low intensity, 2 at medium intensity, and 3 at high intensity; sleep mode halves the contribution using integer reduction, with a minimum contribution of 1 while humidification is needed. Emit no humidity contribution when unpowered or when current humidity is at least target_humidity.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the humidifier is powered."
+            },
+            {
+              "name": "sleep_mode",
+              "description": "Whether sleep mode is enabled."
+            },
+            {
+              "name": "target_humidity",
+              "description": "Desired humidity for the containing space."
+            },
+            {
+              "name": "humidification_intensity",
+              "description": "Configured humidification output intensity."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

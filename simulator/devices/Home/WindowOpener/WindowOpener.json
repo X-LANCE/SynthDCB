@@ -1,0 +1,714 @@
+{
+  "WindowOpener": {
+    "meta": {
+      "name": "WindowOpener",
+      "description": "Smart window opener. Users can query and set the window's open or closed state and opening percentage, and can perform open, close, and stop actions. The opening percentage is updated while the device moves. Opening or closing the window affects the temperature, humidity, and air quality of its space according to differences between indoor and outdoor environments. Open/closed state is computed from the actual opening percentage. Motion has a persisted duration and origin, pauses on power loss, and physical ventilation through an open window continues independently of motor power.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "process": {
+      "mode_property": "motion_mode",
+      "start_function": "open",
+      "pause_function": "stop",
+      "modes": {
+        "opening": [
+          {
+            "phase": "opening",
+            "minutes": {
+              "property": "travel_minutes"
+            }
+          }
+        ],
+        "closing": [
+          {
+            "phase": "closing",
+            "minutes": {
+              "property": "travel_minutes"
+            }
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the window opener is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "opening_percentage": {
+          "type": "integer",
+          "description": "Current window opening percentage, from 0 fully closed to 100 fully open.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "target_opening_percentage": {
+          "type": "integer",
+          "description": "Requested window opening percentage, from 0 fully closed to 100 fully open.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "motion_mode": {
+          "type": "string",
+          "description": "Direction selected for the movement process.",
+          "mode": 2,
+          "value": {
+            "default": "opening",
+            "choices": [
+              "opening",
+              "closing"
+            ]
+          }
+        },
+        "movement_minutes": {
+          "type": "integer",
+          "description": "Minutes required to travel from fully closed to fully open.",
+          "mode": 2,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 1440,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Persisted movement process status.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "running",
+              "paused",
+              "completed"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Persisted process phase.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "opening",
+              "closing",
+              "completed"
+            ]
+          }
+        },
+        "remaining_minutes": {
+          "type": "integer",
+          "description": "Remaining whole minutes in the current movement process.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "maximum": 1440,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "started_at_minute": {
+          "type": "integer",
+          "description": "Elapsed world minute at which the current running process began, adjusted for completed progress.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "progress_minutes": {
+          "type": "integer",
+          "description": "Whole minutes completed in the current movement process.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "maximum": 1440,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "start_opening_percentage": {
+          "type": "integer",
+          "description": "Opening percentage at the start of the current movement, persisted for deterministic interpolation.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "travel_minutes": {
+          "type": "integer",
+          "description": "Computed whole-minute duration for the current nonzero travel: max(1, ceil(abs(target_opening_percentage - start_opening_percentage) * movement_minutes / 100)). The value is nominal and unused for an already-at-target no-op.",
+          "mode": 2,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 1440,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "outdoor_temperature": {
+          "type": "number",
+          "description": "External environment parameter supplied at initialization for physical exchange; not a duplicate of indoor Space state.",
+          "mode": 2,
+          "value": {
+            "default": 22.0,
+            "unit": "degC",
+            "minimum": -50,
+            "maximum": 80,
+            "precision": 1
+          }
+        },
+        "outdoor_humidity": {
+          "type": "integer",
+          "description": "External environment parameter supplied at initialization for physical exchange; not a duplicate of indoor Space state.",
+          "mode": 2,
+          "value": {
+            "default": 50,
+            "unit": "%RH",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "outdoor_air_quality": {
+          "type": "integer",
+          "description": "External environment parameter supplied at initialization for physical exchange; not a duplicate of indoor Space state.",
+          "mode": 2,
+          "value": {
+            "default": 30,
+            "unit": "AQI",
+            "minimum": 0,
+            "maximum": 500,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_opening_percentage": {
+          "description": "Return the current window opening percentage.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "opening_percentage"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "opening_percentage",
+            "response_key": "opening_percentage",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_opening_percentage": {
+          "description": "Request target opening the value argument. When already running toward the same target, return success without changing any state. Otherwise set target_opening_percentage to the request and start_opening_percentage to the current opening_percentage, reset progress_minutes to zero, and compute travel_minutes=max(1, ceil(abs(target_opening_percentage-start_opening_percentage)*movement_minutes/100)). If the current opening equals the target, set status and phase to completed and remaining_minutes to zero without starting motion; retain the previous motion_mode. Otherwise choose motion_mode=opening if target exceeds current opening, or closing if below; set status=running, phase=motion_mode and remaining_minutes=travel_minutes. The after_action transition establishes started_at_minute at the current elapsed world minute. Invalid input changes no state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "opening_percentage",
+            "target_opening_percentage",
+            "status",
+            "movement_minutes"
+          ],
+          "writes": [
+            "target_opening_percentage",
+            "start_opening_percentage",
+            "travel_minutes",
+            "motion_mode",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "progress_minutes",
+            "started_at_minute"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The operation selects movement direction and initializes process state based on the current opening percentage.",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_motion_mode": {
+          "description": "Return the selected movement direction.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "motion_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "motion_mode",
+            "response_key": "motion_mode",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_status": {
+          "description": "Return the persisted movement process status.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "status",
+            "response_key": "status",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "open": {
+          "description": "Request target opening 100. When already running toward the same target, return success without changing any state. Otherwise set target_opening_percentage to the request and start_opening_percentage to the current opening_percentage, reset progress_minutes to zero, and compute travel_minutes=max(1, ceil(abs(target_opening_percentage-start_opening_percentage)*movement_minutes/100)). If the current opening equals the target, set status and phase to completed and remaining_minutes to zero without starting motion; retain the previous motion_mode. Otherwise choose motion_mode=opening if target exceeds current opening, or closing if below; set status=running, phase=motion_mode and remaining_minutes=travel_minutes. The after_action transition establishes started_at_minute at the current elapsed world minute. Invalid input changes no state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "opening"
+                ],
+                "default": "opening"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "opening_percentage",
+            "target_opening_percentage",
+            "status",
+            "movement_minutes"
+          ],
+          "writes": [
+            "target_opening_percentage",
+            "start_opening_percentage",
+            "travel_minutes",
+            "motion_mode",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "progress_minutes",
+            "started_at_minute"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "mode",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "close": {
+          "description": "Request target opening 0. When already running toward the same target, return success without changing any state. Otherwise set target_opening_percentage to the request and start_opening_percentage to the current opening_percentage, reset progress_minutes to zero, and compute travel_minutes=max(1, ceil(abs(target_opening_percentage-start_opening_percentage)*movement_minutes/100)). If the current opening equals the target, set status and phase to completed and remaining_minutes to zero without starting motion; retain the previous motion_mode. Otherwise choose motion_mode=opening if target exceeds current opening, or closing if below; set status=running, phase=motion_mode and remaining_minutes=travel_minutes. The after_action transition establishes started_at_minute at the current elapsed world minute. Invalid input changes no state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "closing"
+                ],
+                "default": "closing"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "opening_percentage",
+            "target_opening_percentage",
+            "status",
+            "movement_minutes"
+          ],
+          "writes": [
+            "target_opening_percentage",
+            "start_opening_percentage",
+            "travel_minutes",
+            "motion_mode",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "progress_minutes",
+            "started_at_minute"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "mode",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "stop": {
+          "description": "While powered and running, pause movement by setting status=paused. Preserve the current opening, phase, target, travel duration, origin and progress. A later open, close or percentage request starts a new movement from the retained opening.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_pause",
+            "preconditions": {
+              "power": true,
+              "status": "running"
+            }
+          }
+        },
+        "get_phase": {
+          "description": "Return the current movement phase.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "phase"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "phase",
+            "response_key": "phase",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_remaining_minutes": {
+          "description": "Return the remaining whole movement minutes.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "remaining_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "remaining_minutes",
+            "response_key": "remaining_minutes",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "power",
+            "status"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "set_open_state": {
+          "description": "Request target opening 100 when value is true, or 0 when false. When already running toward the same target, return success without changing any state. Otherwise set target_opening_percentage to the request and start_opening_percentage to the current opening_percentage, reset progress_minutes to zero, and compute travel_minutes=max(1, ceil(abs(target_opening_percentage-start_opening_percentage)*movement_minutes/100)). If the current opening equals the target, set status and phase to completed and remaining_minutes to zero without starting motion; retain the previous motion_mode. Otherwise choose motion_mode=opening if target exceeds current opening, or closing if below; set status=running, phase=motion_mode and remaining_minutes=travel_minutes. The after_action transition establishes started_at_minute at the current elapsed world minute. Invalid input changes no state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "opening_percentage",
+            "target_opening_percentage",
+            "status",
+            "movement_minutes"
+          ],
+          "writes": [
+            "target_opening_percentage",
+            "start_opening_percentage",
+            "travel_minutes",
+            "motion_mode",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "progress_minutes",
+            "started_at_minute"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Convert the Boolean open-state request to a numeric target and apply the declared deterministic movement initialization.",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_open_state": {
+          "description": "While powered, return open_state=true exactly when opening_percentage is greater than zero; fully closed is false. This is a computed response, with no duplicate stored Boolean state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "opening_percentage"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Compute a Boolean open/closed observation from the existing opening percentage.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "open_state": {
+              "type": "boolean",
+              "description": "Whether any part of the window is open."
+            }
+          },
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "During powered running motion, let progress_minutes be the current elapsed world minute minus started_at_minute, clamped to [0, travel_minutes]. Let distance=floor(100*progress_minutes/movement_minutes). Set opening_percentage to start_opening_percentage plus or minus min(distance, abs(target_opening_percentage-start_opening_percentage)), using motion_mode for direction. Set remaining_minutes=travel_minutes-progress_minutes. At progress_minutes=travel_minutes set opening_percentage exactly to target_opening_percentage, status and phase to completed, and remaining_minutes=0. Idle, paused, completed and unpowered motion preserves its persisted progress and position. After that update, a nonzero opening physically exchanges indoor and outdoor environments even when the motor is unpowered. For each minute, let fraction=opening_percentage/100 and emit only delta effects to the containing Home Space: temperature delta=round(0.05*fraction*(outdoor_temperature-Space temperature), 1) degC; humidity delta=round(0.05*fraction*(outdoor_humidity-Space humidity)) %RH; air_quality delta=round(0.10*fraction*(outdoor_air_quality-Space air_quality)) AQI. Round to nearest with ties to even. A closed window emits no effects; omit any zero delta. The runtime reducer applies these effects. Never also emit these effects from after_action.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "opening_percentage",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "target_opening_percentage",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "motion_mode",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "movement_minutes",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "status",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "phase",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "start_opening_percentage",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "travel_minutes",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "outdoor_temperature",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "outdoor_humidity",
+              "description": "Persisted movement state or physical exchange input/output."
+            },
+            {
+              "name": "outdoor_air_quality",
+              "description": "Persisted movement state or physical exchange input/output."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "When power is false and status is running, internally set status=paused, preserving phase, opening, target, origin and progress. Powering on never resumes movement. When powered with status running, establish started_at_minute at the current elapsed world minute only if the previous status was not running or the target changed. A repeated request for the already-running target is a no-op and never resets the origin. Emit no Space effects here.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Required for the conditional power-loss pause or new-target time origin."
+            },
+            {
+              "name": "status",
+              "description": "Required for the conditional power-loss pause or new-target time origin."
+            },
+            {
+              "name": "target_opening_percentage",
+              "description": "Required for the conditional power-loss pause or new-target time origin."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Required for the conditional power-loss pause or new-target time origin."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

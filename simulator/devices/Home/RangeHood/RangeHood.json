@@ -1,0 +1,570 @@
+{
+  "RangeHood": {
+    "meta": {
+      "name": "RangeHood",
+      "description": "Range hood. Users can query and set the fan-speed level and lighting. The self-cleaning mode can be started.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the range hood is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "fan_speed": {
+          "type": "integer",
+          "description": "Configured fan-speed level. The value persists while powered off and is publicly accessible only while powered on.",
+          "mode": 3,
+          "value": {
+            "default": 0,
+            "unit": "level",
+            "minimum": 0,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "light": {
+          "type": "boolean",
+          "description": "Whether the range hood light is enabled. The value persists while powered off and is publicly accessible only while powered on.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "cleaning_mode": {
+          "type": "string",
+          "description": "Self-cleaning process mode.",
+          "mode": 3,
+          "value": {
+            "default": "self_clean",
+            "choices": [
+              "self_clean"
+            ]
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Self-cleaning process status.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "running",
+              "paused",
+              "completed"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current self-cleaning phase, or idle/completed when no phase is active.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "heating",
+              "cleaning",
+              "cooling",
+              "completed"
+            ]
+          }
+        },
+        "remaining_minutes": {
+          "type": "integer",
+          "description": "Minutes remaining in the self-cleaning process.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "min",
+            "minimum": 0,
+            "maximum": 60,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "started_at_minute": {
+          "type": "integer",
+          "description": "Elapsed-world-minute origin used to calculate self-cleaning progress.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "min",
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "progress_minutes": {
+          "type": "integer",
+          "description": "Elapsed minutes completed in the self-cleaning process.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "min",
+            "minimum": 0,
+            "maximum": 60,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_fan_speed": {
+          "description": "Return the configured fan-speed level. The range hood must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "fan_speed"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fan_speed",
+            "response_key": "fan_speed",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "fan_speed": {
+              "type": "integer",
+              "description": "Fan-speed level from 0 through 3."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The range hood must be powered on to read fan speed."
+          }
+        },
+        "set_fan_speed": {
+          "description": "Set the fan-speed level from 0 through 3. The range hood must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Fan-speed level.",
+                "minimum": 0,
+                "maximum": 3
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "fan_speed"
+          ],
+          "writes": [
+            "fan_speed"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "fan_speed",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The range hood must be powered on to set fan speed."
+          }
+        },
+        "get_light": {
+          "description": "Return whether the range hood light is enabled. The range hood must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "light"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "light",
+            "response_key": "light",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "light": {
+              "type": "boolean",
+              "description": "Whether the hood light is enabled."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The range hood must be powered on to read light state."
+          }
+        },
+        "set_light": {
+          "description": "Enable or disable the range hood light. The range hood must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Desired light state."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "light"
+          ],
+          "writes": [
+            "light"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "light",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The range hood must be powered on to set light state."
+          }
+        },
+        "get_cleaning_status": {
+          "description": "Return the self-cleaning process state. The range hood must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "cleaning_mode",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "status",
+            "response_key": "status",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "status": {
+              "type": "string",
+              "description": "Self-cleaning status."
+            },
+            "phase": {
+              "type": "string",
+              "description": "Current self-cleaning phase."
+            },
+            "remaining_minutes": {
+              "type": "integer",
+              "description": "Minutes remaining."
+            },
+            "progress_minutes": {
+              "type": "integer",
+              "description": "Minutes completed."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The range hood must be powered on to read self-cleaning status."
+          }
+        },
+        "start_self_cleaning": {
+          "description": "Start the self-cleaning process in the self_clean mode. It may be started while idle or completed, and the range hood must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "description": "Self-cleaning mode.",
+                "enum": [
+                  "self_clean"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "cleaning_mode"
+          ],
+          "writes": [
+            "cleaning_mode",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "mode",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The range hood must be powered on to start self-cleaning.",
+            "INVALID_STATE": "Self-cleaning can only be started while idle or completed."
+          }
+        },
+        "pause_self_cleaning": {
+          "description": "Pause a running self-cleaning process. The range hood must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_pause",
+            "preconditions": {
+              "power": true,
+              "status": "running"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The range hood must be powered on to pause self-cleaning.",
+            "INVALID_STATE": "Self-cleaning is not running."
+          }
+        },
+        "resume_self_cleaning": {
+          "description": "Resume a paused self-cleaning process. The range hood must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "started_at_minute",
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_resume",
+            "preconditions": {
+              "power": true,
+              "status": "paused"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The range hood must be powered on to resume self-cleaning.",
+            "INVALID_STATE": "Self-cleaning is not paused."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "power",
+            "status"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "Set the range hood's absolute contributions to room noise and illuminance. While powered on, fan speed contributes noise equal to 10 times the fan-speed level in dBA and the enabled light contributes 300 lux; while powered off, both contributions are zero. When power becomes false and status is running, internally change status to paused while preserving phase, remaining_minutes and progress_minutes. Powering on never automatically resumes a paused process. On a transition from non-running to running, set started_at_minute to the current elapsed world minute minus persisted progress_minutes.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether the hood contributes to the room."
+            },
+            {
+              "name": "fan_speed",
+              "description": "Determines the hood's noise contribution."
+            },
+            {
+              "name": "light",
+              "description": "Determines the hood's illuminance contribution."
+            },
+            {
+              "name": "status",
+              "description": "Read and internally changed from running to paused on power loss."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Used to re-establish the running-time origin while preserving paused progress."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Used to re-establish the running-time origin while preserving paused progress."
+            }
+          ]
+        },
+        "tick": {
+          "description": "Advance the self-cleaning process according to elapsed time while powered and running. The process has heating, cleaning, and cooling phases lasting 5, 10, and 5 minutes respectively, then becomes completed.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Prevents process advancement while powered off."
+            },
+            {
+              "name": "cleaning_mode",
+              "description": "Selects the self-cleaning process mode."
+            },
+            {
+              "name": "status",
+              "description": "Determines whether the process advances."
+            },
+            {
+              "name": "phase",
+              "description": "Stores the active process phase."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Stores remaining process time."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Stores the process time origin."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Stores completed process time."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    },
+    "process": {
+      "mode_property": "cleaning_mode",
+      "start_function": "start_self_cleaning",
+      "pause_function": "pause_self_cleaning",
+      "resume_function": "resume_self_cleaning",
+      "modes": {
+        "self_clean": [
+          {
+            "phase": "heating",
+            "minutes": 5
+          },
+          {
+            "phase": "cleaning",
+            "minutes": 10
+          },
+          {
+            "phase": "cooling",
+            "minutes": 5
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "one_bedroom_apartment",
+  "spaces": [
+    {"id": "entryway", "type": "entryway", "floor": 1},
+    {"id": "living_room", "type": "living_room", "floor": 1},
+    {"id": "bedroom", "type": "bedroom", "floor": 1},
+    {"id": "bathroom", "type": "bathroom", "floor": 1},
+    {"id": "kitchen", "type": "kitchen", "floor": 1},
+    {"id": "laundry_room", "type": "laundry_room", "floor": 1},
+    {"id": "storage_room", "type": "storage_room", "floor": 1},
+    {"id": "balcony", "type": "balcony", "floor": 1}
+  ],
+  "connections": [
+    {"space_1": "entryway", "space_2": "living_room", "type": "passage", "current_state": "open"},
+    {"space_1": "living_room", "space_2": "bedroom", "type": "door", "current_state": "closed"},
+    {"space_1": "living_room", "space_2": "bathroom", "type": "door", "current_state": "closed"},
+    {"space_1": "living_room", "space_2": "kitchen", "type": "passage", "current_state": "open"},
+    {"space_1": "kitchen", "space_2": "laundry_room", "type": "door", "current_state": "closed"},
+    {"space_1": "living_room", "space_2": "storage_room", "type": "door", "current_state": "closed"},
+    {"space_1": "living_room", "space_2": "balcony", "type": "window", "current_state": "closed"}
+  ]
+}

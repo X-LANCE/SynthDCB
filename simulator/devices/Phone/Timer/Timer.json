@@ -1,0 +1,578 @@
+{
+  "Timer": {
+    "meta": {
+      "name": "Timer",
+      "description": "Countdown timer application, placed in Application. Duration is 1–60 whole minutes. Supports start, pause, resume, cancel, and queries of read-only progress; duration cannot be changed while running or paused. Reaching zero completes the timer and leaves it in the completed state. Resume preserves elapsed time; cancel resets it to zero.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "process": {
+      "mode_property": "mode",
+      "start_function": "start",
+      "pause_function": "pause",
+      "resume_function": "resume",
+      "modes": {
+        "countdown": [
+          {
+            "phase": "countdown",
+            "minutes": {
+              "property": "duration_minutes"
+            }
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "duration_minutes": {
+          "type": "integer",
+          "description": "Configured countdown duration in whole minutes. This setting is frozen while the timer is running or paused.",
+          "mode": 3,
+          "value": {
+            "default": 3,
+            "unit": "minutes",
+            "minimum": 1,
+            "maximum": 60,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "mode": {
+          "type": "string",
+          "description": "Selected countdown process mode.",
+          "mode": 2,
+          "value": {
+            "default": "countdown",
+            "choices": [
+              "countdown"
+            ]
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Current countdown process status.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "running",
+              "paused",
+              "completed"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current countdown phase.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "countdown",
+              "completed"
+            ]
+          }
+        },
+        "remaining_minutes": {
+          "type": "integer",
+          "description": "Whole minutes remaining in the current countdown.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "minutes",
+            "minimum": 0,
+            "maximum": 60,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "started_at_minute": {
+          "type": "integer",
+          "description": "Elapsed world minute used as the monotonic origin for the current countdown progress.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "minutes",
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "progress_minutes": {
+          "type": "integer",
+          "description": "Whole minutes elapsed in the current countdown.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "minutes",
+            "minimum": 0,
+            "maximum": 60,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_duration_minutes": {
+          "description": "Return the configured countdown duration in whole minutes.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "duration_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "duration_minutes",
+            "response_key": "duration_minutes",
+            "preconditions": {}
+          },
+          "response": {
+            "duration_minutes": {
+              "type": "integer",
+              "description": "Configured countdown duration in whole minutes."
+            }
+          }
+        },
+        "set_duration_minutes": {
+          "description": "Set the countdown duration to a whole number from 1 through 60 minutes. The duration may be changed only while the timer is idle or completed. Invalid values or process states leave all properties unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "duration_minutes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 60,
+                "multipleOf": 1,
+                "examples": [
+                  1,
+                  3,
+                  30,
+                  60
+                ]
+              }
+            },
+            "required": [
+              "duration_minutes"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "status"
+          ],
+          "writes": [
+            "duration_minutes"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "duration_minutes",
+            "parameter": "duration_minutes",
+            "preconditions": {
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The duration cannot be changed while the timer is running or paused."
+          }
+        },
+        "get_mode": {
+          "description": "Return the selected countdown process mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "mode",
+            "response_key": "mode",
+            "preconditions": {}
+          },
+          "response": {
+            "mode": {
+              "type": "string",
+              "description": "Selected countdown process mode."
+            }
+          }
+        },
+        "get_status": {
+          "description": "Return the current countdown process status.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "status",
+            "response_key": "status",
+            "preconditions": {}
+          },
+          "response": {
+            "status": {
+              "type": "string",
+              "description": "Current countdown process status."
+            }
+          }
+        },
+        "get_phase": {
+          "description": "Return the current countdown phase.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "phase"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "phase",
+            "response_key": "phase",
+            "preconditions": {}
+          },
+          "response": {
+            "phase": {
+              "type": "string",
+              "description": "Current countdown phase."
+            }
+          }
+        },
+        "get_remaining_minutes": {
+          "description": "Return the whole number of minutes remaining in the countdown.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "remaining_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "remaining_minutes",
+            "response_key": "remaining_minutes",
+            "preconditions": {}
+          },
+          "response": {
+            "remaining_minutes": {
+              "type": "integer",
+              "description": "Whole minutes remaining in the countdown."
+            }
+          }
+        },
+        "get_started_at_minute": {
+          "description": "Return the elapsed world minute used as the monotonic origin for the current countdown progress.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "started_at_minute"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "started_at_minute",
+            "response_key": "started_at_minute",
+            "preconditions": {}
+          },
+          "response": {
+            "started_at_minute": {
+              "type": "integer",
+              "description": "Elapsed world minute used as the origin for countdown progress."
+            }
+          }
+        },
+        "get_progress_minutes": {
+          "description": "Return the whole number of minutes elapsed in the current countdown.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "progress_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "progress_minutes",
+            "response_key": "progress_minutes",
+            "preconditions": {}
+          },
+          "response": {
+            "progress_minutes": {
+              "type": "integer",
+              "description": "Whole minutes elapsed in the countdown."
+            }
+          }
+        },
+        "start": {
+          "description": "Start a new countdown from idle or completed state. Starting resets progress to zero, initializes remaining time from the configured duration, and enters the countdown phase. Calls in other states fail without changing any property.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "countdown"
+                ],
+                "examples": [
+                  "countdown"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "status",
+            "duration_minutes"
+          ],
+          "writes": [
+            "mode",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "mode",
+            "preconditions": {
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "A new countdown can start only while the timer is idle or completed."
+          }
+        },
+        "pause": {
+          "description": "Pause a running countdown while preserving its elapsed progress and remaining time. The call fails without changing state unless the timer is running.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "status"
+          ],
+          "writes": [
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_pause",
+            "preconditions": {
+              "status": "running"
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The timer can be paused only while running."
+          }
+        },
+        "resume": {
+          "description": "Resume a paused countdown without resetting its elapsed progress or remaining time. The call fails without changing state unless the timer is paused.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "status",
+            "progress_minutes"
+          ],
+          "writes": [
+            "status",
+            "started_at_minute"
+          ],
+          "semantics": {
+            "kind": "process_resume",
+            "preconditions": {
+              "status": "paused"
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The timer can be resumed only while paused."
+          }
+        },
+        "cancel": {
+          "description": "Cancel a running, paused, or completed countdown and reset its process state to idle with zero progress and zero remaining minutes. The call fails without changing state when the timer is already idle.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "status"
+          ],
+          "writes": [
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "status": {
+                "value": "idle"
+              },
+              "phase": {
+                "value": "idle"
+              },
+              "remaining_minutes": {
+                "value": 0
+              },
+              "started_at_minute": {
+                "value": 0
+              },
+              "progress_minutes": {
+                "value": 0
+              }
+            },
+            "preconditions": {
+              "status": {
+                "one_of": [
+                  "running",
+                  "paused",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "There is no active or completed countdown to cancel while the timer is idle."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While the countdown is running, advances elapsed progress according to monotonic elapsed whole minutes and the configured duration. Remaining time never becomes negative. At the exact duration boundary, the timer enters completed status and phase with zero remaining minutes. Idle, paused, and completed timers do not advance.",
+          "effect_properties": [
+            {
+              "name": "duration_minutes",
+              "description": "Configured duration that determines the countdown completion boundary."
+            },
+            {
+              "name": "mode",
+              "description": "Selected process mode used to identify the countdown schedule."
+            },
+            {
+              "name": "status",
+              "description": "Current process status used to determine whether progress advances."
+            },
+            {
+              "name": "phase",
+              "description": "Current process phase updated when the countdown completes."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Whole minutes remaining in the countdown."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Monotonic elapsed-minute origin used to calculate current progress."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Whole minutes already elapsed in the countdown."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "When a successful start or resume action transitions the timer into running status, records the monotonic elapsed-minute origin so accumulated progress is preserved. Other successful actions do not advance countdown time.",
+          "effect_properties": [
+            {
+              "name": "duration_minutes",
+              "description": "Configured countdown duration."
+            },
+            {
+              "name": "mode",
+              "description": "Selected countdown process mode."
+            },
+            {
+              "name": "status",
+              "description": "Current status used to detect a transition into running."
+            },
+            {
+              "name": "phase",
+              "description": "Current countdown phase."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Whole minutes remaining after the successful action."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Monotonic elapsed-minute origin maintained for running progress."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Accumulated progress preserved when the timer resumes."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

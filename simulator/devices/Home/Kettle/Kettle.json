@@ -1,0 +1,399 @@
+{
+  "Kettle": {
+    "meta": {
+      "name": "Kettle",
+      "description": "Electric kettle. Users can query and set the target water temperature and the heating and keep-warm states, and can query the current water temperature and boiling state. While heating, the device raises the water temperature in the kettle; after reaching the target, it stops heating or enters keep-warm mode.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the kettle is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "target_temperature": {
+          "type": "float",
+          "description": "Target water temperature for heating and keep-warm maintenance.",
+          "mode": 3,
+          "value": {
+            "default": 100.0,
+            "unit": "degC",
+            "minimum": 40.0,
+            "maximum": 100.0,
+            "step": 1.0,
+            "step_origin": 0.0,
+            "precision": 1
+          }
+        },
+        "heating": {
+          "type": "boolean",
+          "description": "Whether the kettle is actively heating toward the target temperature.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "keep_warm": {
+          "type": "boolean",
+          "description": "Whether keep-warm maintenance is active. When enabled after heating reaches the target, the kettle maintains the target temperature; disabling it stops maintenance.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "current_temperature": {
+          "type": "float",
+          "description": "Current water temperature inside the kettle.",
+          "mode": 2,
+          "value": {
+            "default": 20.0,
+            "unit": "degC",
+            "minimum": 0.0,
+            "maximum": 100.0,
+            "precision": 1
+          }
+        },
+        "boiling": {
+          "type": "boolean",
+          "description": "Whether the water temperature is exactly 100 degrees Celsius.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_target_temperature": {
+          "description": "Get the configured target temperature while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "target_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_temperature",
+            "response_key": "target_temperature",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_target_temperature": {
+          "description": "Set the target temperature to a value from 40.0 through 100.0 degrees Celsius in 1.0 degree increments while powered. This does not start heating.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 40,
+                "maximum": 100,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "target_temperature"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_heating": {
+          "description": "Get whether the kettle is actively heating while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "heating"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "heating",
+            "response_key": "heating",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_heating": {
+          "description": "Enable or disable active heating while powered. Enabling heats toward the target at 5.0 degrees Celsius per simulation minute. Disabling heating stops active heating but leaves the keep-warm setting unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "heating"
+          ],
+          "writes": [
+            "heating"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "heating",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_keep_warm": {
+          "description": "Get whether keep-warm maintenance is active while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "keep_warm"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "keep_warm",
+            "response_key": "keep_warm",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_keep_warm": {
+          "description": "Enable or disable keep-warm maintenance while powered. When enabled after the target is reached, the kettle maintains the target temperature. Enabling keep-warm does not start active heating.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "keep_warm"
+          ],
+          "writes": [
+            "keep_warm"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "keep_warm",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_current_temperature": {
+          "description": "Get the current water temperature while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "current_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "current_temperature",
+            "response_key": "current_temperature",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_boiling": {
+          "description": "Get whether the water is boiling while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "boiling"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "boiling",
+            "response_key": "boiling",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "heating",
+            "keep_warm",
+            "power"
+          ],
+          "writes": [
+            "heating",
+            "keep_warm",
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "If powered and heating is true, raise current_temperature by exactly 5.0 degrees Celsius per simulation minute, rounded to one decimal place, and clamp it to target_temperature. When the target is reached, set heating to false. If keep_warm is true after the target is reached, actively maintain current_temperature at target_temperature. If power is false, do not change temperature or any heating process. Set boiling to true exactly when current_temperature is 100.0 and false otherwise.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the kettle is powered."
+            },
+            {
+              "name": "target_temperature",
+              "description": "Configured target temperature."
+            },
+            {
+              "name": "heating",
+              "description": "Whether active heating is enabled."
+            },
+            {
+              "name": "keep_warm",
+              "description": "Whether keep-warm maintenance is active."
+            },
+            {
+              "name": "current_temperature",
+              "description": "Current water temperature."
+            },
+            {
+              "name": "boiling",
+              "description": "Whether the water is boiling."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "After a successful power transition to false, set heating and keep_warm to false so no heating or maintenance remains active. Other successful state changes do not directly alter the water temperature.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the kettle is powered."
+            },
+            {
+              "name": "heating",
+              "description": "Whether active heating is enabled."
+            },
+            {
+              "name": "keep_warm",
+              "description": "Whether keep-warm maintenance is active."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

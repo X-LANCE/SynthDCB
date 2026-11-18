@@ -1,0 +1,197 @@
+{
+  "ElectrifiedDriveSettings": {
+    "meta": {
+      "name": "ElectrifiedDriveSettings",
+      "description": "Electrified vehicle driving settings. Adds selection of regenerative braking intensity or mode and feedback on the effective setting, without directly writing battery charge level. Applies only to battery-electric, hybrid, or range-extended configurations with configurable energy recovery strategies.",
+      "version": "1.0.0",
+      "from": "../DriveSettings.json"
+    },
+    "properties": {
+      "update": {
+        "configured_modes": {
+          "type": "dict",
+          "description": "Read-only electrified vehicle-model configuration keyed by selectable driving-mode identifier. Each record contains the electrified powertrain types to which the mode applies and its fixed switching condition. The baseline configuration provides a standard mode applicable to electric, hybrid, and range-extended powertrains.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "standard": {
+                "applicable_powertrain_types": [
+                  "electric",
+                  "hybrid",
+                  "range_extended"
+                ],
+                "switching_condition": "unconditional"
+              }
+            },
+            "schema": {
+              "type": "object",
+              "minProperties": 1,
+              "propertyNames": {
+                "pattern": "^[A-Za-z0-9_-]{1,32}$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "applicable_powertrain_types": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "electric",
+                        "hybrid",
+                        "range_extended"
+                      ]
+                    }
+                  },
+                  "switching_condition": {
+                    "type": "string",
+                    "const": "unconditional"
+                  }
+                },
+                "required": [
+                  "applicable_powertrain_types",
+                  "switching_condition"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "requested_regeneration_mode": {
+          "type": "string",
+          "description": "Most recently accepted regenerative-braking strategy request.",
+          "mode": 3,
+          "value": {
+            "default": "standard",
+            "choices": [
+              "low",
+              "standard",
+              "high"
+            ]
+          }
+        },
+        "effective_regeneration_mode": {
+          "type": "string",
+          "description": "Regenerative-braking strategy currently effective in the simulated electrified powertrain.",
+          "mode": 2,
+          "value": {
+            "default": "standard",
+            "choices": [
+              "low",
+              "standard",
+              "high"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_requested_regeneration_mode": {
+          "description": "Return the most recently accepted regenerative-braking strategy request without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "requested_regeneration_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "requested_regeneration_mode",
+            "response_key": "requested_regeneration_mode"
+          },
+          "response": {
+            "requested_regeneration_mode": {
+              "type": "string",
+              "description": "Requested regenerative-braking strategy: low, standard, or high."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_effective_regeneration_mode": {
+          "description": "Return the regenerative-braking strategy currently effective in the simulated electrified powertrain without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "effective_regeneration_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "effective_regeneration_mode",
+            "response_key": "effective_regeneration_mode"
+          },
+          "response": {
+            "effective_regeneration_mode": {
+              "type": "string",
+              "description": "Effective regenerative-braking strategy: low, standard, or high."
+            }
+          },
+          "errorcodes": {}
+        },
+        "select_regeneration_mode": {
+          "description": "Select low, standard, or high regenerative-braking intensity. A valid selection atomically updates both the requested and effective regenerative-braking modes. Invalid values leave all state unchanged. This preference change does not directly modify battery charge level, remaining range, vehicle speed, or gear.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "standard",
+                  "high"
+                ],
+                "examples": [
+                  "low",
+                  "standard",
+                  "high"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "requested_regeneration_mode",
+            "effective_regeneration_mode"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "requested_regeneration_mode": {
+                "parameter": "mode"
+              },
+              "effective_regeneration_mode": {
+                "parameter": "mode"
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

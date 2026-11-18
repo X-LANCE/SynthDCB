@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:reference-plan",
+  "title": "DCB v2 private reference command plan",
+  "type": "object",
+  "required": ["task_id", "turns"],
+  "properties": {
+    "task_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "turns": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "array",
+        "minItems": 1,
+        "items": {"$ref": "urn:dcb:v2:schema:command"}
+      }
+    }
+  },
+  "additionalProperties": false
+}

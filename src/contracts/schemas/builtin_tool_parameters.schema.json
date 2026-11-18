@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:builtin-tool-parameters",
+  "title": "Built-in tool parameter schemas",
+  "$defs": {
+    "session_get_capabilities": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "session_get_devices": {
+      "type": "object",
+      "properties": {"space_id": {"type": "string", "minLength": 1}},
+      "required": ["space_id"],
+      "additionalProperties": false
+    },
+    "session_get_relations": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "session_get_spaces": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "session_get_space_state": {
+      "type": "object",
+      "properties": {
+        "space_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "space_id"
+      ],
+      "additionalProperties": false
+    },
+    "session_get_space_devices": {
+      "type": "object",
+      "properties": {
+        "space_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "space_id"
+      ],
+      "additionalProperties": false
+    },
+    "session_get_device_tools": {
+      "type": "object",
+      "properties": {
+        "device_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device_id"
+      ],
+      "additionalProperties": false
+    },
+    "session_sleep_time": {
+      "type": "object",
+      "properties": {
+        "minutes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "session_submit_answer": {
+      "type": "object",
+      "properties": {
+        "value": {}
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "session_submit_report": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "infeasible",
+            "blocked"
+          ]
+        },
+        "reason_code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+        },
+        "affected_properties": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "reason_code",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "session_finish": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "memory_read": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "memory_create": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "minLength": 1
+        },
+        "user_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "memory_update": {
+      "type": "object",
+      "properties": {
+        "memory_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "memory_id",
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "get_power": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "set_power": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "device_command": {
+      "type": "object",
+      "properties": {
+        "target": {
+          "type": "string"
+        },
+        "function": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "target",
+        "function",
+        "parameters"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

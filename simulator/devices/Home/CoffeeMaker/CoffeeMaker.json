@@ -1,0 +1,631 @@
+{
+  "CoffeeMaker": {
+    "meta": {
+      "name": "CoffeeMaker",
+      "description": "Coffee maker. Users can query and set the brewing program, cup volume, strength, and current extraction state, and can perform brew, pause, and cleaning actions. During extraction, the device dispenses the beverage according to the selected cup volume and strength; normal beverage preparation is unavailable while the cleaning program is running.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "process": {
+      "mode_property": "program",
+      "start_function": "brew",
+      "pause_function": "pause",
+      "resume_function": "resume",
+      "modes": {
+        "espresso": [
+          {
+            "phase": "extraction",
+            "minutes": 5
+          }
+        ],
+        "coffee": [
+          {
+            "phase": "extraction",
+            "minutes": 8
+          }
+        ],
+        "cleaning": [
+          {
+            "phase": "cleaning",
+            "minutes": 15
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the coffee maker is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "program": {
+          "type": "string",
+          "description": "Selected coffee preparation or cleaning program.",
+          "mode": 3,
+          "value": {
+            "default": "coffee",
+            "choices": [
+              "espresso",
+              "coffee",
+              "cleaning"
+            ]
+          }
+        },
+        "cup_volume": {
+          "type": "integer",
+          "description": "Selected beverage volume in milliliters.",
+          "mode": 3,
+          "value": {
+            "default": 200,
+            "unit": "ml",
+            "minimum": 30,
+            "maximum": 500,
+            "step": 10,
+            "step_origin": 0
+          }
+        },
+        "strength": {
+          "type": "integer",
+          "description": "Selected coffee strength level.",
+          "mode": 3,
+          "value": {
+            "default": 2,
+            "minimum": 1,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Current process status.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "running",
+              "paused",
+              "completed"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current process phase, or idle or completed when no phase is active.",
+          "mode": 2,
+          "value": {
+            "default": "idle"
+          }
+        },
+        "remaining_minutes": {
+          "type": "integer",
+          "description": "Minutes remaining in the selected process.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "started_at_minute": {
+          "type": "integer",
+          "description": "Elapsed-world minute at which the current process origin was established.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "progress_minutes": {
+          "type": "integer",
+          "description": "Completed minutes in the current process.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_program": {
+          "description": "Returns the selected program while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "program"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "program",
+            "response_key": "program",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_program": {
+          "description": "Selects espresso or coffee while powered on and not processing. Cleaning is started with clean.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "espresso",
+                  "coffee"
+                ],
+                "description": "Desired beverage program."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "program"
+          ],
+          "writes": [
+            "program"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "program",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_cup_volume": {
+          "description": "Returns the selected cup volume while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "cup_volume"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cup_volume",
+            "response_key": "cup_volume",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_cup_volume": {
+          "description": "Sets the cup volume from 30 through 500 milliliters in 10 milliliter steps while powered on and idle or completed.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 30,
+                "maximum": 500,
+                "multipleOf": 10,
+                "description": "Cup volume in milliliters."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "cup_volume"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "cup_volume",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_strength": {
+          "description": "Returns the selected strength while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "strength"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "strength",
+            "response_key": "strength",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_strength": {
+          "description": "Sets coffee strength from level 1 through 3 while powered on and idle or completed.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3,
+                "description": "Coffee strength level."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "strength"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "strength",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_status": {
+          "description": "Returns the current extraction or cleaning process state while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "progress_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "status",
+            "response_key": "status",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "phase": {
+              "type": "string",
+              "description": "Current process phase."
+            },
+            "remaining_minutes": {
+              "type": "integer",
+              "description": "Minutes remaining."
+            },
+            "progress_minutes": {
+              "type": "integer",
+              "description": "Minutes completed."
+            }
+          }
+        },
+        "brew": {
+          "description": "Starts beverage extraction using the selected espresso or coffee program. It is unavailable while cleaning is running. Set the selected program to the required program argument, then start its declared process phases from zero progress.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "program": {
+                "type": "string",
+                "enum": [
+                  "espresso",
+                  "coffee"
+                ]
+              }
+            },
+            "required": [
+              "program"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "program",
+            "status"
+          ],
+          "writes": [
+            "phase",
+            "program",
+            "progress_minutes",
+            "remaining_minutes",
+            "started_at_minute",
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "program",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "pause": {
+          "description": "Pauses an active extraction or cleaning process.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_pause",
+            "preconditions": {
+              "power": true,
+              "status": "running"
+            }
+          }
+        },
+        "resume": {
+          "description": "Resumes a paused extraction or cleaning process without resetting its progress.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "status",
+            "started_at_minute"
+          ],
+          "semantics": {
+            "kind": "process_resume",
+            "preconditions": {
+              "power": true,
+              "status": "paused"
+            }
+          }
+        },
+        "clean": {
+          "description": "Starts the cleaning program. Normal beverage preparation is unavailable until cleaning completes. Set the selected program to the required program argument, then start its declared process phases from zero progress.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "program": {
+                "type": "string",
+                "enum": [
+                  "cleaning"
+                ]
+              }
+            },
+            "required": [
+              "program"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "program"
+          ],
+          "writes": [
+            "phase",
+            "program",
+            "progress_minutes",
+            "remaining_minutes",
+            "started_at_minute",
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "program",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "power",
+            "status"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "Advances the active extraction or cleaning process according to its selected program and elapsed time. An unpowered process does not advance.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether process advancement is permitted."
+            },
+            {
+              "name": "program",
+              "description": "Selected process mode."
+            },
+            {
+              "name": "status",
+              "description": "Current process status."
+            },
+            {
+              "name": "phase",
+              "description": "Current process phase."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Minutes remaining."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Process origin minute."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Completed process minutes."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "When power changes from on to off during a running process, pauses that process while preserving its progress.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Current power state."
+            },
+            {
+              "name": "status",
+              "description": "Current process status."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Preserved process progress."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

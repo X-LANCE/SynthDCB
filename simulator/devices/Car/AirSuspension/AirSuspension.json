@@ -1,0 +1,464 @@
+{
+  "AirSuspension": {
+    "meta": {
+      "name": "AirSuspension",
+      "description": "Air suspension module with user-adjustable height. Supports selecting a target height from the fixed capability set and querying actual height, adjustment progress, and failure feedback.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "process": {
+      "mode_property": "target_height",
+      "start_function": "select_height",
+      "modes": {
+        "low": [
+          {
+            "phase": "adjusting",
+            "minutes": 1
+          }
+        ],
+        "normal": [
+          {
+            "phase": "adjusting",
+            "minutes": 1
+          }
+        ],
+        "high": [
+          {
+            "phase": "adjusting",
+            "minutes": 1
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "target_height": {
+          "type": "string",
+          "description": "Height selected for the current or most recently started adjustment.",
+          "mode": 2,
+          "value": {
+            "default": "normal",
+            "choices": [
+              "low",
+              "normal",
+              "high"
+            ]
+          }
+        },
+        "actual_height": {
+          "type": "string",
+          "description": "Current achieved suspension height. It changes to target_height when an adjustment completes.",
+          "mode": 2,
+          "value": {
+            "default": "normal",
+            "choices": [
+              "low",
+              "normal",
+              "high"
+            ]
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Current lifecycle status of the height-adjustment process.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "running",
+              "paused",
+              "completed"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current phase of the height-adjustment process.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "adjusting",
+              "completed"
+            ]
+          }
+        },
+        "remaining_minutes": {
+          "type": "integer",
+          "description": "Whole simulated minutes remaining in the current adjustment.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "maximum": 1,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "min"
+          }
+        },
+        "started_at_minute": {
+          "type": "integer",
+          "description": "Simulation elapsed-minute timestamp from which progress for the current adjustment is measured.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "min"
+          }
+        },
+        "progress_minutes": {
+          "type": "integer",
+          "description": "Whole simulated minutes completed in the current or most recently completed adjustment.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "maximum": 1,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "min"
+          }
+        },
+        "failure_feedback": {
+          "type": "string",
+          "description": "Failure feedback for the adjustment mechanism. The value is none when no deterministic mechanism failure has been reported.",
+          "mode": 2,
+          "value": {
+            "default": "none",
+            "choices": [
+              "none"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_target_height": {
+          "description": "Return the selected target suspension height without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "target_height"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_height",
+            "response_key": "target_height"
+          },
+          "response": {
+            "target_height": {
+              "type": "string",
+              "description": "Selected target height: low, normal, or high."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_actual_height": {
+          "description": "Return the currently achieved suspension height without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "actual_height"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "actual_height",
+            "response_key": "actual_height"
+          },
+          "response": {
+            "actual_height": {
+              "type": "string",
+              "description": "Current achieved height: low, normal, or high."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_status": {
+          "description": "Return the lifecycle status of the height-adjustment process.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "status",
+            "response_key": "status"
+          },
+          "response": {
+            "status": {
+              "type": "string",
+              "description": "Adjustment status: idle, running, paused, or completed."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_phase": {
+          "description": "Return the current phase of the height-adjustment process.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "phase"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "phase",
+            "response_key": "phase"
+          },
+          "response": {
+            "phase": {
+              "type": "string",
+              "description": "Current phase: idle, adjusting, or completed."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_remaining_minutes": {
+          "description": "Return the whole simulated minutes remaining in the current adjustment.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "remaining_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "remaining_minutes",
+            "response_key": "remaining_minutes"
+          },
+          "response": {
+            "remaining_minutes": {
+              "type": "integer",
+              "description": "Whole simulated minutes remaining."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_started_at_minute": {
+          "description": "Return the simulation elapsed-minute timestamp used as the origin of the current adjustment.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "started_at_minute"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "started_at_minute",
+            "response_key": "started_at_minute"
+          },
+          "response": {
+            "started_at_minute": {
+              "type": "integer",
+              "description": "Simulation elapsed-minute timestamp for the adjustment origin."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_progress_minutes": {
+          "description": "Return the whole simulated minutes completed in the current or most recently completed adjustment.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "progress_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "progress_minutes",
+            "response_key": "progress_minutes"
+          },
+          "response": {
+            "progress_minutes": {
+              "type": "integer",
+              "description": "Whole simulated adjustment minutes completed."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_failure_feedback": {
+          "description": "Return current adjustment failure feedback. This deterministic model returns none unless a modeled mechanism failure is present.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "failure_feedback"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "failure_feedback",
+            "response_key": "failure_feedback"
+          },
+          "response": {
+            "failure_feedback": {
+              "type": "string",
+              "description": "Current mechanism failure feedback."
+            }
+          },
+          "errorcodes": {}
+        },
+        "select_height": {
+          "description": "Start a one-minute adjustment toward low, normal, or high suspension height. The action is allowed only while the previous process is idle or completed. Starting sets progress to zero and actual_height remains unchanged until completion. Invalid targets or a failed status precondition leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "height": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high"
+                ],
+                "examples": [
+                  "low",
+                  "normal",
+                  "high"
+                ]
+              }
+            },
+            "required": [
+              "height"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "status",
+            "progress_minutes"
+          ],
+          "writes": [
+            "target_height",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "height",
+            "preconditions": {
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Height must be low, normal, or high.",
+            "PRECONDITION_FAILED": "A new suspension-height adjustment cannot start while another adjustment is running or paused."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "After a successful action transitions the height-adjustment process into running, set started_at_minute to the current simulation elapsed minute minus progress_minutes. Actions that do not transition the process into running leave process timing state unchanged.",
+          "effect_properties": [
+            {
+              "name": "status",
+              "description": "Indicates whether the process has transitioned into the running state."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Stores the elapsed-minute origin used to calculate adjustment progress."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Offsets the timing origin so any retained process progress is preserved."
+            }
+          ]
+        },
+        "tick": {
+          "description": "While an adjustment is running, advance its progress using the declared one-minute adjusting phase. At the exact completion boundary, set actual_height to target_height, set remaining_minutes to zero, and mark the phase and status completed. Idle, paused, and completed adjustments do not advance.",
+          "effect_properties": [
+            {
+              "name": "target_height",
+              "description": "Provides the height assigned to actual_height when adjustment completes."
+            },
+            {
+              "name": "actual_height",
+              "description": "Stores the currently achieved suspension height."
+            },
+            {
+              "name": "status",
+              "description": "Determines whether the adjustment advances and records completion."
+            },
+            {
+              "name": "phase",
+              "description": "Records the active adjusting phase or completed phase."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Tracks whole simulated minutes remaining."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Provides the elapsed-minute origin for deterministic progress."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Tracks whole simulated minutes completed."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

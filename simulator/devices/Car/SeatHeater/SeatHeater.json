@@ -1,0 +1,269 @@
+{
+  "SeatHeater": {
+    "meta": {
+      "name": "SeatHeater",
+      "description": "Seat heating function. Supports switching on and off and adjusting seat temperature. When enabled, the temperature of the seat Space gradually rises toward the target; the device cannot actively cool. When disabled, the temperature gradually approaches cabin temperature.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether seat heating is powered on.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "target_temperature": {
+          "type": "integer",
+          "description": "Requested heating target for the containing seat Space.",
+          "mode": 3,
+          "value": {
+            "default": 28,
+            "unit": "degC",
+            "minimum": 16,
+            "maximum": 35,
+            "step": 1,
+            "step_origin": 16
+          }
+        },
+        "cabin_temperature_reference": {
+          "type": "integer",
+          "description": "Deterministic passive equilibrium reference representing cabin temperature. While the heater is off, the containing seat Space approaches this temperature.",
+          "mode": 3,
+          "value": {
+            "default": 22,
+            "unit": "degC",
+            "minimum": -50,
+            "maximum": 80,
+            "step": 1,
+            "step_origin": -50
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_target_temperature": {
+          "description": "Return the requested heating target for the seat. Requires the seat heater to be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "target_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_temperature",
+            "response_key": "target_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "target_temperature": {
+              "type": "integer",
+              "description": "Requested heating target in degrees Celsius."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The seat heater must be powered on."
+          }
+        },
+        "set_target_temperature": {
+          "description": "Set the heating target to an integer from 16 through 35 degrees Celsius. Requires the seat heater to be powered on. Invalid input or a failed power precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 16,
+                "maximum": 35
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The seat heater must be powered on.",
+            "INVALID_INPUT_ERROR": "Target temperature must be an integer from 16 through 35 degrees Celsius."
+          }
+        },
+        "get_cabin_temperature_reference": {
+          "description": "Return the deterministic cabin-temperature reference used for passive seat-temperature equalization. Requires the seat heater to be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "cabin_temperature_reference"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cabin_temperature_reference",
+            "response_key": "cabin_temperature_reference",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "cabin_temperature_reference": {
+              "type": "integer",
+              "description": "Passive equilibrium reference in degrees Celsius."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The seat heater must be powered on."
+          }
+        },
+        "set_cabin_temperature_reference": {
+          "description": "Set the deterministic cabin-temperature reference used after power-off to an integer from -50 through 80 degrees Celsius. This setting must represent the cabin temperature for the simulated scenario. Requires the seat heater to be powered on. Invalid input or a failed power precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": -50,
+                "maximum": 80
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "cabin_temperature_reference"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "cabin_temperature_reference",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The seat heater must be powered on.",
+            "INVALID_INPUT_ERROR": "Cabin temperature reference must be an integer from -50 through 80 degrees Celsius."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While powered on and the containing seat Space seat_temperature is below target_temperature, approach target_temperature by at most 1 degree Celsius per minute; emit no effect when the seat is at or above the target, so the heater never actively cools. While powered off, approach cabin_temperature_reference from either direction by at most 1 degree Celsius per minute. Emit no effect when the applicable target has already been reached.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether the seat is actively heated or passively approaches equilibrium."
+            },
+            {
+              "name": "target_temperature",
+              "description": "Determines the active heating target while power is on."
+            },
+            {
+              "name": "cabin_temperature_reference",
+              "description": "Determines the passive equilibrium target while power is off."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

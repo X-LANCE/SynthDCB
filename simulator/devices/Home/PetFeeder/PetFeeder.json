@@ -1,0 +1,328 @@
+{
+  "PetFeeder": {
+    "meta": {
+      "name": "PetFeeder",
+      "description": "Pet feeder. Users can query and set the feeding portion and feeding mode, perform an immediate-feeding action, and query the remaining food in the hopper. A feeding action dispenses the configured portion; if the hopper contains insufficient food or the device is jammed, it cannot complete the full feeding.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the feeder is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "feeding_portion": {
+          "type": "integer",
+          "description": "Configured amount dispensed by one feeding action, in portions.",
+          "mode": 3,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 5,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "feeding_mode": {
+          "type": "string",
+          "description": "Feeding mode used by the immediate-feeding action.",
+          "mode": 3,
+          "value": {
+            "default": "normal",
+            "choices": [
+              "normal",
+              "slow"
+            ]
+          }
+        },
+        "remaining_food": {
+          "type": "integer",
+          "description": "Food remaining in the hopper, in portions.",
+          "mode": 2,
+          "value": {
+            "default": 20,
+            "minimum": 0,
+            "maximum": 1000,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "jammed": {
+          "type": "boolean",
+          "description": "Whether the dispensing mechanism is jammed.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_feeding_portion": {
+          "description": "Return the configured feeding portion while the feeder is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "feeding_portion"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "feeding_portion",
+            "response_key": "feeding_portion",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "feeding_portion": {
+              "type": "integer",
+              "description": "Configured portions dispensed per feeding."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_feeding_portion": {
+          "description": "Set the feeding portion to an integer from 1 through 5 while the feeder is powered. Invalid values leave the setting unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "feeding_portion"
+          ],
+          "writes": [
+            "feeding_portion"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "feeding_portion",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_feeding_mode": {
+          "description": "Return the feeding mode while the feeder is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "feeding_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "feeding_mode",
+            "response_key": "feeding_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "feeding_mode": {
+              "type": "string",
+              "description": "Current feeding mode."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_feeding_mode": {
+          "description": "Set the feeding mode to normal or slow while the feeder is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "normal",
+                  "slow"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "feeding_mode"
+          ],
+          "writes": [
+            "feeding_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "feeding_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_remaining_food": {
+          "description": "Return the remaining food in the hopper while the feeder is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "remaining_food"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "remaining_food",
+            "response_key": "remaining_food",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "remaining_food": {
+              "type": "integer",
+              "description": "Food remaining in the hopper, in portions."
+            }
+          },
+          "errorcodes": {}
+        },
+        "feed_now": {
+          "description": "Immediately dispense the configured feeding portion while powered. The action deducts the full portion only when the hopper contains at least that many portions and the dispensing mechanism is not jammed. Otherwise it fails atomically and leaves the hopper unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "feeding_portion",
+            "feeding_mode",
+            "remaining_food",
+            "jammed"
+          ],
+          "writes": [
+            "remaining_food"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Immediate feeding conditionally validates power, jam state, and available hopper quantity before deducting the configured portion."
+          },
+          "response": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the full configured portion was dispensed."
+            }
+          },
+          "errorcodes": {
+            "powered_off": "The feeder is not powered.",
+            "insufficient_food": "The hopper contains fewer portions than configured.",
+            "jammed": "The dispensing mechanism is jammed."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

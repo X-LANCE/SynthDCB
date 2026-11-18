@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:termination",
+  "title": "DCB v2 terminal runtime evidence",
+  "type": "object",
+  "required": [
+    "reason",
+    "turn_id",
+    "turn_index",
+    "elapsed_minutes",
+    "limits"
+  ],
+  "properties": {
+    "reason": {
+      "type": "string",
+      "enum": ["session_finish", "max_turns", "elapsed_time_limit", "agent_stopped"]
+    },
+    "turn_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "turn_index": {"type": "integer", "minimum": 1},
+    "elapsed_minutes": {"type": "integer", "minimum": 0},
+    "limits": {
+      "type": "object",
+      "required": ["max_turns", "max_elapsed_minutes"],
+      "properties": {
+        "max_turns": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "max_elapsed_minutes": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"reason": {"const": "max_turns"}}},
+      "then": {
+        "properties": {
+          "limits": {
+            "properties": {
+              "max_turns": {"type": "integer", "minimum": 1}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"reason": {"const": "elapsed_time_limit"}}},
+      "then": {
+        "properties": {
+          "limits": {
+            "properties": {
+              "max_elapsed_minutes": {"type": "integer", "minimum": 1}
+            }
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

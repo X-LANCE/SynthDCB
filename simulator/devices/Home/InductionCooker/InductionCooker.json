@@ -1,0 +1,318 @@
+{
+  "InductionCooker": {
+    "meta": {
+      "name": "InductionCooker",
+      "description": "Induction cooker. Users can query and set the heating mode, power level, and target temperature.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the induction cooker is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "heating_mode": {
+          "type": "string",
+          "description": "The heating control mode.",
+          "mode": 3,
+          "value": {
+            "default": "manual",
+            "choices": [
+              "manual",
+              "temperature"
+            ]
+          }
+        },
+        "power_level": {
+          "type": "integer",
+          "description": "The selected induction heating power level.",
+          "mode": 3,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 9,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "target_temperature": {
+          "type": "float",
+          "description": "The target cooking temperature used by temperature mode.",
+          "mode": 3,
+          "value": {
+            "default": 100.0,
+            "unit": "degC",
+            "minimum": 30.0,
+            "maximum": 240.0,
+            "step": 1.0,
+            "step_origin": 30.0,
+            "precision": 1
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_heating_mode": {
+          "description": "Return the selected heating mode. This operation requires the cooker to be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "heating_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "heating_mode",
+            "response_key": "heating_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "heating_mode": {
+              "type": "string",
+              "description": "The selected heating mode."
+            }
+          }
+        },
+        "set_heating_mode": {
+          "description": "Set the heating mode to manual or temperature control. This operation requires the cooker to be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "manual",
+                  "temperature"
+                ],
+                "description": "The desired heating mode."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "heating_mode"
+          ],
+          "writes": [
+            "heating_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "heating_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_power_level": {
+          "description": "Return the selected heating power level. This operation requires the cooker to be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "power_level"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power_level",
+            "response_key": "power_level",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "power_level": {
+              "type": "integer",
+              "description": "The selected heating power level."
+            }
+          }
+        },
+        "set_power_level": {
+          "description": "Set the heating power level from 1 through 9. This operation requires the cooker to be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9,
+                "multipleOf": 1,
+                "description": "The desired heating power level."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "power_level"
+          ],
+          "writes": [
+            "power_level"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power_level",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_target_temperature": {
+          "description": "Return the configured target temperature. This operation requires the cooker to be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "target_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_temperature",
+            "response_key": "target_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "target_temperature": {
+              "type": "number",
+              "description": "The configured target temperature in degrees Celsius."
+            }
+          }
+        },
+        "set_target_temperature": {
+          "description": "Set the target cooking temperature from 30.0 through 240.0 degrees Celsius. This operation requires the cooker to be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 30.0,
+                "maximum": 240.0,
+                "multipleOf": 1.0,
+                "description": "The desired target temperature in degrees Celsius."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "target_temperature"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

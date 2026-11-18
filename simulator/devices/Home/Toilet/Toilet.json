@@ -1,0 +1,618 @@
+{
+  "Toilet": {
+    "meta": {
+      "name": "Toilet",
+      "description": "Toilet. Users can query and set seat heating, wash-water temperature and pressure, feminine-wash or rear-wash mode, drying, deodorization, and automatic lid-opening states.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the toilet is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "seat_heating": {
+          "type": "integer",
+          "description": "Seat heating level.",
+          "mode": 3,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "wash_water_temperature": {
+          "type": "integer",
+          "description": "Wash-water temperature in degrees Celsius.",
+          "mode": 3,
+          "value": {
+            "default": 35,
+            "minimum": 30,
+            "maximum": 40,
+            "step": 1,
+            "step_origin": 30,
+            "unit": "degC"
+          }
+        },
+        "wash_pressure": {
+          "type": "integer",
+          "description": "Wash-water pressure level.",
+          "mode": 3,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "wash_mode": {
+          "type": "string",
+          "description": "Selected wash mode.",
+          "mode": 3,
+          "value": {
+            "default": "rear",
+            "choices": [
+              "rear",
+              "feminine"
+            ]
+          }
+        },
+        "drying": {
+          "type": "boolean",
+          "description": "Whether the drying function is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "deodorization": {
+          "type": "boolean",
+          "description": "Whether deodorization is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "automatic_lid_opening": {
+          "type": "boolean",
+          "description": "Whether the automatic lid-opening function is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_seat_heating": {
+          "description": "Return the seat heating level. The toilet must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "seat_heating"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "seat_heating",
+            "response_key": "seat_heating",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "seat_heating": {
+              "type": "integer",
+              "description": "Current seat heating level."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_seat_heating": {
+          "description": "Set the seat heating level while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 3,
+                "description": "Seat heating level."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "seat_heating"
+          ],
+          "writes": [
+            "seat_heating"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "seat_heating",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_wash_water_temperature": {
+          "description": "Return the wash-water temperature while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "wash_water_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "wash_water_temperature",
+            "response_key": "wash_water_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "wash_water_temperature": {
+              "type": "integer",
+              "description": "Wash-water temperature in degrees Celsius."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_wash_water_temperature": {
+          "description": "Set the wash-water temperature while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 30,
+                "maximum": 40,
+                "description": "Wash-water temperature in degrees Celsius."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "wash_water_temperature"
+          ],
+          "writes": [
+            "wash_water_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "wash_water_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_wash_pressure": {
+          "description": "Return the wash-water pressure level while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "wash_pressure"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "wash_pressure",
+            "response_key": "wash_pressure",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "wash_pressure": {
+              "type": "integer",
+              "description": "Current wash-water pressure level."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_wash_pressure": {
+          "description": "Set the wash-water pressure level while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3,
+                "description": "Wash-water pressure level."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "wash_pressure"
+          ],
+          "writes": [
+            "wash_pressure"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "wash_pressure",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_wash_mode": {
+          "description": "Return the selected wash mode while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "wash_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "wash_mode",
+            "response_key": "wash_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "wash_mode": {
+              "type": "string",
+              "description": "Selected wash mode."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_wash_mode": {
+          "description": "Select rear or feminine wash mode while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "rear",
+                  "feminine"
+                ],
+                "description": "Wash mode."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "wash_mode"
+          ],
+          "writes": [
+            "wash_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "wash_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_drying": {
+          "description": "Return whether drying is enabled while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "drying"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "drying",
+            "response_key": "drying",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "drying": {
+              "type": "boolean",
+              "description": "Whether drying is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_drying": {
+          "description": "Enable or disable drying while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether drying should be enabled."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "drying"
+          ],
+          "writes": [
+            "drying"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "drying",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_deodorization": {
+          "description": "Return whether deodorization is enabled while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "deodorization"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "deodorization",
+            "response_key": "deodorization",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "deodorization": {
+              "type": "boolean",
+              "description": "Whether deodorization is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_deodorization": {
+          "description": "Enable or disable deodorization while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether deodorization should be enabled."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "deodorization"
+          ],
+          "writes": [
+            "deodorization"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "deodorization",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_automatic_lid_opening": {
+          "description": "Return whether automatic lid opening is enabled while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "automatic_lid_opening"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "automatic_lid_opening",
+            "response_key": "automatic_lid_opening",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "automatic_lid_opening": {
+              "type": "boolean",
+              "description": "Whether automatic lid opening is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_automatic_lid_opening": {
+          "description": "Enable or disable automatic lid opening while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether automatic lid opening should be enabled."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "automatic_lid_opening"
+          ],
+          "writes": [
+            "automatic_lid_opening"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "automatic_lid_opening",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

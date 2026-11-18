@@ -1,0 +1,443 @@
+{
+  "AirExchanger": {
+    "meta": {
+      "name": "AirExchanger",
+      "description": "Fresh-air exchanger. Users can query and set the ventilation mode and fan speed, and can query indoor and outdoor air quality and filter state. While running, the device draws in and filters outdoor air to gradually improve the air quality of its space; heat-exchange mode maintains ventilation while reducing temperature changes.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the air exchanger is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "ventilation_mode": {
+          "type": "string",
+          "description": "Ventilation mode: normal exchanges air directly; heat_exchange maintains ventilation while reducing the temperature effect of incoming outdoor air.",
+          "mode": 3,
+          "value": {
+            "default": "normal",
+            "choices": [
+              "normal",
+              "heat_exchange"
+            ]
+          }
+        },
+        "fan_speed": {
+          "type": "integer",
+          "description": "Fan speed level used while the air exchanger is running.",
+          "mode": 3,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "indoor_air_quality": {
+          "type": "integer",
+          "description": "Device-reported indoor air quality index, synchronized on each tick with the containing Space air_quality value.",
+          "mode": 2,
+          "value": {
+            "default": 100,
+            "minimum": 0,
+            "maximum": 500,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "outdoor_air_quality": {
+          "type": "integer",
+          "description": "Outdoor air quality index used as the filtered incoming-air source.",
+          "mode": 2,
+          "value": {
+            "default": 50,
+            "minimum": 0,
+            "maximum": 500,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "outdoor_temperature": {
+          "type": "float",
+          "description": "Outdoor air temperature used to calculate the ventilation temperature contribution.",
+          "mode": 2,
+          "value": {
+            "default": 10.0,
+            "minimum": -50,
+            "maximum": 80,
+            "precision": 1
+          }
+        },
+        "filter_state": {
+          "type": "string",
+          "description": "Current filter maintenance state. Normal provides full filtration, needs_cleaning provides half filtration, and replace provides no filtration improvement.",
+          "mode": 2,
+          "value": {
+            "default": "normal",
+            "choices": [
+              "normal",
+              "needs_cleaning",
+              "replace"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_ventilation_mode": {
+          "description": "Return the ventilation mode while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "ventilation_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "ventilation_mode",
+            "response_key": "ventilation_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "ventilation_mode": {
+              "type": "string",
+              "description": "Current ventilation mode."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_ventilation_mode": {
+          "description": "Set the ventilation mode while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "normal",
+                  "heat_exchange"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "ventilation_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "ventilation_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_fan_speed": {
+          "description": "Return the fan speed while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "fan_speed"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fan_speed",
+            "response_key": "fan_speed",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "fan_speed": {
+              "type": "integer",
+              "description": "Current fan speed."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_fan_speed": {
+          "description": "Set fan speed from 1 through 3 while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "fan_speed"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "fan_speed",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_indoor_air_quality": {
+          "description": "Return the synchronized indoor air quality index while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "indoor_air_quality"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "indoor_air_quality",
+            "response_key": "indoor_air_quality",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "indoor_air_quality": {
+              "type": "integer",
+              "description": "Indoor air quality index."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_outdoor_air_quality": {
+          "description": "Return the outdoor air quality index while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "outdoor_air_quality"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "outdoor_air_quality",
+            "response_key": "outdoor_air_quality",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "outdoor_air_quality": {
+              "type": "integer",
+              "description": "Outdoor air quality index."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_outdoor_temperature": {
+          "description": "Return the outdoor temperature used by the exchanger while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "outdoor_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "outdoor_temperature",
+            "response_key": "outdoor_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "outdoor_temperature": {
+              "type": "float",
+              "description": "Outdoor temperature in degrees Celsius."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_filter_state": {
+          "description": "Return the filter maintenance state while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "filter_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "filter_state",
+            "response_key": "filter_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "filter_state": {
+              "type": "string",
+              "description": "Filter maintenance state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "The containing Space property air_quality is the indoor air-quality state. While power is true, each elapsed minute moves that Space air_quality toward outdoor_air_quality by a deterministic amount: fan_speed 1 uses 2 AQI points per minute, fan_speed 2 uses 4 points, and fan_speed 3 uses 6 points. The movement is toward outdoor_air_quality, so ventilation may worsen indoor air quality when outdoor air is worse. filter_state normal applies the full rate, needs_cleaning applies half the rate rounded up, and replace applies zero rate. The value is clamped to the inclusive 0 through 500 range and rounded to the nearest integer. On every tick, indoor_air_quality is internally set to the current containing Space air_quality value. While powered, ventilation emits a temperature delta each minute: normal mode uses 0.10 multiplied by (outdoor_temperature minus containing Space temperature), and heat_exchange uses 0.02 multiplied by that same temperature difference. Thus heat_exchange reduces the normal-mode thermal change by 80 percent. The temperature increment is rounded to one decimal place and is not emitted while unpowered. Represent temperature movement using an approach effect toward outdoor_temperature, with rate_per_minute equal to the absolute rounded increment. Represent air-quality movement using an approach effect toward outdoor_air_quality at the filtered AQI rate. These native approach operations preserve the stated per-minute movement while composing with other Home approach effects. Unpowered ventilation emits no air-quality or temperature effect.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the air exchanger is powered."
+            },
+            {
+              "name": "ventilation_mode",
+              "description": "Selected ventilation mode."
+            },
+            {
+              "name": "fan_speed",
+              "description": "Current fan speed level."
+            },
+            {
+              "name": "indoor_air_quality",
+              "description": "Device-reported indoor air quality synchronized from the Space."
+            },
+            {
+              "name": "outdoor_air_quality",
+              "description": "Outdoor air quality target."
+            },
+            {
+              "name": "outdoor_temperature",
+              "description": "Outdoor temperature used for the temperature contribution."
+            },
+            {
+              "name": "filter_state",
+              "description": "Filter maintenance state affecting filtration rate."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "CeilingFan": {
+    "meta": {
+      "name": "CeilingFan",
+      "description": "A ceiling-fan variant. It is a simple fan that supports only fan-speed adjustment.",
+      "version": "1.0.0",
+      "from": "../Fan.json"
+    },
+    "properties": {
+      "update": {
+        "fan_speed": {
+          "type": "integer",
+          "description": "Selected fan speed: 1 is low, 2 is medium, and 3 is high. Retained across power changes.",
+          "mode": 3,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 1
+          }
+        }
+      },
+      "disabled": [
+        "wind_mode",
+        "oscillation",
+        "oscillation_angle"
+      ]
+    },
+    "functions": {
+      "update": {
+        "get_fan_speed": {
+          "description": "While powered, get the selected fan speed. Power-off access fails without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "fan_speed"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fan_speed",
+            "response_key": "fan_speed",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "fan_speed": {
+              "type": "integer",
+              "description": "Selected fan speed from 1 through 3."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_fan_speed": {
+          "description": "While powered, set the selected fan speed to 1, 2, or 3. The configured fan speed is changed without changing device power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "fan_speed"
+          ],
+          "writes": [
+            "fan_speed"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "fan_speed",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": [
+        "get_wind_mode",
+        "set_wind_mode",
+        "get_oscillation",
+        "set_oscillation",
+        "get_oscillation_angle",
+        "set_oscillation_angle"
+      ]
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

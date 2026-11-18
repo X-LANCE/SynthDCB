@@ -1,0 +1,178 @@
+{
+  "ElectricWaterHeater": {
+    "meta": {
+      "name": "ElectricWaterHeater",
+      "description": "An electric-water-heater variant. It provides heat retention and stored-water volume-level settings.",
+      "version": "1.0.0",
+      "from": "../WaterHeater.json"
+    },
+    "properties": {
+      "update": {
+        "heat_retention": {
+          "type": "boolean",
+          "description": "Whether heat retention is enabled as a configuration setting. This setting persists across power changes and does not change the heating enable setting.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "stored_water_volume_level": {
+          "type": "string",
+          "description": "Configured stored-water preparation level: low, medium, or high. This is a relative volume setting, not a measurement of available water or a change to physical tank capacity. It persists across power changes.",
+          "mode": 3,
+          "value": {
+            "default": "medium",
+            "choices": [
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_heat_retention": {
+          "description": "Return the configured heat-retention enable setting. Fails while power is false; does not change state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "heat_retention"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "heat_retention",
+            "response_key": "heat_retention",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "heat_retention": {
+              "type": "boolean",
+              "description": "Whether heat retention is configured as enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_heat_retention": {
+          "description": "Set the heat-retention enable setting to the supplied boolean while powered on. Changes only this configuration setting, without changing heating_state or target temperature. Returns an empty response on success. Invalid arguments or power being false cause failure and leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether heat retention should be enabled."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "heat_retention"
+          ],
+          "writes": [
+            "heat_retention"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "heat_retention",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_stored_water_volume_level": {
+          "description": "Return the configured stored-water volume level as low, medium, or high. Fails while power is false; does not change state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "stored_water_volume_level"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "stored_water_volume_level",
+            "response_key": "stored_water_volume_level",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "stored_water_volume_level": {
+              "type": "string",
+              "description": "Configured relative stored-water preparation level: low, medium, or high."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_stored_water_volume_level": {
+          "description": "Set the stored-water preparation level while powered on. Accepts exactly low, medium, or high, in increasing relative volume order. Changes only the configured level; it does not report instantaneous water availability or alter physical tank capacity. Returns an empty response on success. Invalid arguments or power being false cause failure and leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "description": "Desired relative stored-water preparation level."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "stored_water_volume_level"
+          ],
+          "writes": [
+            "stored_water_volume_level"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "stored_water_volume_level",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

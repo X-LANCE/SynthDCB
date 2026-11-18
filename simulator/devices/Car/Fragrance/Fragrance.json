@@ -1,0 +1,329 @@
+{
+  "Fragrance": {
+    "meta": {
+      "name": "Fragrance",
+      "description": "Vehicle fragrance module. Supports switching on and off, release intensity, selecting an installed fragrance slot, and querying consumable availability. Slot count and contents are determined by the equipment configuration; normal release must not be reported when no usable consumable is available. Fragrance release is not air purification and does not automatically overwrite air-quality sensor readings.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether normal fragrance release is enabled. It can be enabled only when the selected slot has an available consumable.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "intensity": {
+          "type": "integer",
+          "description": "Selected fragrance release intensity level.",
+          "mode": 3,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "selected_slot": {
+          "type": "string",
+          "description": "Identifier of the selected configured fragrance slot. An empty value means no slot is selected.",
+          "mode": 3,
+          "value": {
+            "default": "",
+            "pattern": "^$|^[A-Za-z0-9_-]{1,32}$",
+            "max_length": 32
+          }
+        },
+        "consumables": {
+          "type": "dict",
+          "description": "Read-only equipment-configured collection of installed fragrance slots keyed by slot identifier. Each record contains the configured fragrance name and whether its consumable is available.",
+          "mode": 2,
+          "value": {
+            "default": {},
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "fragrance": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "available": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "fragrance",
+                  "available"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_enabled": {
+          "description": "Return whether normal fragrance release is enabled without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "enabled",
+            "response_key": "enabled"
+          },
+          "response": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether normal fragrance release is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_enabled": {
+          "description": "Enable or disable normal fragrance release. Disabling always succeeds. Enabling succeeds only when selected_slot identifies an installed consumable whose available field is true; otherwise the request is rejected and all state remains unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "selected_slot",
+            "consumables"
+          ],
+          "writes": [
+            "enabled"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "enabled",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {
+            "CONSUMABLE_UNAVAILABLE": "Fragrance release cannot be enabled because the selected slot is missing or its consumable is unavailable."
+          }
+        },
+        "get_intensity": {
+          "description": "Return the selected fragrance release intensity level without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "intensity"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "intensity",
+            "response_key": "intensity"
+          },
+          "response": {
+            "intensity": {
+              "type": "integer",
+              "description": "Selected fragrance release intensity from 1 through 3."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_intensity": {
+          "description": "Set the fragrance release intensity to an integer from 1 through 3. The setting persists while release is disabled. Invalid input is rejected and leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "intensity"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "intensity",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Intensity must be an integer from 1 through 3."
+          }
+        },
+        "get_selected_slot": {
+          "description": "Return the selected fragrance slot identifier. An empty string means no slot is selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "selected_slot"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "selected_slot",
+            "response_key": "selected_slot"
+          },
+          "response": {
+            "selected_slot": {
+              "type": "string",
+              "description": "Identifier of the selected configured fragrance slot, or an empty string when none is selected."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_selected_slot": {
+          "description": "Select an installed fragrance slot. The slot identifier must exist in consumables. An unavailable slot may be selected while release is disabled, but selecting an unavailable slot while release is enabled is rejected so normal release is never reported without a usable consumable. Rejected requests leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "slot_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,32}$",
+                "maxLength": 32,
+                "examples": [
+                  "slot_1"
+                ]
+              }
+            },
+            "required": [
+              "slot_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "enabled",
+            "consumables"
+          ],
+          "writes": [
+            "selected_slot"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "selected_slot",
+            "parameter": "slot_id",
+            "preconditions": {
+              "consumables": {
+                "contains_key": {
+                  "parameter": "slot_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "slot_id": {
+              "property": "consumables",
+              "field": "$key"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The requested slot is not installed.",
+            "CONSUMABLE_UNAVAILABLE": "An unavailable fragrance slot cannot be selected while fragrance release is enabled."
+          }
+        },
+        "get_consumable": {
+          "description": "Return the configured fragrance name and current availability for one installed slot. An unknown slot identifier is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "slot_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,32}$",
+                "maxLength": 32,
+                "examples": [
+                  "slot_1"
+                ]
+              }
+            },
+            "required": [
+              "slot_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "consumables"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "consumables",
+            "id_parameter": "slot_id",
+            "response_key": "consumable",
+            "preconditions": {
+              "consumables": {
+                "contains_key": {
+                  "parameter": "slot_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "slot_id": {
+              "property": "consumables",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "consumable": {
+              "type": "object",
+              "description": "Configured slot record containing fragrance and available fields."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The requested slot is not installed."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

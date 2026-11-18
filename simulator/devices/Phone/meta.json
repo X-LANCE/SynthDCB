@@ -1,0 +1,33 @@
+{
+  "create_date": "2026-09-20T09:23:30.372660+00:00",
+  "domain": "Phone",
+  "base_class_count": 21,
+  "derived_class_count": 1,
+  "property_count": 123,
+  "tool_count": 217,
+  "classes": {
+    "Phone.Accessibility.Accessibility": "Accessibility/Accessibility.py",
+    "Phone.Alarm.Alarm": "Alarm/Alarm.py",
+    "Phone.Battery.Battery": "Battery/Battery.py",
+    "Phone.Bluetooth.Bluetooth": "Bluetooth/Bluetooth.py",
+    "Phone.Connectivity.Connectivity": "Connectivity/Connectivity.py",
+    "Phone.Display.Display": "Display/Display.py",
+    "Phone.Flashlight.DimmableFlashlight.DimmableFlashlight": "Flashlight/DimmableFlashlight/DimmableFlashlight.py",
+    "Phone.Flashlight.Flashlight": "Flashlight/Flashlight.py",
+    "Phone.Focus.Focus": "Focus/Focus.py",
+    "Phone.Hotspot.Hotspot": "Hotspot/Hotspot.py",
+    "Phone.Location.Location": "Location/Location.py",
+    "Phone.MediaPlayer.MediaPlayer": "MediaPlayer/MediaPlayer.py",
+    "Phone.Notifications.Notifications": "Notifications/Notifications.py",
+    "Phone.Privacy.Privacy": "Privacy/Privacy.py",
+    "Phone.Rotation.Rotation": "Rotation/Rotation.py",
+    "Phone.ScreenCapture.ScreenCapture": "ScreenCapture/ScreenCapture.py",
+    "Phone.Sound.Sound": "Sound/Sound.py",
+    "Phone.Stopwatch.Stopwatch": "Stopwatch/Stopwatch.py",
+    "Phone.System.System": "System/System.py",
+    "Phone.SystemSettings.SystemSettings": "SystemSettings/SystemSettings.py",
+    "Phone.Timer.Timer": "Timer/Timer.py",
+    "Phone.WiFi.WiFi": "WiFi/WiFi.py"
+  },
+  "version": "v20260920"
+}

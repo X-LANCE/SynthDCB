@@ -1,0 +1,365 @@
+{
+  "MediaPlayer": {
+    "meta": {
+      "name": "MediaPlayer",
+      "description": "Media playback application, placed in Application. Supports selecting preset tracks, querying playback state, play, pause, stop, and setting repeat and shuffle. Pause preserves the track and configuration; stop changes only playback state. The virtual Space does not hold physical properties such as sound level.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "current_track": {
+          "type": "string",
+          "description": "The currently selected preset local track.",
+          "mode": 3,
+          "value": {
+            "default": "morning",
+            "choices": [
+              "morning",
+              "news",
+              "music"
+            ]
+          }
+        },
+        "playback_state": {
+          "type": "string",
+          "description": "The current playback lifecycle state. It is changed internally by play, pause, and stop.",
+          "mode": 2,
+          "value": {
+            "default": "stopped",
+            "choices": [
+              "stopped",
+              "playing",
+              "paused"
+            ]
+          }
+        },
+        "repeat_mode": {
+          "type": "string",
+          "description": "The repeat policy applied to local media playback.",
+          "mode": 3,
+          "value": {
+            "default": "none",
+            "choices": [
+              "none",
+              "one",
+              "all"
+            ]
+          }
+        },
+        "shuffle": {
+          "type": "boolean",
+          "description": "Whether shuffle is enabled for local track ordering.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_current_track": {
+          "description": "Return the currently selected preset track without changing playback or configuration.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "current_track"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "current_track",
+            "response_key": "current_track",
+            "preconditions": {}
+          },
+          "response": {
+            "current_track": {
+              "type": "string",
+              "description": "The currently selected preset track."
+            }
+          }
+        },
+        "set_current_track": {
+          "description": "Select one of the preset tracks: morning, news, or music. Selection does not change playback state, repeat mode, or shuffle. Invalid values are rejected and leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "morning",
+                  "news",
+                  "music"
+                ],
+                "examples": [
+                  "morning",
+                  "news",
+                  "music"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "current_track"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "current_track",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_playback_state": {
+          "description": "Return the current playback state without changing application state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "playback_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "playback_state",
+            "response_key": "playback_state",
+            "preconditions": {}
+          },
+          "response": {
+            "playback_state": {
+              "type": "string",
+              "description": "The current playback state: stopped, playing, or paused."
+            }
+          }
+        },
+        "get_repeat_mode": {
+          "description": "Return the current repeat mode without changing playback or configuration.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "repeat_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "repeat_mode",
+            "response_key": "repeat_mode",
+            "preconditions": {}
+          },
+          "response": {
+            "repeat_mode": {
+              "type": "string",
+              "description": "The current repeat mode: none, one, or all."
+            }
+          }
+        },
+        "set_repeat_mode": {
+          "description": "Set repeat mode to none, one, or all without changing the selected track, playback state, or shuffle. Invalid values are rejected and leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "one",
+                  "all"
+                ],
+                "examples": [
+                  "none",
+                  "one",
+                  "all"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "repeat_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "repeat_mode",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_shuffle": {
+          "description": "Return whether shuffle is enabled without changing playback or configuration.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "shuffle"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "shuffle",
+            "response_key": "shuffle",
+            "preconditions": {}
+          },
+          "response": {
+            "shuffle": {
+              "type": "boolean",
+              "description": "Whether shuffle is currently enabled."
+            }
+          }
+        },
+        "set_shuffle": {
+          "description": "Enable or disable shuffle without changing the selected track, playback state, or repeat mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "shuffle"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "shuffle",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "play": {
+          "description": "Start or resume playback of the selected track by changing playback_state to playing. This action is valid only while stopped or paused. If already playing, it fails and leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "playback_state"
+          ],
+          "writes": [
+            "playback_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "playback_state": {
+                "value": "playing"
+              }
+            },
+            "preconditions": {
+              "playback_state": {
+                "one_of": [
+                  "stopped",
+                  "paused"
+                ]
+              }
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "Playback is already playing."
+          }
+        },
+        "pause": {
+          "description": "Pause active playback by changing playback_state to paused. The selected track, repeat mode, and shuffle setting are preserved. This action fails without changing state unless playback is currently playing.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "playback_state"
+          ],
+          "writes": [
+            "playback_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "playback_state": {
+                "value": "paused"
+              }
+            },
+            "preconditions": {
+              "playback_state": "playing"
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "Playback is not currently playing."
+          }
+        },
+        "stop": {
+          "description": "Stop playback by changing only playback_state to stopped. The selected track, repeat mode, and shuffle setting are preserved. The action is idempotent when playback is already stopped.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "playback_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "playback_state": {
+                "value": "stopped"
+              }
+            },
+            "preconditions": {}
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

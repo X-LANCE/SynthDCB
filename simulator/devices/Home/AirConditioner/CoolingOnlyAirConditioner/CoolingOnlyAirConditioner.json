@@ -1,0 +1,268 @@
+{
+  "CoolingOnlyAirConditioner": {
+    "meta": {
+      "name": "CoolingOnlyAirConditioner",
+      "description": "A cooling-only air-conditioner subclass. It inherits the base air conditioner's cooling, fan, dehumidification, and automatic-mode capabilities but does not provide heating, auxiliary heating, or related operations. The device produces no heating effect in its space.",
+      "version": "1.0.0",
+      "from": "../AirConditioner.json"
+    },
+    "properties": {
+      "update": {
+        "operating_mode": {
+          "type": "string",
+          "description": "The operating mode. Cooling regulates temperature, dehumidification reduces humidity, fan circulates air without directly changing temperature or humidity, and automatic operation cools when the room is above the target without providing heating.",
+          "mode": 3,
+          "value": {
+            "default": "cool",
+            "choices": [
+              "cool",
+              "fan",
+              "dry",
+              "auto"
+            ]
+          }
+        },
+        "target_temperature": {
+          "type": "float",
+          "description": "The desired room temperature in degrees Celsius. It is used by cooling and automatic modes and cannot be changed in dry or fan mode.",
+          "mode": 3,
+          "value": {
+            "default": 22.0,
+            "unit": "degC",
+            "minimum": 16.0,
+            "maximum": 30.0,
+            "step": 0.5,
+            "step_origin": 16.0,
+            "precision": 1
+          }
+        }
+      },
+      "disabled": [
+        "auxiliary_heating"
+      ]
+    },
+    "functions": {
+      "update": {
+        "set_operating_mode": {
+          "description": "Set the operating mode while powered. Supported modes are cool, fan, dry, and auto. Automatic operation never provides heating.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "cool",
+                  "fan",
+                  "dry",
+                  "auto"
+                ],
+                "description": "Operating mode."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "operating_mode"
+          ],
+          "writes": [
+            "operating_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "operating_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_target_temperature": {
+          "description": "Return the target temperature while powered and in cool or auto mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "operating_mode",
+            "target_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_temperature",
+            "response_key": "target_temperature",
+            "preconditions": {
+              "power": true,
+              "operating_mode": {
+                "one_of": [
+                  "cool",
+                  "auto"
+                ]
+              }
+            }
+          },
+          "response": {
+            "target_temperature": {
+              "type": "number",
+              "description": "Target temperature in degrees Celsius."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_target_temperature": {
+          "description": "Set the target temperature while powered in cool or auto mode. It cannot be set in dry or fan mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 16.0,
+                "maximum": 30.0,
+                "multipleOf": 0.5,
+                "description": "Target temperature in degrees Celsius."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "operating_mode",
+            "target_temperature"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "operating_mode": {
+                "one_of": [
+                  "cool",
+                  "auto"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "increase_target_temperature": {
+          "description": "Increase the target temperature by 0.5 degrees Celsius while powered in cool or auto mode, without exceeding 30 degrees Celsius.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "operating_mode",
+            "target_temperature"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Incremental target-temperature adjustment is not expressible by the declared set and update semantic bindings.",
+            "preconditions": {
+              "power": true,
+              "operating_mode": {
+                "one_of": [
+                  "cool",
+                  "auto"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "decrease_target_temperature": {
+          "description": "Decrease the target temperature by 0.5 degrees Celsius while powered in cool or auto mode, without going below 16 degrees Celsius.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "operating_mode",
+            "target_temperature"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Incremental target-temperature adjustment is not expressible by the declared set and update semantic bindings.",
+            "preconditions": {
+              "power": true,
+              "operating_mode": {
+                "one_of": [
+                  "cool",
+                  "auto"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": [
+        "get_auxiliary_heating",
+        "set_auxiliary_heating"
+      ]
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While powered, cool the room toward the target in cool mode and in automatic operation when the room is above the target, or reduce room humidity in dry operation. Automatic operation never heats the room. Fan operation does not directly change temperature or humidity. When unpowered, emit zero contributions.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the air conditioner is powered."
+            },
+            {
+              "name": "operating_mode",
+              "description": "Current operating mode."
+            },
+            {
+              "name": "target_temperature",
+              "description": "Desired room temperature for cooling operation."
+            },
+            {
+              "name": "fan_speed",
+              "description": "Current fan speed."
+            }
+          ]
+        }
+      },
+      "disabled": [
+        "after_action"
+      ]
+    }
+  }
+}

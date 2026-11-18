@@ -1,0 +1,414 @@
+{
+  "Lamp": {
+    "meta": {
+      "name": "Lamp",
+      "description": "Lighting fixture. Users can query and set brightness and color temperature, and can also increase or decrease them incrementally. Turning the lamp off does not clear the configured brightness or color temperature. When the lamp is on, it changes the illuminance of its space according to brightness; color temperature changes only the perceived warmth or coolness of the light and does not determine illuminance intensity.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the lamp is powered on. Turning the lamp off preserves brightness and color temperature.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "brightness": {
+          "type": "integer",
+          "description": "Configured brightness percentage. It persists while the lamp is off and is publicly accessible only while the lamp is on.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "color_temperature": {
+          "type": "integer",
+          "description": "Configured color temperature in kelvin. It persists while the lamp is off and affects perceived warmth or coolness, not illuminance intensity.",
+          "mode": 3,
+          "value": {
+            "default": 4000,
+            "unit": "K",
+            "minimum": 1000,
+            "maximum": 6500,
+            "step": 100,
+            "step_origin": 1000
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_brightness": {
+          "description": "Return the configured brightness percentage. The lamp must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "brightness",
+            "response_key": "brightness",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "brightness": {
+              "type": "integer",
+              "description": "Brightness percentage from 0 through 100."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to read brightness."
+          }
+        },
+        "set_brightness": {
+          "description": "Set brightness to an integer percentage from 0 through 100. The lamp must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Target brightness percentage."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "brightness",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to change brightness.",
+            "INVALID_INPUT_ERROR": "Brightness must be an integer from 0 through 100."
+          }
+        },
+        "increase_brightness": {
+          "description": "Increase brightness by the requested number of percentage points, defaulting to 1, capped at 100. The lamp must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1,
+                "description": "Number of percentage points to increase brightness."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Increase brightness by the supplied percentage-point amount and cap the result at 100.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to increase brightness.",
+            "INVALID_INPUT_ERROR": "The increase must be an integer of at least 1."
+          }
+        },
+        "decrease_brightness": {
+          "description": "Decrease brightness by the requested number of percentage points, defaulting to 1, floored at 0. The lamp must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1,
+                "description": "Number of percentage points to decrease brightness."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Decrease brightness by the supplied percentage-point amount and floor the result at 0.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to decrease brightness.",
+            "INVALID_INPUT_ERROR": "The decrease must be an integer of at least 1."
+          }
+        },
+        "get_color_temperature": {
+          "description": "Return the configured color temperature in kelvin. The lamp must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "color_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "color_temperature",
+            "response_key": "color_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "color_temperature": {
+              "type": "integer",
+              "description": "Color temperature in kelvin."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to read color temperature."
+          }
+        },
+        "set_color_temperature": {
+          "description": "Set color temperature to an integer from 1000 K through 6500 K in 100 K increments. The lamp must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 6500,
+                "multipleOf": 100,
+                "description": "Target color temperature in kelvin; it must be a multiple of 100 K."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "color_temperature"
+          ],
+          "writes": [
+            "color_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "color_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to change color temperature.",
+            "INVALID_INPUT_ERROR": "Color temperature must be an integer from 1000 through 6500 K in 100 K increments."
+          }
+        },
+        "increase_color_temperature": {
+          "description": "Increase color temperature by the requested number of 100 K steps, defaulting to 1, capped at 6500 K. The lamp must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1,
+                "description": "Number of 100 K steps by which to increase color temperature."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "color_temperature"
+          ],
+          "writes": [
+            "color_temperature"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Increase color temperature by the supplied number of 100 K steps and cap the result at 6500 K.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to increase color temperature.",
+            "INVALID_INPUT_ERROR": "The step count must be an integer of at least 1."
+          }
+        },
+        "decrease_color_temperature": {
+          "description": "Decrease color temperature by the requested number of 100 K steps, defaulting to 1, floored at 1000 K. The lamp must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1,
+                "description": "Number of 100 K steps by which to decrease color temperature."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "color_temperature"
+          ],
+          "writes": [
+            "color_temperature"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Decrease color temperature by the supplied number of 100 K steps and floor the result at 1000 K.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to decrease color temperature.",
+            "INVALID_INPUT_ERROR": "The step count must be an integer of at least 1."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "The lamp emits an absolute illuminance contribution of zero while powered off. While powered on, its illuminance contribution in lux equals its brightness percentage multiplied by 10. Color temperature does not affect illuminance.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether the lamp contributes illuminance."
+            },
+            {
+              "name": "brightness",
+              "description": "Determines the lamp's illuminance contribution while powered on."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

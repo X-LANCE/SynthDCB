@@ -1,0 +1,248 @@
+{
+  "CoolingHeatingCarRefrigerator": {
+    "meta": {
+      "name": "CoolingHeatingCarRefrigerator",
+      "description": "Vehicle refrigerator with cooling and heating. Adds a heating mode and target temperature ranges specific to each mode.",
+      "version": "1.0.0",
+      "from": "../CarRefrigerator.json"
+    },
+    "properties": {
+      "update": {
+        "mode": {
+          "type": "string",
+          "description": "Selected refrigerator temperature-control mode.",
+          "mode": 3,
+          "value": {
+            "default": "cooling",
+            "choices": [
+              "cooling",
+              "heating"
+            ]
+          }
+        },
+        "target_temperature": {
+          "type": "integer",
+          "description": "Requested compartment temperature. Valid targets are 0 through 15 degrees Celsius in cooling mode and 35 through 50 degrees Celsius in heating mode.",
+          "mode": 3,
+          "value": {
+            "default": 4,
+            "unit": "degC",
+            "minimum": 0,
+            "maximum": 50,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "internal_temperature": {
+          "type": "integer",
+          "description": "Current temperature inside the refrigerator compartment. This value is separate from cabin temperature and is updated by the cooling or heating temperature-control process.",
+          "mode": 2,
+          "value": {
+            "default": 20,
+            "unit": "degC",
+            "minimum": -50,
+            "maximum": 80,
+            "step": 1,
+            "step_origin": -50
+          }
+        },
+        "operating_state": {
+          "type": "string",
+          "description": "Temperature-control activity recorded by the most recent minute update. It is set to idle when the device is unpowered.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "cooling",
+              "heating"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_mode": {
+          "description": "Return the selected cooling or heating mode. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "mode",
+            "response_key": "mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "mode": {
+              "type": "string",
+              "description": "Selected refrigerator mode: cooling or heating."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The refrigerator must be powered on."
+          }
+        },
+        "set_mode": {
+          "description": "Select cooling or heating mode. Requires power on. When the selected mode differs from the current mode, target_temperature is reset to 4 degrees Celsius for cooling or 40 degrees Celsius for heating so the resulting configuration is valid. Selecting the current mode leaves the existing target unchanged. Invalid input or an off power state leaves all properties unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "cooling",
+                  "heating"
+                ],
+                "examples": [
+                  "cooling",
+                  "heating"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "mode"
+          ],
+          "writes": [
+            "mode",
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Changing modes also assigns the deterministic mode-specific target default, while selecting the current mode preserves its target.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The refrigerator must be powered on.",
+            "INVALID_INPUT_ERROR": "Mode must be cooling or heating."
+          }
+        },
+        "set_target_temperature": {
+          "description": "Set the target temperature for the selected mode. Cooling mode accepts integers from 0 through 15 degrees Celsius; heating mode accepts integers from 35 through 50 degrees Celsius. Invalid input, a target outside the selected mode's range, or an off power state leaves all properties unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 50,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "mode"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The refrigerator must be powered on.",
+            "INVALID_INPUT_ERROR": "Target temperature must be an integer from 0 through 15 degrees Celsius in cooling mode or from 35 through 50 degrees Celsius in heating mode."
+          }
+        },
+        "get_operating_state": {
+          "description": "Return whether the refrigerator was idle, cooling, or heating at the most recent minute update. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "operating_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "operating_state",
+            "response_key": "operating_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "operating_state": {
+              "type": "string",
+              "description": "Most recently evaluated activity: idle, cooling, or heating."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The refrigerator must be powered on."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "Each minute while powered in cooling mode, lower internal_temperature toward target_temperature by at most 1 degree Celsius without heating; report cooling when a decrease occurs and idle when already at or below the target. Each minute while powered in heating mode, raise internal_temperature toward target_temperature by at most 1 degree Celsius without cooling; report heating when an increase occurs and idle when already at or above the target. Never overshoot the target. While unpowered, leave internal_temperature unchanged and report idle.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether temperature control may run."
+            },
+            {
+              "name": "mode",
+              "description": "Determines whether the device may cool or heat."
+            },
+            {
+              "name": "target_temperature",
+              "description": "Mode-compatible compartment temperature approached by active control."
+            },
+            {
+              "name": "internal_temperature",
+              "description": "Current compartment temperature used to determine temperature-control progress."
+            },
+            {
+              "name": "operating_state",
+              "description": "Activity state updated by each minute evaluation to idle, cooling, or heating."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

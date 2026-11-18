@@ -1,0 +1,736 @@
+{
+  "Dishwasher": {
+    "meta": {
+      "name": "Dishwasher",
+      "description": "Dishwasher. Users can query and set the washing program, cleaning intensity, drying state, and detergent dispensing. The current stage and remaining time are queryable; preset stages associated with the washing program progress over time, and operation is started through a manual setting.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "process": {
+      "mode_property": "washing_program",
+      "start_function": "start_cycle",
+      "pause_function": "pause_cycle",
+      "resume_function": "resume_cycle",
+      "modes": {
+        "eco": [
+          {
+            "phase": "wash",
+            "minutes": 45
+          },
+          {
+            "phase": "rinse",
+            "minutes": 20
+          },
+          {
+            "phase": "dry",
+            "minutes": 30
+          }
+        ],
+        "normal": [
+          {
+            "phase": "wash",
+            "minutes": 60
+          },
+          {
+            "phase": "rinse",
+            "minutes": 25
+          },
+          {
+            "phase": "dry",
+            "minutes": 40
+          }
+        ],
+        "intensive": [
+          {
+            "phase": "wash",
+            "minutes": 90
+          },
+          {
+            "phase": "rinse",
+            "minutes": 30
+          },
+          {
+            "phase": "dry",
+            "minutes": 50
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the dishwasher is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "washing_program": {
+          "type": "string",
+          "description": "Selected washing program.",
+          "mode": 3,
+          "value": {
+            "default": "normal",
+            "choices": [
+              "eco",
+              "normal",
+              "intensive"
+            ]
+          }
+        },
+        "cleaning_intensity": {
+          "type": "string",
+          "description": "Configured cleaning intensity.",
+          "mode": 3,
+          "value": {
+            "default": "standard",
+            "choices": [
+              "light",
+              "standard",
+              "strong"
+            ]
+          }
+        },
+        "drying_state": {
+          "type": "boolean",
+          "description": "Whether the drying stage is enabled. When false, the declared dry stage is skipped and its duration is removed from the process.",
+          "mode": 3,
+          "value": {
+            "default": true
+          }
+        },
+        "detergent_dispensing": {
+          "type": "boolean",
+          "description": "Whether automatic detergent dispensing is enabled.",
+          "mode": 3,
+          "value": {
+            "default": true
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Current dishwasher process status.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "running",
+              "paused",
+              "completed"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current washing stage.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "wash",
+              "rinse",
+              "dry",
+              "completed"
+            ]
+          }
+        },
+        "remaining_minutes": {
+          "type": "integer",
+          "description": "Minutes remaining in the selected dishwasher program, excluding a disabled drying stage.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "started_at_minute": {
+          "type": "integer",
+          "description": "Elapsed world minute at which the current process origin was established.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "progress_minutes": {
+          "type": "integer",
+          "description": "Completed minutes from the beginning of the selected process.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_washing_program": {
+          "description": "Get the selected washing program while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "washing_program"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "washing_program",
+            "response_key": "washing_program",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_washing_program": {
+          "description": "Select a washing program while powered and idle or completed.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "eco",
+                  "normal",
+                  "intensive"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "washing_program"
+          ],
+          "writes": [
+            "washing_program"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "washing_program",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_cleaning_intensity": {
+          "description": "Get cleaning intensity while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "cleaning_intensity"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cleaning_intensity",
+            "response_key": "cleaning_intensity",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_cleaning_intensity": {
+          "description": "Set cleaning intensity while powered and idle or completed.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "light",
+                  "standard",
+                  "strong"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "cleaning_intensity"
+          ],
+          "writes": [
+            "cleaning_intensity"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "cleaning_intensity",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_drying_state": {
+          "description": "Get whether the drying stage is enabled while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "drying_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "drying_state",
+            "response_key": "drying_state",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_drying_state": {
+          "description": "Enable or disable the drying stage while powered and idle or completed. When disabled, future cycles skip drying.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "drying_state"
+          ],
+          "writes": [
+            "drying_state"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "drying_state",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_detergent_dispensing": {
+          "description": "Get whether automatic detergent dispensing is enabled while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "detergent_dispensing"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "detergent_dispensing",
+            "response_key": "detergent_dispensing",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_detergent_dispensing": {
+          "description": "Enable or disable automatic detergent dispensing while powered and idle or completed.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "detergent_dispensing"
+          ],
+          "writes": [
+            "detergent_dispensing"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "detergent_dispensing",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_status": {
+          "description": "Get the current dishwasher process status while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "status",
+            "response_key": "status",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_phase": {
+          "description": "Get the current dishwasher stage while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "phase"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "phase",
+            "response_key": "phase",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_remaining_minutes": {
+          "description": "Get remaining program time while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "remaining_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "remaining_minutes",
+            "response_key": "remaining_minutes",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "start_cycle": {
+          "description": "Start the program specified by mode while powered and idle or completed. Set washing_program to mode before starting; if drying is disabled, omit the dry stage.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "eco",
+                  "normal",
+                  "intensive"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "washing_program",
+            "drying_state",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "writes": [
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes",
+            "washing_program"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "mode",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "pause_cycle": {
+          "description": "Pause a running dishwasher cycle while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_pause",
+            "preconditions": {
+              "power": true,
+              "status": "running"
+            }
+          }
+        },
+        "resume_cycle": {
+          "description": "Resume a paused dishwasher cycle while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "progress_minutes",
+            "started_at_minute"
+          ],
+          "writes": [
+            "status",
+            "started_at_minute"
+          ],
+          "semantics": {
+            "kind": "process_resume",
+            "preconditions": {
+              "power": true,
+              "status": "paused"
+            }
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "power",
+            "status"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "Advance a running powered dishwasher using elapsed world minutes and the selected program. If drying_state is false, omit the dry phase and calculate total and remaining time from wash and rinse only. Preserve configuration, clamp progress and remaining time, advance stages at exact boundaries, and set status and phase to completed at the end. Paused, idle, completed, or unpowered cycles do not advance.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the dishwasher is powered."
+            },
+            {
+              "name": "washing_program",
+              "description": "Selected dishwasher program."
+            },
+            {
+              "name": "drying_state",
+              "description": "Whether the dry phase is included."
+            },
+            {
+              "name": "status",
+              "description": "Current process status."
+            },
+            {
+              "name": "phase",
+              "description": "Current process stage."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Minutes remaining."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Process origin minute."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Completed process minutes."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "On transition into running, establish started_at_minute as elapsed world minutes minus persisted progress_minutes. When power changes from on to off during a running cycle, pause the cycle while retaining progress, phase, and remaining time. Powering on restores access but does not resume the cycle.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the dishwasher is powered."
+            },
+            {
+              "name": "status",
+              "description": "Current process status."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Process origin minute."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Completed process minutes."
+            },
+            {
+              "name": "phase",
+              "description": "Current process stage."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Minutes remaining."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

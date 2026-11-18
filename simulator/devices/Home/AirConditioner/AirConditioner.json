@@ -1,0 +1,708 @@
+{
+  "AirConditioner": {
+    "meta": {
+      "name": "AirConditioner",
+      "description": "Air conditioner. It supports cooling, heating, fan, dehumidification, and automatic modes. Users can query and set the operating mode, target temperature, fan speed, swing direction, sleep mode, and auxiliary-heating state, and can incrementally raise or lower the target temperature. Target temperature is available only in operating modes that regulate temperature; temperature cannot be set in dehumidification mode; auxiliary heating is available only in modes that require heating and turns off after the room reaches the target temperature. While running, the device adjusts the temperature or humidity of its space according to the current operating mode; fan-only operation does not directly change temperature or humidity.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the air conditioner is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "operating_mode": {
+          "type": "string",
+          "description": "The operating mode. Cooling and heating regulate temperature, dehumidification reduces humidity, fan circulates air without directly changing temperature or humidity, and automatic operation selects heating or cooling based on room conditions.",
+          "mode": 3,
+          "value": {
+            "default": "cool",
+            "choices": [
+              "cool",
+              "heat",
+              "fan",
+              "dry",
+              "auto"
+            ]
+          }
+        },
+        "target_temperature": {
+          "type": "float",
+          "description": "The desired room temperature in degrees Celsius. It is used by cooling, heating, and automatic modes and cannot be changed in dry mode.",
+          "mode": 3,
+          "value": {
+            "default": 22.0,
+            "unit": "degC",
+            "minimum": 16.0,
+            "maximum": 30.0,
+            "step": 0.5,
+            "step_origin": 16.0,
+            "precision": 1
+          }
+        },
+        "fan_speed": {
+          "type": "string",
+          "description": "The indoor fan speed.",
+          "mode": 3,
+          "value": {
+            "default": "auto",
+            "choices": [
+              "auto",
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        },
+        "swing_direction": {
+          "type": "string",
+          "description": "The airflow swing direction.",
+          "mode": 3,
+          "value": {
+            "default": "fixed",
+            "choices": [
+              "fixed",
+              "vertical",
+              "horizontal",
+              "both"
+            ]
+          }
+        },
+        "sleep_mode": {
+          "type": "boolean",
+          "description": "Whether sleep operation is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "auxiliary_heating": {
+          "type": "boolean",
+          "description": "Whether auxiliary heating is enabled. It is available only in heat and auto modes and is turned off when the room reaches the target temperature.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_operating_mode": {
+          "description": "Return the operating mode while the air conditioner is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "operating_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "operating_mode",
+            "response_key": "operating_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "operating_mode": {
+              "type": "string",
+              "description": "Current operating mode."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_operating_mode": {
+          "description": "Set the operating mode while powered. Dry mode does not permit changing the target temperature. Auxiliary heating is turned off when selecting cool, fan, or dry.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "cool",
+                  "heat",
+                  "fan",
+                  "dry",
+                  "auto"
+                ],
+                "description": "Operating mode."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "operating_mode",
+            "auxiliary_heating"
+          ],
+          "writes": [
+            "operating_mode",
+            "auxiliary_heating"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "operating_mode": {
+                "parameter": "value"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_target_temperature": {
+          "description": "Return the target temperature while powered and in a temperature-regulating mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "operating_mode",
+            "target_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_temperature",
+            "response_key": "target_temperature",
+            "preconditions": {
+              "power": true,
+              "operating_mode": {
+                "one_of": [
+                  "cool",
+                  "heat",
+                  "auto"
+                ]
+              }
+            }
+          },
+          "response": {
+            "target_temperature": {
+              "type": "number",
+              "description": "Target temperature in degrees Celsius."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_target_temperature": {
+          "description": "Set the target temperature while powered in cool, heat, or auto mode. It cannot be set in dry or fan mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 16.0,
+                "maximum": 30.0,
+                "multipleOf": 0.5,
+                "description": "Target temperature in degrees Celsius."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "operating_mode",
+            "target_temperature"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "operating_mode": {
+                "one_of": [
+                  "cool",
+                  "heat",
+                  "auto"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "increase_target_temperature": {
+          "description": "Increase the target temperature by 0.5 degrees Celsius while powered in cool, heat, or auto mode, without exceeding 30 degrees Celsius.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "operating_mode",
+            "target_temperature"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Incremental target-temperature adjustment is not expressible by the declared set and update semantic bindings.",
+            "preconditions": {
+              "power": true,
+              "operating_mode": {
+                "one_of": [
+                  "cool",
+                  "heat",
+                  "auto"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "decrease_target_temperature": {
+          "description": "Decrease the target temperature by 0.5 degrees Celsius while powered in cool, heat, or auto mode, without going below 16 degrees Celsius.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "operating_mode",
+            "target_temperature"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Incremental target-temperature adjustment is not expressible by the declared set and update semantic bindings.",
+            "preconditions": {
+              "power": true,
+              "operating_mode": {
+                "one_of": [
+                  "cool",
+                  "heat",
+                  "auto"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_fan_speed": {
+          "description": "Return the fan speed while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "fan_speed"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fan_speed",
+            "response_key": "fan_speed",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "fan_speed": {
+              "type": "string",
+              "description": "Current fan speed."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_fan_speed": {
+          "description": "Set the fan speed while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "description": "Fan speed."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "fan_speed"
+          ],
+          "writes": [
+            "fan_speed"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "fan_speed",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_swing_direction": {
+          "description": "Return the swing direction while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "swing_direction"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "swing_direction",
+            "response_key": "swing_direction",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "swing_direction": {
+              "type": "string",
+              "description": "Current swing direction."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_swing_direction": {
+          "description": "Set the swing direction while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "fixed",
+                  "vertical",
+                  "horizontal",
+                  "both"
+                ],
+                "description": "Swing direction."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "swing_direction"
+          ],
+          "writes": [
+            "swing_direction"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "swing_direction",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_sleep_mode": {
+          "description": "Return whether sleep mode is enabled while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "sleep_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "sleep_mode",
+            "response_key": "sleep_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "sleep_mode": {
+              "type": "boolean",
+              "description": "Whether sleep mode is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_sleep_mode": {
+          "description": "Enable or disable sleep mode while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether sleep mode should be enabled."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "sleep_mode"
+          ],
+          "writes": [
+            "sleep_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "sleep_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_auxiliary_heating": {
+          "description": "Return the auxiliary-heating state while powered in heat or auto mode.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "operating_mode",
+            "auxiliary_heating"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "auxiliary_heating",
+            "response_key": "auxiliary_heating",
+            "preconditions": {
+              "power": true,
+              "operating_mode": {
+                "one_of": [
+                  "heat",
+                  "auto"
+                ]
+              }
+            }
+          },
+          "response": {
+            "auxiliary_heating": {
+              "type": "boolean",
+              "description": "Whether auxiliary heating is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_auxiliary_heating": {
+          "description": "Enable or disable auxiliary heating while powered in heat or auto mode. It cannot be enabled in other modes.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether auxiliary heating should be enabled."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "operating_mode",
+            "auxiliary_heating"
+          ],
+          "writes": [
+            "auxiliary_heating"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "auxiliary_heating",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "operating_mode": {
+                "one_of": [
+                  "heat",
+                  "auto"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While powered, adjust the room temperature toward the target in cool, heat, and automatic operation, or reduce room humidity in dry operation. Automatic operation cools when the room is above the target and heats when it is below the target. Fan operation does not directly change temperature or humidity. Auxiliary heating turns off when the room reaches the target temperature. When unpowered, emit zero contributions.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the air conditioner is powered."
+            },
+            {
+              "name": "operating_mode",
+              "description": "Current operating mode."
+            },
+            {
+              "name": "target_temperature",
+              "description": "Desired room temperature."
+            },
+            {
+              "name": "fan_speed",
+              "description": "Current fan speed."
+            },
+            {
+              "name": "auxiliary_heating",
+              "description": "Whether auxiliary heating is enabled."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "After a successful action, if operating_mode is cool, fan or dry, internally set auxiliary_heating to false. Otherwise preserve auxiliary_heating. This hook emits no Space effects.",
+          "effect_properties": [
+            {
+              "name": "operating_mode",
+              "description": "Required for mode-dependent auxiliary-heating interlock."
+            },
+            {
+              "name": "auxiliary_heating",
+              "description": "Required for mode-dependent auxiliary-heating interlock."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

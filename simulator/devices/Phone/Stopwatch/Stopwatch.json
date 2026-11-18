@@ -1,0 +1,223 @@
+{
+  "Stopwatch": {
+    "meta": {
+      "name": "Stopwatch",
+      "description": "Stopwatch application, placed in Application. Supports start, pause, resume, reset, and queries. While running, elapsed time accumulates each minute; while paused, it is retained. Reset clears elapsed time and returns to idle. There is no preset completion time.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "status": {
+          "type": "string",
+          "description": "Current stopwatch state. The state changes only through stopwatch actions.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "running",
+              "paused"
+            ]
+          }
+        },
+        "elapsed_minutes": {
+          "type": "integer",
+          "description": "Total number of whole minutes accumulated by the stopwatch.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "minutes",
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_status": {
+          "description": "Return the current stopwatch status without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "status",
+            "response_key": "status",
+            "preconditions": {}
+          },
+          "response": {
+            "status": {
+              "type": "string",
+              "description": "Current stopwatch status: idle, running, or paused."
+            }
+          }
+        },
+        "get_elapsed_minutes": {
+          "description": "Return the total number of whole minutes accumulated by the stopwatch without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "elapsed_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "elapsed_minutes",
+            "response_key": "elapsed_minutes",
+            "preconditions": {}
+          },
+          "response": {
+            "elapsed_minutes": {
+              "type": "integer",
+              "description": "Total accumulated whole minutes."
+            }
+          }
+        },
+        "start": {
+          "description": "Start the stopwatch from idle while preserving its current elapsed-minute value. The operation fails without changing state unless the stopwatch is idle.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "status"
+          ],
+          "writes": [
+            "status"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "status": {
+                "value": "running"
+              }
+            },
+            "preconditions": {
+              "status": "idle"
+            }
+          }
+        },
+        "pause": {
+          "description": "Pause a running stopwatch while retaining elapsed time. The operation fails without changing state unless the stopwatch is running.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "status"
+          ],
+          "writes": [
+            "status"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "status": {
+                "value": "paused"
+              }
+            },
+            "preconditions": {
+              "status": "running"
+            }
+          }
+        },
+        "resume": {
+          "description": "Resume a paused stopwatch without resetting its elapsed time. The operation fails without changing state unless the stopwatch is paused.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "status"
+          ],
+          "writes": [
+            "status"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "status": {
+                "value": "running"
+              }
+            },
+            "preconditions": {
+              "status": "paused"
+            }
+          }
+        },
+        "reset": {
+          "description": "Reset the stopwatch from any state by setting its status to idle and clearing elapsed time to zero.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "status",
+            "elapsed_minutes"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "status": {
+                "value": "idle"
+              },
+              "elapsed_minutes": {
+                "value": 0
+              }
+            },
+            "preconditions": {}
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While the stopwatch is running, add each elapsed whole minute to the accumulated elapsed time. When idle or paused, retain all stopwatch state unchanged.",
+          "effect_properties": [
+            {
+              "name": "status",
+              "description": "Determines whether elapsed time should accumulate."
+            },
+            {
+              "name": "elapsed_minutes",
+              "description": "Accumulated whole minutes updated while the stopwatch is running."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

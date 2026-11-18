@@ -1,0 +1,125 @@
+{
+  "FuelSystem": {
+    "meta": {
+      "name": "FuelSystem",
+      "description": "Fuel system module. Supports querying remaining fuel and the fuel filler flap state, and requesting the filler flap to unlock.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "remaining_fuel": {
+          "type": "integer",
+          "description": "Remaining fuel as a percentage of usable fuel-tank capacity.",
+          "mode": 2,
+          "value": {
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "%"
+          }
+        },
+        "filler_flap_state": {
+          "type": "string",
+          "description": "Current lock state of the fuel filler flap.",
+          "mode": 2,
+          "value": {
+            "default": "locked",
+            "choices": [
+              "locked",
+              "unlocked"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_remaining_fuel": {
+          "description": "Return the remaining fuel as an integer percentage from 0 through 100 without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "remaining_fuel"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "remaining_fuel",
+            "response_key": "remaining_fuel"
+          },
+          "response": {
+            "remaining_fuel": {
+              "type": "integer",
+              "description": "Remaining fuel as a percentage of usable fuel-tank capacity."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_filler_flap_state": {
+          "description": "Return whether the fuel filler flap is locked or unlocked without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "filler_flap_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "filler_flap_state",
+            "response_key": "filler_flap_state"
+          },
+          "response": {
+            "filler_flap_state": {
+              "type": "string",
+              "description": "Current filler-flap state: locked or unlocked."
+            }
+          },
+          "errorcodes": {}
+        },
+        "request_filler_flap_unlock": {
+          "description": "Request the fuel filler flap to unlock. The request immediately sets the flap state to unlocked and is idempotent when the flap is already unlocked. Remaining fuel is unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "filler_flap_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "filler_flap_state": {
+                "value": "unlocked"
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

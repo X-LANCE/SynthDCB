@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:post-simulation",
+  "type": "object",
+  "required": ["status", "end_elapsed_minutes", "agent_termination", "agent_snapshot", "background_audit", "final_snapshot", "error"],
+  "properties": {
+    "status": {"enum": ["completed", "failed"]},
+    "end_elapsed_minutes": {"type": "integer", "minimum": 1},
+    "agent_termination": {"$ref": "urn:dcb:v2:schema:termination"},
+    "agent_snapshot": {"$ref": "urn:dcb:v2:schema:state-snapshot"},
+    "background_audit": {"type": "array", "items": {"$ref": "urn:dcb:v2:schema:audit-record"}},
+    "final_snapshot": {"oneOf": [{"type": "null"}, {"$ref": "urn:dcb:v2:schema:state-snapshot"}]},
+    "error": {"oneOf": [{"type": "null"}, {"$ref": "urn:dcb:v2:schema:common#/$defs/error"}]}
+  },
+  "allOf": [{"if": {"properties": {"status": {"const": "completed"}}}, "then": {"properties": {"error": {"type": "null"}, "final_snapshot": {"type": "object"}}}, "else": {"properties": {"error": {"type": "object"}, "final_snapshot": {"type": "null"}}}}],
+  "additionalProperties": false
+}

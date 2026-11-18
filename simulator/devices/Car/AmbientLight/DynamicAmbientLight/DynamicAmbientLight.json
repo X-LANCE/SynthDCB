@@ -1,0 +1,281 @@
+{
+  "DynamicAmbientLight": {
+    "meta": {
+      "name": "DynamicAmbientLight",
+      "description": "Dynamic ambient light. Adds selecting, starting, and stopping local dynamic lighting effects and querying the current effect state. Dynamic effects and static color mode are mutually exclusive.",
+      "version": "1.0.0",
+      "from": "../AmbientLight.json"
+    },
+    "properties": {
+      "update": {
+        "effect": {
+          "type": "string",
+          "description": "Selected local dynamic lighting effect. Selection persists when the effect is stopped or the light is powered off.",
+          "mode": 3,
+          "value": {
+            "default": "pulse",
+            "choices": [
+              "pulse",
+              "wave",
+              "rainbow"
+            ]
+          }
+        },
+        "effect_state": {
+          "type": "string",
+          "description": "Current dynamic effect state. Stopped means the light uses its inherited static color setting; running means the selected dynamic effect is active while powered.",
+          "mode": 2,
+          "value": {
+            "default": "stopped",
+            "choices": [
+              "stopped",
+              "running"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "set_color": {
+          "description": "Set the static color using the fixed 24-bit sRGB hexadecimal format #RRGGBB and stop any running dynamic effect. Requires the ambient light to be powered on. Invalid input or a failed power precondition leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "Desired static 24-bit sRGB color in #RRGGBB format.",
+                "pattern": "^#[0-9A-Fa-f]{6}$",
+                "maxLength": 7,
+                "examples": [
+                  "#FFFFFF",
+                  "#FF0000",
+                  "#3366FF"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "color",
+            "effect_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "color": {
+                "parameter": "value"
+              },
+              "effect_state": {
+                "value": "stopped"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The ambient light must be powered on.",
+            "INVALID_INPUT_ERROR": "Color must use the 24-bit sRGB hexadecimal format #RRGGBB."
+          }
+        },
+        "get_effect": {
+          "description": "Return the selected dynamic lighting effect. Requires the ambient light to be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "effect"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "effect",
+            "response_key": "effect",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "effect": {
+              "type": "string",
+              "description": "Selected dynamic effect: pulse, wave, or rainbow."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The ambient light must be powered on."
+          }
+        },
+        "set_effect": {
+          "description": "Select the pulse, wave, or rainbow dynamic lighting effect. Selection does not start a stopped effect; if an effect is already running, the newly selected effect becomes active immediately. Requires the ambient light to be powered on. Invalid input or a failed power precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "Dynamic lighting effect to select.",
+                "enum": [
+                  "pulse",
+                  "wave",
+                  "rainbow"
+                ],
+                "examples": [
+                  "pulse",
+                  "wave",
+                  "rainbow"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "effect"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "effect",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The ambient light must be powered on.",
+            "INVALID_INPUT_ERROR": "Effect must be pulse, wave, or rainbow."
+          }
+        },
+        "get_effect_state": {
+          "description": "Return whether the selected dynamic effect is stopped or running. Requires the ambient light to be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "effect_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "effect_state",
+            "response_key": "effect_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "effect_state": {
+              "type": "string",
+              "description": "Current dynamic effect state: stopped or running."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The ambient light must be powered on."
+          }
+        },
+        "start_effect": {
+          "description": "Start the selected dynamic lighting effect and leave static color mode. Requires the ambient light to be powered on and the effect state to be stopped. A failed precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "effect_state",
+            "brightness"
+          ],
+          "writes": [
+            "effect_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "effect_state": {
+                "value": "running"
+              }
+            },
+            "preconditions": {
+              "power": true,
+              "effect_state": "stopped"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The ambient light must be powered on.",
+            "PRECONDITION_FAILED": "The dynamic effect is already running."
+          }
+        },
+        "stop_effect": {
+          "description": "Stop the running dynamic lighting effect and return to the inherited static color mode. Requires the ambient light to be powered on and the effect state to be running. The selected effect is preserved for a later start. A failed precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "effect_state",
+            "brightness"
+          ],
+          "writes": [
+            "effect_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "effect_state": {
+                "value": "stopped"
+              }
+            },
+            "preconditions": {
+              "power": true,
+              "effect_state": "running"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The ambient light must be powered on.",
+            "PRECONDITION_FAILED": "No dynamic effect is running."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

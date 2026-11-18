@@ -1,0 +1,882 @@
+{
+  "SystemSettings": {
+    "meta": {
+      "name": "SystemSettings",
+      "description": "System preference settings, placed in Setting and contained by System. Supports querying and setting the system language and specified application languages, toggling automatic date/time and automatic time zone, setting manual date/time or time zone, and querying and changing default application roles. Available languages, application-supported languages, and role candidates are read-only configuration. An application language may follow the system. Changing a role requires candidate eligibility checks and simulated user confirmation; denial preserves the original setting. Manual wall-clock changes are prohibited while automatic time is enabled, and manual time-zone selection is prohibited while automatic time zone is enabled. Automatic synchronization uses only a local simulated time source without network access. Adjustments affect the phone wall-clock offset and time zone, not the world monotonic clock, and must not move Timer or Stopwatch backward.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "available_languages": {
+          "type": "dict",
+          "description": "Read-only language configuration keyed by supported language identifier.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "en-US": {
+                "name": "English (United States)"
+              },
+              "es-ES": {
+                "name": "Spanish (Spain)"
+              },
+              "zh-CN": {
+                "name": "Chinese (Simplified)"
+              }
+            }
+          }
+        },
+        "system_language": {
+          "type": "string",
+          "description": "The language identifier used by the phone system and by applications configured to follow the system language.",
+          "mode": 3,
+          "value": {
+            "default": "en-US",
+            "choices": [
+              "en-US",
+              "es-ES",
+              "zh-CN"
+            ]
+          }
+        },
+        "application_supported_languages": {
+          "type": "dict",
+          "description": "Read-only application language capabilities keyed by application ID. Each record lists the explicit language identifiers supported by that application.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "browser": {
+                "languages": [
+                  "en-US",
+                  "es-ES",
+                  "zh-CN"
+                ]
+              },
+              "maps": {
+                "languages": [
+                  "en-US",
+                  "es-ES"
+                ]
+              }
+            }
+          }
+        },
+        "application_languages": {
+          "type": "dict",
+          "description": "Application language preferences keyed by application ID. A language value of system means that the application dynamically follows system_language.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "browser": {
+                "language": "system"
+              },
+              "maps": {
+                "language": "system"
+              }
+            }
+          }
+        },
+        "automatic_time": {
+          "type": "boolean",
+          "description": "Whether phone wall-clock date and time are synchronized to the local simulated time source.",
+          "mode": 3,
+          "value": {
+            "default": true
+          }
+        },
+        "wall_clock_offset_minutes": {
+          "type": "integer",
+          "description": "Manual phone wall-clock adjustment in whole minutes relative to the local simulated time source. Zero represents synchronized date and time. This offset never changes the world monotonic clock.",
+          "mode": 3,
+          "value": {
+            "default": 0,
+            "unit": "minutes",
+            "minimum": -525600,
+            "maximum": 525600,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "automatic_time_zone": {
+          "type": "boolean",
+          "description": "Whether the phone time zone follows the deterministic local simulated time-zone source.",
+          "mode": 3,
+          "value": {
+            "default": true
+          }
+        },
+        "time_zone": {
+          "type": "string",
+          "description": "The phone time-zone identifier used to interpret its wall clock. The local simulated automatic time-zone source resolves to UTC.",
+          "mode": 3,
+          "value": {
+            "default": "UTC",
+            "choices": [
+              "UTC",
+              "America/New_York",
+              "Europe/Madrid",
+              "Asia/Shanghai"
+            ]
+          }
+        },
+        "role_candidates": {
+          "type": "dict",
+          "description": "Read-only eligible application candidates keyed by default-role ID.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "browser": {
+                "applications": [
+                  "browser_alpha",
+                  "browser_beta"
+                ]
+              },
+              "maps": {
+                "applications": [
+                  "maps_standard",
+                  "maps_offline"
+                ]
+              }
+            }
+          }
+        },
+        "default_application_roles": {
+          "type": "dict",
+          "description": "Current default application selections keyed by role ID.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "browser": {
+                "application_id": "browser_alpha"
+              },
+              "maps": {
+                "application_id": "maps_standard"
+              }
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_available_language": {
+          "description": "Return the read-only configuration record for an available language. An unknown language identifier is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "language": {
+                "type": "string",
+                "pattern": "^[A-Za-z]{2,3}-[A-Za-z]{2}$",
+                "maxLength": 16,
+                "examples": [
+                  "en-US",
+                  "es-ES",
+                  "zh-CN"
+                ]
+              }
+            },
+            "required": [
+              "language"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "available_languages"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "available_languages",
+            "id_parameter": "language",
+            "response_key": "language"
+          },
+          "argument_sources": {
+            "language": {
+              "property": "available_languages",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "language": {
+              "type": "object",
+              "description": "The selected available-language configuration record."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The language identifier is not available."
+          }
+        },
+        "get_system_language": {
+          "description": "Return the current system language identifier without changing any preference.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "system_language"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "system_language",
+            "response_key": "system_language",
+            "preconditions": {}
+          },
+          "response": {
+            "system_language": {
+              "type": "string",
+              "description": "The current system language identifier."
+            }
+          }
+        },
+        "set_system_language": {
+          "description": "Set the system language to an identifier in available_languages. Applications whose language preference is system follow the new value without rewriting their records. Unsupported identifiers are rejected and leave all preferences unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "language": {
+                "type": "string",
+                "enum": [
+                  "en-US",
+                  "es-ES",
+                  "zh-CN"
+                ],
+                "examples": [
+                  "en-US",
+                  "es-ES",
+                  "zh-CN"
+                ]
+              }
+            },
+            "required": [
+              "language"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "available_languages"
+          ],
+          "writes": [
+            "system_language"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "system_language",
+            "parameter": "language",
+            "preconditions": {
+              "available_languages": {
+                "contains_key": {
+                  "parameter": "language"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "language": {
+              "property": "available_languages",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The requested system language is not available."
+          }
+        },
+        "get_application_supported_languages": {
+          "description": "Return the read-only supported-language record for a specified application. An unknown application ID is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "application_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "maxLength": 64,
+                "examples": [
+                  "browser",
+                  "maps"
+                ]
+              }
+            },
+            "required": [
+              "application_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "application_supported_languages"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "application_supported_languages",
+            "id_parameter": "application_id",
+            "response_key": "supported_languages"
+          },
+          "argument_sources": {
+            "application_id": {
+              "property": "application_supported_languages",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "supported_languages": {
+              "type": "object",
+              "description": "The selected application's supported-language configuration record."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The application ID has no language capability record."
+          }
+        },
+        "get_application_language": {
+          "description": "Return the language preference record for a specified application. A stored value of system means the application follows system_language.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "application_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "maxLength": 64,
+                "examples": [
+                  "browser",
+                  "maps"
+                ]
+              }
+            },
+            "required": [
+              "application_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "application_languages"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "application_languages",
+            "id_parameter": "application_id",
+            "response_key": "application_language"
+          },
+          "argument_sources": {
+            "application_id": {
+              "property": "application_languages",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "application_language": {
+              "type": "object",
+              "description": "The selected application's language preference record."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The application ID has no language preference record."
+          }
+        },
+        "set_application_language": {
+          "description": "Set one existing application's language preference while preserving every other application record. The value system makes the application follow system_language. Any explicit language must appear in that application's application_supported_languages record. Unknown applications or unsupported explicit languages are rejected before any state change.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "application_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "maxLength": 64,
+                "examples": [
+                  "browser",
+                  "maps"
+                ]
+              },
+              "language": {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "en-US",
+                  "es-ES",
+                  "zh-CN"
+                ],
+                "examples": [
+                  "system",
+                  "en-US",
+                  "es-ES"
+                ]
+              }
+            },
+            "required": [
+              "application_id",
+              "language"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "application_supported_languages",
+            "application_languages"
+          ],
+          "writes": [
+            "application_languages"
+          ],
+          "semantics": {
+            "kind": "collection_update",
+            "property": "application_languages",
+            "id_parameter": "application_id",
+            "fields": {
+              "language": {
+                "parameter": "language"
+              }
+            },
+            "preconditions": {
+              "application_languages": {
+                "contains_key": {
+                  "parameter": "application_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "application_id": {
+              "property": "application_languages",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The application ID has no language preference record.",
+            "UNSUPPORTED_LANGUAGE": "The explicit language is not supported by the selected application."
+          }
+        },
+        "get_automatic_time": {
+          "description": "Return whether phone date and time are synchronized to the local simulated time source.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "automatic_time"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "automatic_time",
+            "response_key": "automatic_time",
+            "preconditions": {}
+          },
+          "response": {
+            "automatic_time": {
+              "type": "boolean",
+              "description": "Whether automatic date and time synchronization is enabled."
+            }
+          }
+        },
+        "set_automatic_time": {
+          "description": "Enable or disable automatic date and time synchronization. Enabling uses the local simulated time source and resets wall_clock_offset_minutes to zero. Disabling preserves the current offset. No network access occurs, and the world monotonic clock is never changed.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "enabled"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "automatic_time",
+            "wall_clock_offset_minutes"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "automatic_time",
+            "parameter": "enabled",
+            "preconditions": {}
+          }
+        },
+        "get_wall_clock_offset_minutes": {
+          "description": "Return the phone wall-clock adjustment in whole minutes relative to the local simulated time source. This value does not affect monotonic Timer or Stopwatch progress.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "wall_clock_offset_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "wall_clock_offset_minutes",
+            "response_key": "wall_clock_offset_minutes",
+            "preconditions": {}
+          },
+          "response": {
+            "wall_clock_offset_minutes": {
+              "type": "integer",
+              "description": "The current phone wall-clock offset in whole minutes."
+            }
+          }
+        },
+        "set_manual_datetime": {
+          "description": "Set the phone's manual date and time as a whole-minute offset from the local simulated time source. The offset must be between -525600 and 525600 minutes, and automatic_time must be disabled. Invalid input or an enabled automatic-time setting leaves all state unchanged. This operation never modifies the world monotonic clock.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "wall_clock_offset_minutes": {
+                "type": "integer",
+                "minimum": -525600,
+                "maximum": 525600,
+                "multipleOf": 1,
+                "examples": [
+                  -60,
+                  0,
+                  120,
+                  1440
+                ]
+              }
+            },
+            "required": [
+              "wall_clock_offset_minutes"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "automatic_time"
+          ],
+          "writes": [
+            "wall_clock_offset_minutes"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "wall_clock_offset_minutes",
+            "parameter": "wall_clock_offset_minutes",
+            "preconditions": {
+              "automatic_time": false
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "Manual date and time cannot be changed while automatic time is enabled."
+          }
+        },
+        "get_automatic_time_zone": {
+          "description": "Return whether the phone time zone follows the local simulated time-zone source.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "automatic_time_zone"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "automatic_time_zone",
+            "response_key": "automatic_time_zone",
+            "preconditions": {}
+          },
+          "response": {
+            "automatic_time_zone": {
+              "type": "boolean",
+              "description": "Whether automatic time-zone selection is enabled."
+            }
+          }
+        },
+        "set_automatic_time_zone": {
+          "description": "Enable or disable automatic time-zone selection. Enabling selects UTC from the deterministic local simulated source. Disabling preserves the current time zone. No network access occurs.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "enabled"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "automatic_time_zone",
+            "time_zone"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "automatic_time_zone",
+            "parameter": "enabled",
+            "preconditions": {}
+          }
+        },
+        "get_time_zone": {
+          "description": "Return the phone time-zone identifier without changing its wall clock or monotonic time.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "time_zone"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "time_zone",
+            "response_key": "time_zone",
+            "preconditions": {}
+          },
+          "response": {
+            "time_zone": {
+              "type": "string",
+              "description": "The current phone time-zone identifier."
+            }
+          }
+        },
+        "set_manual_time_zone": {
+          "description": "Set the phone time zone to one of UTC, America/New_York, Europe/Madrid, or Asia/Shanghai. Automatic time-zone selection must be disabled. Invalid identifiers or an enabled automatic-time-zone setting leave all state unchanged. The change affects wall-clock interpretation only and never changes monotonic time.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "time_zone": {
+                "type": "string",
+                "enum": [
+                  "UTC",
+                  "America/New_York",
+                  "Europe/Madrid",
+                  "Asia/Shanghai"
+                ],
+                "examples": [
+                  "UTC",
+                  "America/New_York",
+                  "Europe/Madrid",
+                  "Asia/Shanghai"
+                ]
+              }
+            },
+            "required": [
+              "time_zone"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "automatic_time_zone"
+          ],
+          "writes": [
+            "time_zone"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "time_zone",
+            "parameter": "time_zone",
+            "preconditions": {
+              "automatic_time_zone": false
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "A manual time zone cannot be selected while automatic time zone is enabled."
+          }
+        },
+        "get_role_candidates": {
+          "description": "Return the read-only eligible application candidates for a specified default role. An unknown role ID is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "role_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "maxLength": 64,
+                "examples": [
+                  "browser",
+                  "maps"
+                ]
+              }
+            },
+            "required": [
+              "role_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "role_candidates"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "role_candidates",
+            "id_parameter": "role_id",
+            "response_key": "role_candidates"
+          },
+          "argument_sources": {
+            "role_id": {
+              "property": "role_candidates",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "role_candidates": {
+              "type": "object",
+              "description": "The selected role's eligible-application configuration record."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The default-role ID does not exist."
+          }
+        },
+        "get_default_application_role": {
+          "description": "Return the current default application record for a specified role. An unknown role ID is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "role_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "maxLength": 64,
+                "examples": [
+                  "browser",
+                  "maps"
+                ]
+              }
+            },
+            "required": [
+              "role_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "default_application_roles"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "default_application_roles",
+            "id_parameter": "role_id",
+            "response_key": "default_application_role"
+          },
+          "argument_sources": {
+            "role_id": {
+              "property": "default_application_roles",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "default_application_role": {
+              "type": "object",
+              "description": "The selected role's current default-application record."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The default-role ID does not exist."
+          }
+        },
+        "change_default_application_role": {
+          "description": "Resolve a simulated request to change one default application role. The role must exist and application_id must be listed in that role's read-only candidate record. When user_confirmed is true, only that role's application_id is changed and all other role records are preserved. When user_confirmed is false, the request is treated as denied and the original role setting is preserved. Invalid role or candidate input is rejected before any state change.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "role_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "maxLength": 64,
+                "examples": [
+                  "browser",
+                  "maps"
+                ]
+              },
+              "application_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "maxLength": 64,
+                "examples": [
+                  "browser_beta",
+                  "maps_offline"
+                ]
+              },
+              "user_confirmed": {
+                "type": "boolean",
+                "description": "The deterministic result of simulated user confirmation.",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "role_id",
+              "application_id",
+              "user_confirmed"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "role_candidates",
+            "default_application_roles"
+          ],
+          "writes": [
+            "default_application_roles"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The operation conditionally updates one collection record only after validating a candidate in a separate nested configuration record and resolving simulated user confirmation; denial must succeed without changing the collection."
+          },
+          "argument_sources": {
+            "role_id": {
+              "property": "default_application_roles",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "changed": {
+              "type": "boolean",
+              "description": "Whether confirmation was granted and the selected role was changed."
+            },
+            "application_id": {
+              "type": "string",
+              "description": "The application ID that remains selected for the role after the request is resolved."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The default-role ID does not exist.",
+            "INELIGIBLE_CANDIDATE": "The requested application is not an eligible candidate for the selected role."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

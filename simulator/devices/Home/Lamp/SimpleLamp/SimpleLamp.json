@@ -1,0 +1,201 @@
+{
+  "SimpleLamp": {
+    "meta": {
+      "name": "SimpleLamp",
+      "description": "A simplified lamp subclass that inherits the base lamp's power control and lighting effect but provides only stepped brightness adjustment, with no color-temperature state or related operations.",
+      "version": "1.0.0",
+      "from": "../Lamp.json"
+    },
+    "properties": {
+      "update": {
+        "brightness": {
+          "type": "integer",
+          "description": "Configured coarse brightness level of the lamp. The value persists while the lamp is off but is publicly accessible only while the lamp is on.",
+          "mode": 3,
+          "value": {
+            "default": 2,
+            "unit": "level",
+            "minimum": 1,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 1
+          }
+        }
+      },
+      "disabled": [
+        "color_temperature"
+      ]
+    },
+    "functions": {
+      "update": {
+        "get_brightness": {
+          "description": "Return the configured brightness level. The lamp must be powered on; otherwise the function fails without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "brightness",
+            "response_key": "brightness",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "brightness": {
+              "type": "integer",
+              "description": "Configured coarse brightness level from 1 through 3."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to read brightness."
+          }
+        },
+        "set_brightness": {
+          "description": "Set brightness to an integer level from 1 through 3. The lamp must be powered on. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3,
+                "description": "Exact coarse brightness level to set."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "brightness",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to change brightness.",
+            "INVALID_INPUT_ERROR": "Brightness must be an integer from 1 through 3."
+          }
+        },
+        "increase_brightness": {
+          "description": "Increase brightness by the requested number of levels, defaulting to 1. The result is capped at level 3. The lamp must be powered on, and invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1,
+                "description": "Number of levels by which to increase brightness."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Increase brightness by the supplied number of levels and cap the resulting brightness at level 3.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to increase brightness.",
+            "INVALID_INPUT_ERROR": "The increase must be an integer of at least 1."
+          }
+        },
+        "decrease_brightness": {
+          "description": "Decrease brightness by the requested number of levels, defaulting to 1. The result is floored at level 1. The lamp must be powered on, and invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1,
+                "description": "Number of levels by which to decrease brightness."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Decrease brightness by the supplied number of levels and floor the resulting brightness at level 1.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The lamp must be powered on to decrease brightness.",
+            "INVALID_INPUT_ERROR": "The decrease must be an integer of at least 1."
+          }
+        }
+      },
+      "disabled": [
+        "get_color_temperature",
+        "set_color_temperature",
+        "increase_color_temperature",
+        "decrease_color_temperature"
+      ]
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "The lamp emits an absolute illuminance contribution of zero while powered off. While powered on, its illuminance contribution in lux equals its configured brightness level, so levels 1, 2, and 3 contribute 1, 2, and 3 lux respectively.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether the lamp contributes illuminance."
+            },
+            {
+              "name": "brightness",
+              "description": "Determines the lamp's stepped illuminance contribution while powered on."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

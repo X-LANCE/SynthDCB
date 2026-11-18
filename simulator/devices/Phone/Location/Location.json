@@ -1,0 +1,370 @@
+{
+  "Location": {
+    "meta": {
+      "name": "Location",
+      "description": "Location settings, placed in Setting and contained by System. Supports querying and changing the system-wide location switch, querying application location permissions and effective location availability, and requesting the current synthetic location when conditions are satisfied. Per-application foreground, background, and precision authorizations are owned and modified by Privacy; this module only references them. Position, accuracy, and sample time are read-only feedback. Even when the system-wide switch is enabled, application authorization, running state, and simulated location-source availability must be satisfied. Failures must not fabricate successful locations. Disabling the switch stops new location acquisition.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether the system-wide location switch is enabled. Enabling the switch does not itself grant application authorization or guarantee source availability.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "source_available": {
+          "type": "boolean",
+          "description": "Read-only feedback indicating whether the synthetic location source is currently available.",
+          "mode": 2,
+          "value": {
+            "default": true
+          }
+        },
+        "application_access": {
+          "type": "dict",
+          "description": "Read-only referenced application records keyed by application ID. Each record contains foreground_authorized, background_authorized, precise_authorized, and running_state. Authorization values are owned by Privacy, while running state is supplied by the corresponding application-state dependency.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "maps": {
+                "foreground_authorized": true,
+                "background_authorized": false,
+                "precise_authorized": true,
+                "running_state": "foreground"
+              },
+              "fitness": {
+                "foreground_authorized": true,
+                "background_authorized": true,
+                "precise_authorized": false,
+                "running_state": "background"
+              }
+            }
+          }
+        },
+        "last_location": {
+          "type": "dict",
+          "description": "Read-only feedback for the last successful synthetic location acquisition. has_sample is false until a request succeeds; latitude, longitude, accuracy_meters, and sample_time_minute are then populated. sample_time_minute uses monotonic elapsed simulation minutes.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "has_sample": false,
+              "application_id": "",
+              "latitude": null,
+              "longitude": null,
+              "accuracy_meters": null,
+              "sample_time_minute": null
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_enabled": {
+          "description": "Return whether the system-wide location switch is enabled without changing any state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "enabled",
+            "response_key": "enabled",
+            "preconditions": {}
+          },
+          "response": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether the system-wide location switch is enabled."
+            }
+          }
+        },
+        "set_enabled": {
+          "description": "Enable or disable the system-wide location switch. Disabling immediately prevents new location acquisitions but retains the last successful sample as historical feedback. Enabling does not grant permissions or make an unavailable source available.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "The desired system-wide location switch state.",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "enabled"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "enabled",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_source_available": {
+          "description": "Return whether the deterministic synthetic location source is currently available.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "source_available"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "source_available",
+            "response_key": "source_available",
+            "preconditions": {}
+          },
+          "response": {
+            "source_available": {
+              "type": "boolean",
+              "description": "Whether the synthetic location source is currently available."
+            }
+          }
+        },
+        "get_application_location_access": {
+          "description": "Return the referenced location authorization and running-state record for an existing application ID. This operation does not modify permissions; Privacy remains authoritative for authorization.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "application_id": {
+                "type": "string",
+                "description": "An existing application ID in application_access.",
+                "pattern": "^[A-Za-z0-9_.-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "maps",
+                  "fitness"
+                ]
+              }
+            },
+            "required": [
+              "application_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "application_access"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "application_access",
+            "id_parameter": "application_id",
+            "response_key": "application_location_access",
+            "preconditions": {
+              "application_access": {
+                "contains_key": {
+                  "parameter": "application_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "application_id": {
+              "property": "application_access",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "application_location_access": {
+              "type": "object",
+              "description": "The application's referenced foreground, background, and precision authorizations together with its current running state."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The application ID does not exist in application_access."
+          }
+        },
+        "get_effective_location_availability": {
+          "description": "Determine effective location availability for an existing application without acquiring a sample. Availability is true only when the system switch is enabled, the source is available, and the application is running in an authorized state: foreground requires foreground authorization, background requires background authorization, and stopped is never available. Precision authorization affects result accuracy but not basic availability.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "application_id": {
+                "type": "string",
+                "description": "An existing application ID in application_access.",
+                "pattern": "^[A-Za-z0-9_.-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "maps",
+                  "fitness"
+                ]
+              }
+            },
+            "required": [
+              "application_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "enabled",
+            "source_available",
+            "application_access"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Effective availability depends on fields within the selected application record and cannot be represented as a literal property precondition.",
+            "preconditions": {
+              "application_access": {
+                "contains_key": {
+                  "parameter": "application_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "application_id": {
+              "property": "application_access",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "available": {
+              "type": "boolean",
+              "description": "Whether the application can currently acquire a synthetic location."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The application ID does not exist in application_access."
+          }
+        },
+        "get_last_location": {
+          "description": "Return the last successful synthetic location sample. Before the first success, has_sample is false and the position, accuracy, and sample time fields are null.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "last_location"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "last_location",
+            "response_key": "last_location",
+            "preconditions": {}
+          },
+          "response": {
+            "last_location": {
+              "type": "object",
+              "description": "The last successful location sample and its originating application ID, or an empty sample record when no request has succeeded."
+            }
+          }
+        },
+        "request_current_location": {
+          "description": "Request a current deterministic synthetic location for an existing application. The request succeeds only when the system switch is enabled, the source is available, and the application's running state has the required referenced authorization. A foreground application requires foreground authorization; a background application requires background authorization; a stopped application is rejected. Precise authorization produces latitude 35.1234, longitude -120.5678, and 10-meter accuracy. Otherwise a permitted request produces latitude 35.12, longitude -120.57, and 1000-meter accuracy. A successful request records the current elapsed simulation minute. Any failure leaves last_location unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "application_id": {
+                "type": "string",
+                "description": "An existing application ID requesting location.",
+                "pattern": "^[A-Za-z0-9_.-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "maps",
+                  "fitness"
+                ]
+              }
+            },
+            "required": [
+              "application_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "enabled",
+            "source_available",
+            "application_access"
+          ],
+          "writes": [
+            "last_location"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Acquisition conditionally validates fields in the selected application record and records deterministic position feedback with the current elapsed simulation minute.",
+            "preconditions": {
+              "application_access": {
+                "contains_key": {
+                  "parameter": "application_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "application_id": {
+              "property": "application_access",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "location": {
+              "type": "object",
+              "description": "The newly acquired synthetic position, accuracy, requesting application ID, and elapsed simulation sample minute."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The application ID does not exist in application_access.",
+            "LOCATION_DISABLED": "The system-wide location switch is disabled.",
+            "SOURCE_UNAVAILABLE": "The synthetic location source is unavailable.",
+            "APPLICATION_NOT_RUNNING": "The application running state is stopped or otherwise unsupported.",
+            "PERMISSION_DENIED": "The application's referenced authorization does not permit location access in its current running state."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "dependency_changed": {
+          "description": "When declared Privacy, application-state, or location-source dependencies change, refreshes the read-only application authorization and running-state references and the synthetic source-availability feedback. It does not acquire or fabricate a location sample.",
+          "effect_properties": [
+            {
+              "name": "source_available",
+              "description": "Read-only synthetic location-source availability refreshed from its declared dependency."
+            },
+            {
+              "name": "application_access",
+              "description": "Read-only application authorization and running-state references refreshed from declared dependencies."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

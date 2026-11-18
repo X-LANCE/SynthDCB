@@ -1,0 +1,164 @@
+{
+  "FragranceDiffuser": {
+    "meta": {
+      "name": "FragranceDiffuser",
+      "description": "Fragrance diffuser. Users can query and set the fragrance output state.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Device-wide electrical power state.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "output_state": {
+          "type": "boolean",
+          "description": "Whether fragrance output is enabled. Actual release requires both power and output_state to be true. Preserve this setting over power cycles.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_output_state": {
+          "description": "Return whether fragrance output is enabled. This function is available only while the diffuser is powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "output_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "output_state",
+            "response_key": "output_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "output_state": {
+              "type": "boolean",
+              "description": "Whether fragrance output is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_output_state": {
+          "description": "Enable or disable fragrance output. The diffuser must be powered on. Invalid or unavailable operations leave the state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether fragrance output should be enabled."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "output_state"
+          ],
+          "writes": [
+            "output_state"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "output_state",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "output_state": {
+              "type": "boolean",
+              "description": "Updated fragrance output state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

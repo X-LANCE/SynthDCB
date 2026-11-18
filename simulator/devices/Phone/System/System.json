@@ -1,0 +1,89 @@
+{
+  "System": {
+    "meta": {
+      "name": "System",
+      "description": "Phone system root object, placed in Setting, containing settings modules and applications through contains relations. Supports querying and setting airplane mode; the responses of individual wireless modules are defined by explicit dependencies. System does not duplicate module state or modify the simulation clock.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "airplane_mode": {
+          "type": "boolean",
+          "description": "Whether airplane mode is requested for the phone. Wireless modules respond through their explicit dependencies rather than through duplicated state on this object.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_airplane_mode": {
+          "description": "Return whether airplane mode is currently requested without changing system or module state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "airplane_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "airplane_mode",
+            "response_key": "airplane_mode",
+            "preconditions": {}
+          },
+          "response": {
+            "airplane_mode": {
+              "type": "boolean",
+              "description": "Whether airplane mode is currently requested."
+            }
+          }
+        },
+        "set_airplane_mode": {
+          "description": "Set whether airplane mode is requested. Wireless modules respond separately through explicit dependencies. Invalid input is rejected and leaves the setting unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "The requested airplane mode state.",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "airplane_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "airplane_mode",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

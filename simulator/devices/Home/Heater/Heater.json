@@ -1,0 +1,357 @@
+{
+  "Heater": {
+    "meta": {
+      "name": "Heater",
+      "description": "Electric heater. Users can query and set the target temperature, heating mode, and heating intensity. While running and when space temperature is below the target, the device produces a heating effect; it stops heating after the target is reached.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the heater is electrically powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "target_temperature": {
+          "type": "float",
+          "description": "Desired room temperature at which the heater stops producing heat.",
+          "mode": 3,
+          "value": {
+            "default": 21.0,
+            "unit": "degC",
+            "minimum": 16.0,
+            "maximum": 30.0,
+            "step": 0.5,
+            "step_origin": 0.0,
+            "precision": 1
+          }
+        },
+        "heating_mode": {
+          "type": "string",
+          "description": "Heating behavior selected for the heater. The off mode disables heating while retaining the configured target temperature and intensity.",
+          "mode": 3,
+          "value": {
+            "default": "off",
+            "choices": [
+              "off",
+              "heat"
+            ]
+          }
+        },
+        "heating_intensity": {
+          "type": "integer",
+          "description": "Heating intensity used while heating is enabled.",
+          "mode": 3,
+          "value": {
+            "default": 3,
+            "minimum": 1,
+            "maximum": 5,
+            "step": 1,
+            "step_origin": 1
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_target_temperature": {
+          "description": "Return the configured target temperature while the heater is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "target_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_temperature",
+            "response_key": "target_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "target_temperature": {
+              "type": "number",
+              "description": "Configured target temperature in degrees Celsius."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_target_temperature": {
+          "description": "Set the target room temperature while the heater is powered. Values must be between 16.0 and 30.0 degrees Celsius in 0.5-degree increments; invalid values leave the state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 16.0,
+                "maximum": 30.0,
+                "multipleOf": 0.5,
+                "description": "Target temperature in degrees Celsius.",
+                "examples": [
+                  20.0,
+                  22.5
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "target_temperature"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_heating_mode": {
+          "description": "Return the selected heating mode while the heater is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "heating_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "heating_mode",
+            "response_key": "heating_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "heating_mode": {
+              "type": "string",
+              "description": "Selected heating mode."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_heating_mode": {
+          "description": "Set the heating mode while the heater is powered. The heat mode permits temperature-controlled heating; the off mode stops heating. Invalid modes leave the state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "off",
+                  "heat"
+                ],
+                "description": "Heating mode."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "heating_mode"
+          ],
+          "writes": [
+            "heating_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "heating_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_heating_intensity": {
+          "description": "Return the configured heating intensity while the heater is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "heating_intensity"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "heating_intensity",
+            "response_key": "heating_intensity",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "heating_intensity": {
+              "type": "integer",
+              "description": "Configured heating intensity from 1 to 5."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_heating_intensity": {
+          "description": "Set the heating intensity while the heater is powered. The value must be an integer from 1 through 5; invalid values leave the state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5,
+                "description": "Heating intensity level.",
+                "examples": [
+                  1,
+                  3,
+                  5
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "heating_intensity"
+          ],
+          "writes": [
+            "heating_intensity"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "heating_intensity",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While powered and in heat mode, compare the room temperature from space_state with target_temperature. If the room is below the target, emit an approach effect toward target_temperature, with the heating rate determined by heating_intensity. If the room is at or above the target, or if the heater is unpowered or in off mode, emit a zero temperature contribution so that no heating remains active.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the heater is electrically powered."
+            },
+            {
+              "name": "target_temperature",
+              "description": "Desired room temperature."
+            },
+            {
+              "name": "heating_mode",
+              "description": "Selected heating mode."
+            },
+            {
+              "name": "heating_intensity",
+              "description": "Configured heating intensity."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

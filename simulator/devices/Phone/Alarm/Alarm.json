@@ -1,0 +1,528 @@
+{
+  "Alarm": {
+    "meta": {
+      "name": "Alarm",
+      "description": "Alarm configuration application, placed in Application. Supports adding, querying, partially updating, deleting, enabling, and disabling multiple alarms. Stores hour, minute, label, enabled state, and a list of weekdays without duplicates. An empty weekday list represents a one-time configuration. Updates preserve unspecified fields and unrelated records.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "alarms": {
+          "type": "dict",
+          "description": "Alarm records keyed by stable string IDs. Each record contains an hour from 0 through 23, a minute from 0 through 59, a label, an enabled state, and unique weekdays from 1 through 7. An empty weekday list represents a one-time configuration.",
+          "mode": 3,
+          "value": {
+            "default": {
+              "alarm_1": {
+                "hour": 8,
+                "minute": 0,
+                "label": "Workday",
+                "enabled": false,
+                "weekdays": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ]
+              },
+              "alarm_2": {
+                "hour": 9,
+                "minute": 0,
+                "label": "Weekend",
+                "enabled": false,
+                "weekdays": [
+                  6,
+                  7
+                ]
+              }
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "add_alarm": {
+          "description": "Add an alarm with the supplied hour, minute, label, weekdays, and optional enabled state. The system generates and returns a new stable string ID without changing existing records. Hour must be 0 through 23, minute must be 0 through 59, the label must contain 1 through 80 characters, and weekdays must contain no duplicate values outside 1 through 7. An empty weekdays list represents a one-time configuration. Invalid arguments leave the collection unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "hour": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 23,
+                "examples": [
+                  7,
+                  12,
+                  21
+                ]
+              },
+              "minute": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 59,
+                "examples": [
+                  0,
+                  15,
+                  45
+                ]
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "examples": [
+                  "Morning",
+                  "School pickup",
+                  "Medication"
+                ]
+              },
+              "weekdays": {
+                "type": "array",
+                "minItems": 0,
+                "uniqueItems": true,
+                "items": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 7
+                },
+                "examples": [
+                  [],
+                  [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  [
+                    6,
+                    7
+                  ]
+                ]
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": false,
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "hour",
+              "minute",
+              "label",
+              "weekdays"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "alarms"
+          ],
+          "writes": [
+            "alarms"
+          ],
+          "semantics": {
+            "kind": "collection_add",
+            "property": "alarms",
+            "fields": {
+              "hour": {
+                "parameter": "hour"
+              },
+              "minute": {
+                "parameter": "minute"
+              },
+              "label": {
+                "parameter": "label"
+              },
+              "weekdays": {
+                "parameter": "weekdays"
+              },
+              "enabled": {
+                "parameter": "enabled"
+              }
+            },
+            "response_key": "alarm_id",
+            "preconditions": {}
+          },
+          "response": {
+            "alarm_id": {
+              "type": "string",
+              "description": "The generated stable string ID of the new alarm."
+            }
+          },
+          "errorcodes": {
+            "INVALID": "One or more supplied alarm fields are invalid."
+          }
+        },
+        "get_alarm": {
+          "description": "Return the complete alarm record identified by alarm_id without changing state. The operation fails if the alarm ID does not exist.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "alarm_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "examples": [
+                  "alarm_1",
+                  "alarm_2"
+                ]
+              }
+            },
+            "required": [
+              "alarm_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "alarms"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "alarms",
+            "id_parameter": "alarm_id",
+            "response_key": "alarm",
+            "preconditions": {
+              "alarms": {
+                "contains_key": {
+                  "parameter": "alarm_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "alarm_id": {
+              "property": "alarms",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "alarm": {
+              "type": "object",
+              "description": "The complete requested alarm record."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The specified alarm ID does not exist."
+          }
+        },
+        "update_alarm": {
+          "description": "Partially update an existing alarm. At least one of hour, minute, label, or weekdays must be supplied in addition to alarm_id. Omitted fields retain their previous values, enabled state is unchanged, and unrelated records are preserved. An empty weekdays list represents a one-time configuration. An unknown ID or any invalid supplied value leaves the collection unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "minProperties": 2,
+            "properties": {
+              "alarm_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "examples": [
+                  "alarm_1",
+                  "alarm_2"
+                ]
+              },
+              "hour": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 23,
+                "examples": [
+                  6,
+                  14,
+                  22
+                ]
+              },
+              "minute": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 59,
+                "examples": [
+                  0,
+                  30,
+                  55
+                ]
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "examples": [
+                  "Early meeting",
+                  "Medication"
+                ]
+              },
+              "weekdays": {
+                "type": "array",
+                "minItems": 0,
+                "uniqueItems": true,
+                "items": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 7
+                },
+                "examples": [
+                  [],
+                  [
+                    1,
+                    3,
+                    5
+                  ]
+                ]
+              }
+            },
+            "required": [
+              "alarm_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "alarms"
+          ],
+          "writes": [
+            "alarms"
+          ],
+          "semantics": {
+            "kind": "collection_update",
+            "property": "alarms",
+            "id_parameter": "alarm_id",
+            "fields": {
+              "hour": {
+                "parameter": "hour"
+              },
+              "minute": {
+                "parameter": "minute"
+              },
+              "label": {
+                "parameter": "label"
+              },
+              "weekdays": {
+                "parameter": "weekdays"
+              }
+            },
+            "response_key": "updated_alarm",
+            "preconditions": {
+              "alarms": {
+                "contains_key": {
+                  "parameter": "alarm_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "alarm_id": {
+              "property": "alarms",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "updated_alarm": {
+              "type": "object",
+              "description": "The complete alarm record after applying the supplied updates."
+            }
+          },
+          "errorcodes": {
+            "INVALID": "No update field was supplied or a supplied value is invalid.",
+            "NOT_FOUND": "The specified alarm ID does not exist."
+          }
+        },
+        "remove_alarm": {
+          "description": "Delete the alarm identified by alarm_id while preserving every unrelated alarm record. An unknown ID causes the operation to fail without changing the collection.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "alarm_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "examples": [
+                  "alarm_1",
+                  "alarm_2"
+                ]
+              }
+            },
+            "required": [
+              "alarm_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "alarms"
+          ],
+          "writes": [
+            "alarms"
+          ],
+          "semantics": {
+            "kind": "collection_delete",
+            "property": "alarms",
+            "id_parameter": "alarm_id",
+            "response_key": "removed_alarm_id",
+            "preconditions": {
+              "alarms": {
+                "contains_key": {
+                  "parameter": "alarm_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "alarm_id": {
+              "property": "alarms",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "removed_alarm_id": {
+              "type": "string",
+              "description": "The ID of the deleted alarm."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The specified alarm ID does not exist."
+          }
+        },
+        "enable_alarm": {
+          "description": "Set enabled to true for the alarm identified by alarm_id. All other fields and unrelated records remain unchanged. An unknown ID leaves the collection unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "alarm_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "examples": [
+                  "alarm_1",
+                  "alarm_2"
+                ]
+              }
+            },
+            "required": [
+              "alarm_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "alarms"
+          ],
+          "writes": [
+            "alarms"
+          ],
+          "semantics": {
+            "kind": "collection_update",
+            "property": "alarms",
+            "id_parameter": "alarm_id",
+            "fields": {
+              "enabled": {
+                "value": true
+              }
+            },
+            "response_key": "enabled_alarm",
+            "preconditions": {
+              "alarms": {
+                "contains_key": {
+                  "parameter": "alarm_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "alarm_id": {
+              "property": "alarms",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "enabled_alarm": {
+              "type": "object",
+              "description": "The complete alarm record with enabled set to true."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The specified alarm ID does not exist."
+          }
+        },
+        "disable_alarm": {
+          "description": "Set enabled to false for the alarm identified by alarm_id. All other fields and unrelated records remain unchanged. An unknown ID leaves the collection unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "alarm_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "examples": [
+                  "alarm_1",
+                  "alarm_2"
+                ]
+              }
+            },
+            "required": [
+              "alarm_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "alarms"
+          ],
+          "writes": [
+            "alarms"
+          ],
+          "semantics": {
+            "kind": "collection_update",
+            "property": "alarms",
+            "id_parameter": "alarm_id",
+            "fields": {
+              "enabled": {
+                "value": false
+              }
+            },
+            "response_key": "disabled_alarm",
+            "preconditions": {
+              "alarms": {
+                "contains_key": {
+                  "parameter": "alarm_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "alarm_id": {
+              "property": "alarms",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "disabled_alarm": {
+              "type": "object",
+              "description": "The complete alarm record with enabled set to false."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The specified alarm ID does not exist."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

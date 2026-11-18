@@ -1,0 +1,403 @@
+{
+  "BathroomHeater": {
+    "meta": {
+      "name": "BathroomHeater",
+      "description": "Bathroom heater. Users can separately query and set the lighting, heating, and fan states, and can set the heating intensity. Heating changes space temperature; lighting changes space brightness.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the bathroom heater has electrical power.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "lighting": {
+          "type": "boolean",
+          "description": "Whether the bathroom heater lighting is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "heating": {
+          "type": "boolean",
+          "description": "Whether the bathroom heater is enabled for heating.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "fan": {
+          "type": "boolean",
+          "description": "Whether the bathroom heater fan is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "heating_intensity": {
+          "type": "integer",
+          "description": "Heating intensity level used when heating is enabled.",
+          "mode": 3,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 1
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_lighting": {
+          "description": "Get the lighting state. This operation is available only while the bathroom heater is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "lighting"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "lighting",
+            "response_key": "lighting",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "lighting": {
+              "type": "boolean",
+              "description": "Whether lighting is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_lighting": {
+          "description": "Enable or disable the bathroom heater lighting. This operation is available only while the bathroom heater is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Desired lighting state."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "lighting"
+          ],
+          "writes": [
+            "lighting"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "lighting",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_heating": {
+          "description": "Get the heating state. This operation is available only while the bathroom heater is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "heating"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "heating",
+            "response_key": "heating",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "heating": {
+              "type": "boolean",
+              "description": "Whether heating is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_heating": {
+          "description": "Enable or disable bathroom heating. This operation is available only while the bathroom heater is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Desired heating state."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "heating"
+          ],
+          "writes": [
+            "heating"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "heating",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_fan": {
+          "description": "Get the fan state. This operation is available only while the bathroom heater is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "fan"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fan",
+            "response_key": "fan",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "fan": {
+              "type": "boolean",
+              "description": "Whether the fan is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_fan": {
+          "description": "Enable or disable the bathroom heater fan. This operation is available only while the bathroom heater is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Desired fan state."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "fan"
+          ],
+          "writes": [
+            "fan"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "fan",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_heating_intensity": {
+          "description": "Get the configured heating intensity. This operation is available only while the bathroom heater is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "heating_intensity"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "heating_intensity",
+            "response_key": "heating_intensity",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "heating_intensity": {
+              "type": "integer",
+              "description": "Configured heating intensity from 1 through 3."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_heating_intensity": {
+          "description": "Set the heating intensity to an integer from 1 through 3. This operation is available only while the bathroom heater is powered. Invalid values leave the intensity unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3,
+                "description": "Desired heating intensity."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "heating_intensity"
+          ],
+          "writes": [
+            "heating_intensity"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "heating_intensity",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "After a successful mutation, update this device's absolute contributions to the containing Home space. If power and lighting are both true, set the device's illuminance contribution to 300 lux; otherwise set its illuminance contribution to 0 lux. If power and heating are both true, set the device's temperature contribution to 0.5 degrees Celsius multiplied by heating_intensity; otherwise set its temperature contribution to 0 degrees Celsius. The lighting and temperature contributions are independent and are recalculated whenever this event is dispatched.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the bathroom heater has electrical power."
+            },
+            {
+              "name": "lighting",
+              "description": "Whether bathroom lighting is enabled."
+            },
+            {
+              "name": "heating",
+              "description": "Whether bathroom heating is enabled."
+            },
+            {
+              "name": "heating_intensity",
+              "description": "Configured heating intensity used to calculate the temperature contribution."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

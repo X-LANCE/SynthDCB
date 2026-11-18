@@ -1,0 +1,238 @@
+{
+  "Flashlight": {
+    "meta": {
+      "name": "Flashlight",
+      "description": "Flashlight control, placed in Setting and contained by System. Supports turning the light on and off and querying actual light state and current availability. The base class provides fixed brightness. Activation requires an available light resource and system authorization. When camera use or system resource restrictions make it unavailable, activation must not be reported as successful. If the resource is revoked during operation, the actual light turns off. Stores only light controls and feedback, without changing virtual Space illuminance.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "light_on": {
+          "type": "boolean",
+          "description": "Whether the flashlight is actually emitting light. This becomes false if availability or authorization is revoked.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        },
+        "available": {
+          "type": "boolean",
+          "description": "Whether the flashlight hardware resource is currently available. Camera use or system resource restrictions can make it unavailable.",
+          "mode": 2,
+          "value": {
+            "default": true
+          }
+        },
+        "authorized": {
+          "type": "boolean",
+          "description": "Whether the system currently authorizes use of the flashlight resource.",
+          "mode": 2,
+          "value": {
+            "default": true
+          }
+        },
+        "brightness_percent": {
+          "type": "integer",
+          "description": "Fixed flashlight brightness provided by this base class. The value is read-only and cannot be adjusted.",
+          "mode": 2,
+          "value": {
+            "default": 100,
+            "unit": "percent",
+            "minimum": 100,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 100
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_light_on": {
+          "description": "Return whether the flashlight is actually emitting light without changing its state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "light_on"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "light_on",
+            "response_key": "light_on",
+            "preconditions": {}
+          },
+          "response": {
+            "light_on": {
+              "type": "boolean",
+              "description": "Whether the flashlight is actually emitting light."
+            }
+          }
+        },
+        "get_available": {
+          "description": "Return whether the flashlight hardware resource is currently available.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "available"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "available",
+            "response_key": "available",
+            "preconditions": {}
+          },
+          "response": {
+            "available": {
+              "type": "boolean",
+              "description": "Whether the flashlight hardware resource is currently available."
+            }
+          }
+        },
+        "get_authorized": {
+          "description": "Return whether the system currently authorizes flashlight use.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "authorized"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "authorized",
+            "response_key": "authorized",
+            "preconditions": {}
+          },
+          "response": {
+            "authorized": {
+              "type": "boolean",
+              "description": "Whether system authorization for flashlight use is currently granted."
+            }
+          }
+        },
+        "get_brightness_percent": {
+          "description": "Return the fixed flashlight brightness percentage. This base class does not support brightness adjustment.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "brightness_percent"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "brightness_percent",
+            "response_key": "brightness_percent",
+            "preconditions": {}
+          },
+          "response": {
+            "brightness_percent": {
+              "type": "integer",
+              "description": "The fixed flashlight brightness percentage."
+            }
+          }
+        },
+        "turn_on": {
+          "description": "Turn on the flashlight at its fixed brightness. The operation succeeds only when the light resource is available and system authorization is granted. A failed precondition leaves the actual light state unchanged and is not reported as successful.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "available",
+            "authorized"
+          ],
+          "writes": [
+            "light_on"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "light_on": {
+                "value": true
+              }
+            },
+            "preconditions": {
+              "available": true,
+              "authorized": true
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The flashlight resource is unavailable or system authorization is not granted."
+          }
+        },
+        "turn_off": {
+          "description": "Turn off the flashlight by setting its actual light state to false. The operation is idempotent when the light is already off and does not require the resource to remain available.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "light_on"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "light_on": {
+                "value": false
+              }
+            },
+            "preconditions": {}
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "dependency_changed": {
+          "description": "When camera use, system resource restrictions, or system authorization changes, recomputes the corresponding availability and authorization feedback. If either prerequisite is revoked while the flashlight is on, the actual light turns off. Restoring a prerequisite does not automatically turn the light back on.",
+          "effect_properties": [
+            {
+              "name": "available",
+              "description": "Current hardware resource availability determined by camera and system resource conditions."
+            },
+            {
+              "name": "authorized",
+              "description": "Current system authorization for flashlight use."
+            },
+            {
+              "name": "light_on",
+              "description": "Actual light state, which is cleared when availability or authorization is revoked."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

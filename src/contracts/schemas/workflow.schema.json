@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:workflow",
+  "title": "Fixed-horizon workflow and first-transition timing",
+  "type": "object",
+  "required": ["evaluation_end_minute", "transitions", "relations"],
+  "properties": {
+    "evaluation_end_minute": {"type": "integer", "minimum": 1},
+    "transitions": {"type": "array", "items": {"$ref": "#/$defs/transition"}},
+    "relations": {"type": "array", "items": {"$ref": "#/$defs/relation"}}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "transition": {
+      "type": "object", "required": ["id", "scope", "target_id", "property"],
+      "oneOf": [
+        {"required": ["from", "to"], "not": {"required": ["predicate"]}},
+        {"required": ["predicate"], "not": {"anyOf": [{"required": ["from"]}, {"required": ["to"]}]}}
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "scope": {"enum": ["object", "space"]},
+        "target_id": {"type": "string", "minLength": 1},
+        "property": {"type": "string", "minLength": 1},
+        "from": {}, "to": {},
+        "predicate": {
+          "oneOf": [
+            {"type": "object", "required": ["op", "min", "max"], "properties": {"op": {"const": "range"}, "min": {"type": "number"}, "max": {"type": "number"}}, "additionalProperties": false},
+            {"type": "object", "required": ["op", "value"], "properties": {"op": {"enum": ["gte", "lte"]}, "value": {"type": "number"}}, "additionalProperties": false}
+          ]
+        }
+      }, "additionalProperties": false
+    },
+    "relation": {
+      "oneOf": [
+        {
+          "type": "object", "required": ["kind", "before", "after", "min_minutes", "max_minutes"],
+          "properties": {"kind": {"const": "ordered"}, "before": {"type": "string"}, "after": {"type": "string"}, "min_minutes": {"type": "integer", "minimum": 0}, "max_minutes": {"type": "integer", "minimum": 0}}, "additionalProperties": false
+        },
+        {
+          "type": "object", "required": ["kind", "events", "tolerance_minutes"],
+          "properties": {"kind": {"const": "synchronize"}, "events": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"type": "string"}}, "tolerance_minutes": {"type": "integer", "minimum": 0}}, "additionalProperties": false
+        },
+        {
+          "type": "object", "required": ["kind", "event", "minute", "tolerance_minutes"],
+          "properties": {"kind": {"const": "at"}, "event": {"type": "string"}, "minute": {"type": "integer", "minimum": 0}, "tolerance_minutes": {"type": "integer", "minimum": 0}}, "additionalProperties": false
+        },
+        {
+          "type": "object", "required": ["kind", "event", "minute"],
+          "properties": {"kind": {"const": "before"}, "event": {"type": "string"}, "minute": {"type": "integer", "minimum": 0}}, "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

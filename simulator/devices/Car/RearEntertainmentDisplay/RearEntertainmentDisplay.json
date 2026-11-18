@@ -1,0 +1,294 @@
+{
+  "RearEntertainmentDisplay": {
+    "meta": {
+      "name": "RearEntertainmentDisplay",
+      "description": "Rear entertainment display module. A projection entertainment screen at the rear of the cabin, supporting raising and lowering the projection screen, switching the projector on and off, and adjusting brightness.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the rear entertainment projector is powered on.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "screen_position": {
+          "type": "string",
+          "description": "Physical position of the projection screen. Raised means stowed; lowered means deployed for viewing.",
+          "mode": 2,
+          "value": {
+            "default": "raised",
+            "choices": [
+              "raised",
+              "lowered"
+            ]
+          }
+        },
+        "brightness": {
+          "type": "integer",
+          "description": "Projector brightness setting as an integer percentage. The setting persists while powered off.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_screen_position": {
+          "description": "Return whether the projection screen is raised or lowered. Projector power must be on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "screen_position"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "screen_position",
+            "response_key": "screen_position",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "screen_position": {
+              "type": "string",
+              "description": "Current projection-screen position: raised or lowered."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Projector power must be on to read the screen position."
+          }
+        },
+        "raise_screen": {
+          "description": "Raise the projection screen into its stowed position. The action is idempotent and requires projector power to be on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "screen_position"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "screen_position": {
+                "value": "raised"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Projector power must be on to raise the screen."
+          }
+        },
+        "lower_screen": {
+          "description": "Lower the projection screen into its deployed viewing position. The action is idempotent and requires projector power to be on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "screen_position"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "screen_position": {
+                "value": "lowered"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Projector power must be on to lower the screen."
+          }
+        },
+        "get_brightness": {
+          "description": "Return the projector brightness percentage. Projector power must be on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "brightness",
+            "response_key": "brightness",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "brightness": {
+              "type": "integer",
+              "description": "Current projector brightness as an integer percentage from 0 through 100."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Projector power must be on to read brightness."
+          }
+        },
+        "set_brightness": {
+          "description": "Set projector brightness to an integer percentage from 0 through 100. Projector power must be on. Invalid input or an unmet power precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "brightness",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Projector power must be on to change brightness.",
+            "INVALID_INPUT_ERROR": "Brightness must be an integer from 0 through 100."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "brightness",
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "When powered on, contribute illuminance to the containing Space equal to the brightness value in lux. When powered off, contribute zero illuminance. Repeated updates replace the previous contribution rather than accumulating it.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether the projector contributes illuminance."
+            },
+            {
+              "name": "brightness",
+              "description": "Determines the projector illuminance contribution while powered on."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "UltrasonicHumidifier": {
+    "meta": {
+      "name": "UltrasonicHumidifier",
+      "description": "A humidifier subclass that uses ultrasonic vibration to atomize water and release the mist into the air. It inherits all functions and properties.",
+      "version": "1.0.0",
+      "from": "../Humidifier.json"
+    },
+    "properties": {
+      "update": {},
+      "disabled": []
+    },
+    "functions": {
+      "update": {},
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

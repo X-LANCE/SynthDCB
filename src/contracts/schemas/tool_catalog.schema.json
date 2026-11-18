@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:tool-catalog",
+  "title": "DCB v2 resolved tool catalog",
+  "type": "object",
+  "required": ["world_id", "tools"],
+  "properties": {
+    "world_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "tools": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/toolDefinition"}
+    }
+  },
+  "$defs": {
+    "toolDefinition": {
+      "type": "object",
+      "required": [
+        "tool_id",
+        "target",
+        "target_kind",
+        "function",
+        "mutation",
+        "parameters_schema"
+      ],
+      "properties": {
+        "tool_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/toolId"},
+        "target": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+        "target_kind": {"type": "string", "enum": ["session", "memory", "space", "device"]},
+        "function": {"$ref": "urn:dcb:v2:schema:common#/$defs/functionName"},
+        "description": {"type": "string"},
+        "mutation": {"type": "boolean"},
+        "reads": {"$ref": "urn:dcb:v2:schema:capability#/$defs/names"},
+        "writes": {"$ref": "urn:dcb:v2:schema:capability#/$defs/names"},
+        "semantics": {"$ref": "urn:dcb:v2:schema:capability#/$defs/semantics"},
+        "argument_sources": {"$ref": "urn:dcb:v2:schema:capability#/$defs/function/properties/argument_sources"},
+        "parameters_schema": {
+          "type": "object",
+          "required": ["type", "properties", "required", "additionalProperties"],
+          "properties": {
+            "type": {"const": "object"},
+            "properties": {"type": "object"},
+            "required": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {"type": "string"}
+            },
+            "additionalProperties": {"const": false}
+          },
+          "additionalProperties": true
+        },
+        "duration_minutes": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

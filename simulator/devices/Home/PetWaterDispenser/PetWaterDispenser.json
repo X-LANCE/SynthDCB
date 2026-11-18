@@ -1,0 +1,310 @@
+{
+  "PetWaterDispenser": {
+    "meta": {
+      "name": "PetWaterDispenser",
+      "description": "Pet water dispenser. Users can query and set the dispensing or circulation mode, and can query the water level, filter state, and low-water state. Circulation mode filters and circulates drinking water; when the water level is too low, dispensing or circulation stops.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the dispenser is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "operation_mode": {
+          "type": "string",
+          "description": "Retained selected dispensing/circulation mode. Low water or power-off blocks physical operation without changing this setting; its observable operation effect is the containing Space noise contribution.",
+          "mode": 3,
+          "value": {
+            "default": "circulation",
+            "choices": [
+              "dispensing",
+              "circulation"
+            ]
+          }
+        },
+        "water_level": {
+          "type": "integer",
+          "description": "Current water level as a percentage of the dispenser reservoir capacity.",
+          "mode": 2,
+          "value": {
+            "default": 100,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "filter_state": {
+          "type": "string",
+          "description": "Condition of the water filter.",
+          "mode": 2,
+          "value": {
+            "default": "good",
+            "choices": [
+              "good",
+              "replace"
+            ]
+          }
+        },
+        "low_water": {
+          "type": "boolean",
+          "description": "Derived low-water flag: true exactly when water_level is less than 10 percent; false at 10 percent and above.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_operation_mode": {
+          "description": "Return the selected dispensing or circulation mode. This function is available only while the dispenser is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "operation_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "operation_mode",
+            "response_key": "operation_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "operation_mode": {
+              "type": "string",
+              "description": "The selected operation mode."
+            }
+          }
+        },
+        "set_operation_mode": {
+          "description": "Set the dispensing or circulation mode. The mode is changed only while powered and valid values are dispensing or circulation.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "dispensing",
+                  "circulation"
+                ],
+                "description": "The desired operation mode."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "operation_mode",
+            "power",
+            "water_level"
+          ],
+          "writes": [
+            "low_water",
+            "operation_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "operation_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_water_level": {
+          "description": "Return the current reservoir water level percentage. This function is available only while the dispenser is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "water_level"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "water_level",
+            "response_key": "water_level",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "water_level": {
+              "type": "integer",
+              "description": "Water level percentage."
+            }
+          }
+        },
+        "get_filter_state": {
+          "description": "Return the current filter state. This function is available only while the dispenser is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "filter_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "filter_state",
+            "response_key": "filter_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "filter_state": {
+              "type": "string",
+              "description": "Filter condition."
+            }
+          }
+        },
+        "get_low_water": {
+          "description": "Return whether the reservoir is in the low-water state. This function is available only while the dispenser is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "low_water"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "low_water",
+            "response_key": "low_water",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "low_water": {
+              "type": "boolean",
+              "description": "Whether the water level is low."
+            }
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "water_level"
+          ],
+          "writes": [
+            "low_water",
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "After each successful action, internally set low_water to (water_level < 10). Set the containing Space noise contribution to 20 dBA for dispensing or 10 dBA for circulation when power is true and low_water is false; otherwise set it to zero. Keep operation_mode unchanged while blocked. water_level is a read-only externally supplied sensor state restored from World initialization; no water-depletion or refill process is declared.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the dispenser is powered."
+            },
+            {
+              "name": "operation_mode",
+              "description": "The selected dispensing or circulation mode."
+            },
+            {
+              "name": "low_water",
+              "description": "Whether low water blocks operation."
+            },
+            {
+              "name": "water_level",
+              "description": "Read to update the derived low_water flag."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

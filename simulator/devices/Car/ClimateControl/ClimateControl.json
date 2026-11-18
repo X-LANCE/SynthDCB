@@ -1,0 +1,684 @@
+{
+  "ClimateControl": {
+    "meta": {
+      "name": "ClimateControl",
+      "description": "Cabin climate control. Supports switching on and off, target temperature, fan speed, automatic/cooling/heating/fan-only modes, and fresh-air/recirculation settings, with front and rear windshield defogging modes. While running, the device adjusts cabin temperature according to its current operating mode; fan-only operation does not directly change temperature.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the climate-control device has electrical power. While false, temperature control is inactive and non-power public functions are unavailable.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether cabin climate operation is enabled. This setting is retained when device power is turned off.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "target_temperature": {
+          "type": "integer",
+          "description": "Requested cabin target temperature.",
+          "mode": 3,
+          "value": {
+            "default": 22,
+            "minimum": 16,
+            "maximum": 32,
+            "step": 1,
+            "step_origin": 16,
+            "unit": "degC"
+          }
+        },
+        "fan_speed": {
+          "type": "integer",
+          "description": "Cabin fan speed level.",
+          "mode": 3,
+          "value": {
+            "default": 3,
+            "minimum": 1,
+            "maximum": 7,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "mode": {
+          "type": "string",
+          "description": "Cabin climate operating mode.",
+          "mode": 3,
+          "value": {
+            "default": "auto",
+            "choices": [
+              "auto",
+              "cool",
+              "heat",
+              "fan"
+            ]
+          }
+        },
+        "recirculation": {
+          "type": "string",
+          "description": "Air-intake setting: internal recirculates cabin air, external uses fresh outside air, and auto selects automatically.",
+          "mode": 3,
+          "value": {
+            "default": "auto",
+            "choices": [
+              "internal",
+              "external",
+              "auto"
+            ]
+          }
+        },
+        "front_defogging": {
+          "type": "boolean",
+          "description": "Whether front windshield defogging mode is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "rear_defogging": {
+          "type": "boolean",
+          "description": "Whether rear windshield defogging mode is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_enabled": {
+          "description": "Return whether cabin climate operation is enabled without changing state. Requires device power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "enabled",
+            "response_key": "enabled",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether cabin climate operation is enabled."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "set_enabled": {
+          "description": "Enable or disable cabin climate operation while retaining all configured settings. Requires device power. Invalid input or unavailable power leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "enabled"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "enabled",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "get_target_temperature": {
+          "description": "Return the requested cabin target temperature without changing state. Requires device power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "target_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_temperature",
+            "response_key": "target_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "target_temperature": {
+              "type": "integer",
+              "description": "Requested cabin target temperature in degrees Celsius."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "set_target_temperature": {
+          "description": "Set the requested cabin target temperature to an integer from 16 through 32 degrees Celsius. The setting can be changed in automatic, cooling, or heating mode; fan-only mode rejects the operation. Requires device power. Invalid input or a failed precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 16,
+                "maximum": 32,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "mode"
+          ],
+          "writes": [
+            "target_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "mode": {
+                "one_of": [
+                  "auto",
+                  "cool",
+                  "heat"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on.",
+            "PRECONDITION_FAILED": "Target temperature cannot be changed while fan-only mode is selected."
+          }
+        },
+        "get_fan_speed": {
+          "description": "Return the current cabin fan speed level without changing state. Requires device power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "fan_speed"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fan_speed",
+            "response_key": "fan_speed",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "fan_speed": {
+              "type": "integer",
+              "description": "Current fan speed level from 1 through 7."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "set_fan_speed": {
+          "description": "Set the cabin fan speed to an integer level from 1 through 7. Requires device power. Invalid input or unavailable power leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 7,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "fan_speed"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "fan_speed",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "get_mode": {
+          "description": "Return the selected cabin climate operating mode without changing state. Requires device power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "mode",
+            "response_key": "mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "mode": {
+              "type": "string",
+              "description": "Selected operating mode: auto, cool, heat, or fan."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "set_mode": {
+          "description": "Select automatic, cooling, heating, or fan-only operation. Requires device power. Invalid values or unavailable power leave state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "cool",
+                  "heat",
+                  "fan"
+                ],
+                "examples": [
+                  "auto",
+                  "cool",
+                  "heat",
+                  "fan"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "get_recirculation": {
+          "description": "Return the selected air-intake setting without changing state. Internal means cabin-air recirculation and external means fresh outside air. Requires device power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "recirculation"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "recirculation",
+            "response_key": "recirculation",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "recirculation": {
+              "type": "string",
+              "description": "Selected air-intake setting: internal, external, or auto."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "set_recirculation": {
+          "description": "Select internal cabin-air recirculation, external fresh-air intake, or automatic selection. Requires device power. Invalid values or unavailable power leave state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "internal",
+                  "external",
+                  "auto"
+                ],
+                "examples": [
+                  "internal",
+                  "external",
+                  "auto"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "recirculation"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "recirculation",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "get_front_defogging": {
+          "description": "Return whether front windshield defogging mode is enabled without changing state. Requires device power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "front_defogging"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "front_defogging",
+            "response_key": "front_defogging",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "front_defogging": {
+              "type": "boolean",
+              "description": "Whether front windshield defogging mode is enabled."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "set_front_defogging": {
+          "description": "Enable or disable front windshield defogging mode. Requires device power. Invalid input or unavailable power leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "front_defogging"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "front_defogging",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "get_rear_defogging": {
+          "description": "Return whether rear windshield defogging mode is enabled without changing state. Requires device power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "rear_defogging"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "rear_defogging",
+            "response_key": "rear_defogging",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "rear_defogging": {
+              "type": "boolean",
+              "description": "Whether rear windshield defogging mode is enabled."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "set_rear_defogging": {
+          "description": "Enable or disable rear windshield defogging mode. Requires device power. Invalid input or unavailable power leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "rear_defogging"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "rear_defogging",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Device must be powered on."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While both electrically powered and enabled, move cabin temperature toward target_temperature by at most 1 degree Celsius per minute. Auto mode may heat or cool, cool mode acts only when cabin temperature is above the target, heat mode acts only when cabin temperature is below the target, and fan mode emits no temperature effect. Emit no temperature effect while power is off, while climate operation is disabled, while the selected directional mode cannot move toward the target, or once the target is reached.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether the climate-control device can produce a cabin temperature effect."
+            },
+            {
+              "name": "enabled",
+              "description": "Determines whether climate temperature control is active while the device is powered."
+            },
+            {
+              "name": "target_temperature",
+              "description": "The cabin temperature approached while powered climate temperature control is active."
+            },
+            {
+              "name": "mode",
+              "description": "Determines whether the device may heat, cool, do either, or emit no temperature effect."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

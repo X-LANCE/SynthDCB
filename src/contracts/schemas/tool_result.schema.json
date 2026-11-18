@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:tool-result",
+  "title": "DCB v2 tool result",
+  "type": "object",
+  "required": [
+    "call_id",
+    "turn_id",
+    "sequence",
+    "status",
+    "code",
+    "data",
+    "mutation_committed",
+    "audit_sequence"
+  ],
+  "properties": {
+    "call_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "turn_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "sequence": {"type": "integer", "minimum": 1},
+    "status": {"type": "string", "enum": ["success", "error"]},
+    "code": {"$ref": "urn:dcb:v2:schema:common#/$defs/commandCode"},
+    "data": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"},
+    "mutation_committed": {"type": "boolean"},
+    "audit_sequence": {"type": ["integer", "null"], "minimum": 1},
+    "error": {"$ref": "urn:dcb:v2:schema:common#/$defs/error"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "success"}}},
+      "then": {
+        "properties": {"code": {"const": "[PASS]"}},
+        "not": {"required": ["error"]}
+      },
+      "else": {
+        "required": ["error"],
+        "properties": {
+          "mutation_committed": {"const": false}
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

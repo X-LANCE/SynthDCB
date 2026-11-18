@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:world-init",
+  "title": "DCB world initialization request",
+  "type": "object",
+  "required": ["world_id", "domain", "template", "config", "init"],
+  "properties": {
+    "world_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "domain": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"}
+      },
+      "additionalProperties": false
+    },
+    "template": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "domain_metadata": {
+          "type": "object",
+          "additionalProperties": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+        },
+        "spaces": {"type": "object"},
+        "objects": {"type": "object"},
+        "runtime": {"type": "object"},
+        "scene_metadata": {"type": "object"}
+      },
+      "additionalProperties": false
+    },
+    "init": {
+      "type": "array",
+      "items": {"$ref": "urn:dcb:v2:schema:common#/$defs/initOperation"}
+    }
+  },
+  "additionalProperties": false
+}

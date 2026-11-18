@@ -1,0 +1,854 @@
+{
+  "WasherDryer": {
+    "meta": {
+      "name": "WasherDryer",
+      "description": "Washer-dryer. Users can query and set the washing program, water temperature, spin speed, drying mode, and drying duration. The current stage and remaining time are queryable; preset stages associated with the washing program progress over time, and operation is started through a manual setting. Operation affects the room's noise level.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "process": {
+      "mode_property": "washing_program",
+      "start_function": "start_cycle",
+      "pause_function": "pause_cycle",
+      "resume_function": "resume_cycle",
+      "modes": {
+        "daily": [
+          {
+            "phase": "wash",
+            "minutes": 25
+          },
+          {
+            "phase": "rinse",
+            "minutes": 10
+          },
+          {
+            "phase": "spin",
+            "minutes": 5
+          },
+          {
+            "phase": "dry",
+            "minutes": {
+              "property": "drying_duration"
+            }
+          }
+        ],
+        "quick": [
+          {
+            "phase": "wash",
+            "minutes": 10
+          },
+          {
+            "phase": "rinse",
+            "minutes": 5
+          },
+          {
+            "phase": "spin",
+            "minutes": 3
+          },
+          {
+            "phase": "dry",
+            "minutes": {
+              "property": "drying_duration"
+            }
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Electrical power. Switching off pauses a running cycle without erasing configuration or progress.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "washing_program": {
+          "type": "string",
+          "description": "Selected combined-cycle program. Daily has 25 wash, 10 rinse and 5 spin minutes; quick has 10 wash, 5 rinse and 3 spin minutes. Both then dry for drying_duration minutes.",
+          "mode": 3,
+          "value": {
+            "default": "daily",
+            "choices": [
+              "daily",
+              "quick"
+            ]
+          }
+        },
+        "water_temperature": {
+          "type": "integer",
+          "description": "Wash-water temperature setting; does not represent room temperature or change preset stage durations.",
+          "mode": 3,
+          "value": {
+            "default": 30,
+            "unit": "degC",
+            "minimum": 20,
+            "maximum": 60,
+            "step": 10,
+            "step_origin": 20
+          }
+        },
+        "spin_speed": {
+          "type": "integer",
+          "description": "Spin-stage drum speed setting. Changes spin noise, not spin duration.",
+          "mode": 3,
+          "value": {
+            "default": 800,
+            "unit": "rpm",
+            "minimum": 400,
+            "maximum": 1200,
+            "step": 200,
+            "step_origin": 400
+          }
+        },
+        "drying_mode": {
+          "type": "string",
+          "description": "Normal or gentle drying intensity. Gentle uses quieter drying operation; both use the configured drying duration.",
+          "mode": 3,
+          "value": {
+            "default": "normal",
+            "choices": [
+              "normal",
+              "gentle"
+            ]
+          }
+        },
+        "drying_duration": {
+          "type": "integer",
+          "description": "Duration of the dry phase, fixed for the entire started cycle.",
+          "mode": 3,
+          "value": {
+            "default": 45,
+            "unit": "minute",
+            "minimum": 1,
+            "maximum": 180,
+            "step": 1
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Persisted process status, changed only internally by process actions and events.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "running",
+              "paused",
+              "completed"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current stage. Pausing preserves the active stage.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "wash",
+              "rinse",
+              "spin",
+              "dry",
+              "completed"
+            ]
+          }
+        },
+        "remaining_minutes": {
+          "type": "integer",
+          "description": "Minutes remaining in the entire cycle, including all unfinished stages; zero before first start and after completion.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "minute",
+            "minimum": 0
+          }
+        },
+        "started_at_minute": {
+          "type": "integer",
+          "description": "Elapsed-world-minute origin of running progress. On start or resume it becomes the current elapsed minute minus retained progress.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "minute",
+            "minimum": 0
+          }
+        },
+        "progress_minutes": {
+          "type": "integer",
+          "description": "Completed cycle minutes, retained during pauses and clamped to total duration at completion.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "minute",
+            "minimum": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_washing_program": {
+          "description": "Return the selected program under washing_program. Fail without changes if unpowered or arguments are invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "washing_program"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "washing_program",
+            "response_key": "washing_program",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_washing_program": {
+          "description": "Select daily or quick without starting operation; return an empty success object. Require power and idle or completed status. Invalid arguments or failed preconditions leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "daily",
+                  "quick"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "washing_program"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "washing_program",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_water_temperature": {
+          "description": "Return the wash-water temperature setting in degC under water_temperature. Fail without changes if unpowered or arguments are invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "water_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "water_temperature",
+            "response_key": "water_temperature",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_water_temperature": {
+          "description": "Set wash-water temperature to 20, 30, 40, 50 or 60 degC; return an empty success object. Require power and idle or completed status. Invalid arguments or failed preconditions leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 20,
+                "maximum": 60,
+                "multipleOf": 10
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "water_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "water_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_spin_speed": {
+          "description": "Return spin speed in rpm under spin_speed. Fail without changes if unpowered or arguments are invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "spin_speed"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "spin_speed",
+            "response_key": "spin_speed",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_spin_speed": {
+          "description": "Set spin speed from 400 through 1200 rpm in increments of 200; return an empty success object. Require power and idle or completed status. Invalid arguments or failed preconditions leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 400,
+                "maximum": 1200,
+                "multipleOf": 200
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "spin_speed"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "spin_speed",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_drying_mode": {
+          "description": "Return normal or gentle under drying_mode. Fail without changes if unpowered or arguments are invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "drying_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "drying_mode",
+            "response_key": "drying_mode",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_drying_mode": {
+          "description": "Select normal or gentle drying without starting operation; return an empty success object. Require power and idle or completed status. Invalid arguments or failed preconditions leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "normal",
+                  "gentle"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "drying_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "drying_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_drying_duration": {
+          "description": "Return configured dry-phase minutes under drying_duration. Fail without changes if unpowered or arguments are invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "drying_duration"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "drying_duration",
+            "response_key": "drying_duration",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_drying_duration": {
+          "description": "Set dry-phase duration to an integer from 1 through 180 minutes; return an empty success object. Require power and idle or completed status. Invalid arguments or failed preconditions leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 180
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "drying_duration"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "drying_duration",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_status": {
+          "description": "Return process status under status. Fail without changes if unpowered or arguments are invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "status",
+            "response_key": "status",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_phase": {
+          "description": "Return the current stage under phase. Fail without changes if unpowered or arguments are invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "phase"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "phase",
+            "response_key": "phase",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_remaining_minutes": {
+          "description": "Return whole-cycle remaining minutes under remaining_minutes. Fail without changes if unpowered or arguments are invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "remaining_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "remaining_minutes",
+            "response_key": "remaining_minutes",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_started_at_minute": {
+          "description": "Return the persisted running-time origin under started_at_minute. Fail without changes if unpowered or arguments are invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "started_at_minute"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "started_at_minute",
+            "response_key": "started_at_minute",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_progress_minutes": {
+          "description": "Return completed cycle minutes under progress_minutes. Fail without changes if unpowered or arguments are invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "progress_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "progress_minutes",
+            "response_key": "progress_minutes",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "start_cycle": {
+          "description": "Manually select and start daily or quick. Require power and idle or completed status. Set washing_program to program, status to running, phase to wash, progress to zero and remaining time to the declared program total including drying_duration. Establish the running-time origin at the current elapsed minute. Configuration is frozen until completion, including while paused. Return an empty success object. Validate all arguments and preconditions before changes; failure preserves all state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "program": {
+                "type": "string",
+                "enum": [
+                  "daily",
+                  "quick"
+                ]
+              }
+            },
+            "required": [
+              "program"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "washing_program",
+            "drying_duration"
+          ],
+          "writes": [
+            "washing_program",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "program",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "pause_cycle": {
+          "description": "Pause a powered running cycle, preserving phase, remaining time, progress and configuration. Return an empty success object. Invalid arguments or failed preconditions leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_pause",
+            "preconditions": {
+              "power": true,
+              "status": "running"
+            }
+          }
+        },
+        "resume_cycle": {
+          "description": "Resume a powered paused cycle without resetting progress, phase, remaining time or configuration. Set status to running and re-establish the running-time origin as current elapsed minute minus retained progress. Return an empty success object. Invalid arguments or failed preconditions leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "progress_minutes"
+          ],
+          "writes": [
+            "status",
+            "started_at_minute"
+          ],
+          "semantics": {
+            "kind": "process_resume",
+            "preconditions": {
+              "power": true,
+              "status": "paused"
+            }
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "power",
+            "status"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "Power loss pauses a running cycle while preserving its progress, phase, remaining time and settings. Restoring power does not resume it. Each transition from a non-running status into running establishes started_at_minute as the current elapsed minute minus progress_minutes. This changes only internal process state.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Power loss pauses operation."
+            },
+            {
+              "name": "status",
+              "description": "Identifies transitions into running and power-loss pauses."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Running-time origin established on start or resume."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Retained progress used to establish the running-time origin."
+            }
+          ]
+        },
+        "tick": {
+          "description": "While powered and running, calculate progress as elapsed minutes minus started_at_minute, clamped between zero and the declared washing_program total. Use the preset wash, rinse and spin durations and drying_duration for the dry phase. Advance to the next phase at each exact cumulative boundary; remaining_minutes is total minus progress. At the final boundary set status and phase to completed and remaining_minutes to zero. Idle, paused, completed and unpowered cycles do not advance. Preserve all settings. After advancing, the device contributes 45 dBA during wash, 42 dBA during rinse, 50 plus spin_speed divided by 40 dBA during spin, and 48 dBA for normal drying or 43 dBA for gentle drying. Its noise contribution is zero whenever it is unpowered or not running. Apply the absolute contribution each time, including zero to clear previous output. Return this noise output solely as a set_contribution effect for the containing Home Space noise property, unit dBA, to be applied by the runtime reducer. No device-side noise property exists or is updated.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Required for process advancement and active noise."
+            },
+            {
+              "name": "washing_program",
+              "description": "Selects the declared stage sequence and preset durations."
+            },
+            {
+              "name": "drying_duration",
+              "description": "Determines dry-phase and total cycle duration."
+            },
+            {
+              "name": "spin_speed",
+              "description": "Determines spin-stage noise."
+            },
+            {
+              "name": "drying_mode",
+              "description": "Determines dry-stage noise."
+            },
+            {
+              "name": "status",
+              "description": "Gates advancement and becomes completed at the end."
+            },
+            {
+              "name": "phase",
+              "description": "Tracks the active stage and determines noise."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Updated to total duration minus progress."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Persisted origin used to calculate running progress."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Persisted elapsed process minutes, clamped to total duration."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:domain",
+  "title": "DCB Domain-neutral resolved-world projection",
+  "type": "object",
+  "required": ["domain", "spaces", "objects", "runtime"],
+  "properties": {
+    "domain": {
+      "type": "object",
+      "required": ["type", "metadata"],
+      "properties": {
+        "type": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+        "metadata": {
+          "type": "object",
+          "required": ["template_id", "info", "connections"],
+          "properties": {
+            "template_id": {
+              "oneOf": [
+                {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+                {"type": "null"}
+              ]
+            },
+            "info": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"
+              }
+            },
+            "connections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["space_1", "space_2", "type"],
+                "oneOf": [
+                  {"required": ["current_state"], "not": {"required": ["device_id"]}},
+                  {"required": ["device_id"], "not": {"required": ["current_state"]}}
+                ],
+                "properties": {
+                  "space_1": {
+                    "$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"
+                  },
+                  "space_2": {
+                    "$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"
+                  },
+                  "type": {"type": "string", "minLength": 1},
+                  "current_state": {"type": "string", "minLength": 1},
+                  "device_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"}
+                },
+                "additionalProperties": false
+              }
+            },
+            "relations": {
+              "type": "array", "uniqueItems": true,
+              "items": {
+                "type": "object", "required": ["source_id", "target_id", "type"],
+                "properties": {
+                  "source_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+                  "target_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+                  "type": {"enum": ["contains", "depends_on"]}
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "spaces": {"type": "object"},
+    "objects": {"type": "object", "minProperties": 1},
+    "runtime": {"type": "object"}
+  }
+}

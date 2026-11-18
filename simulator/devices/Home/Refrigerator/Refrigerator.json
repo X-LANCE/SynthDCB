@@ -1,0 +1,683 @@
+{
+  "Refrigerator": {
+    "meta": {
+      "name": "Refrigerator",
+      "description": "Refrigerator. Users can query and set the target temperatures and operating modes for the refrigerator, freezer, and variable-temperature compartments. Fast-freeze and fast-cool modes can be queried and toggled.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the refrigerator is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "refrigerator_temperature": {
+          "type": "float",
+          "description": "Target temperature of the refrigerator compartment.",
+          "mode": 3,
+          "value": {
+            "default": 4.0,
+            "unit": "degC",
+            "minimum": 0,
+            "maximum": 10,
+            "step": 0.5,
+            "step_origin": 0
+          }
+        },
+        "freezer_temperature": {
+          "type": "float",
+          "description": "Target temperature of the freezer compartment.",
+          "mode": 3,
+          "value": {
+            "default": -18.0,
+            "unit": "degC",
+            "minimum": -25,
+            "maximum": -10,
+            "step": 0.5,
+            "step_origin": -25
+          }
+        },
+        "variable_temperature": {
+          "type": "float",
+          "description": "Target temperature of the variable-temperature compartment.",
+          "mode": 3,
+          "value": {
+            "default": 1.0,
+            "unit": "degC",
+            "minimum": -18,
+            "maximum": 10,
+            "step": 0.5,
+            "step_origin": -18
+          }
+        },
+        "refrigerator_mode": {
+          "type": "string",
+          "description": "Operating mode of the refrigerator compartment.",
+          "mode": 3,
+          "value": {
+            "default": "normal",
+            "choices": [
+              "normal",
+              "vacation"
+            ]
+          }
+        },
+        "freezer_mode": {
+          "type": "string",
+          "description": "Operating mode of the freezer compartment.",
+          "mode": 3,
+          "value": {
+            "default": "normal",
+            "choices": [
+              "normal",
+              "eco"
+            ]
+          }
+        },
+        "variable_mode": {
+          "type": "string",
+          "description": "Operating mode of the variable-temperature compartment.",
+          "mode": 3,
+          "value": {
+            "default": "refrigerator",
+            "choices": [
+              "freezer",
+              "soft_freeze",
+              "refrigerator",
+              "beverage"
+            ]
+          }
+        },
+        "fast_cool": {
+          "type": "boolean",
+          "description": "Whether fast-cool mode is enabled for the refrigerator compartment.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "fast_freeze": {
+          "type": "boolean",
+          "description": "Whether fast-freeze mode is enabled for the freezer compartment.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_refrigerator_temperature": {
+          "description": "Returns the target temperature of the refrigerator compartment. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "refrigerator_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "refrigerator_temperature",
+            "response_key": "refrigerator_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "refrigerator_temperature": {
+              "type": "number",
+              "description": "Target refrigerator compartment temperature in degrees Celsius."
+            }
+          }
+        },
+        "set_refrigerator_temperature": {
+          "description": "Sets the target temperature of the refrigerator compartment. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10,
+                "multipleOf": 0.5
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "refrigerator_temperature"
+          ],
+          "writes": [
+            "refrigerator_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "refrigerator_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_freezer_temperature": {
+          "description": "Returns the target temperature of the freezer compartment. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "freezer_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "freezer_temperature",
+            "response_key": "freezer_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "freezer_temperature": {
+              "type": "number",
+              "description": "Target freezer compartment temperature in degrees Celsius."
+            }
+          }
+        },
+        "set_freezer_temperature": {
+          "description": "Sets the target temperature of the freezer compartment. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": -25,
+                "maximum": -10,
+                "multipleOf": 0.5
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "freezer_temperature"
+          ],
+          "writes": [
+            "freezer_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "freezer_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_variable_temperature": {
+          "description": "Returns the target temperature of the variable-temperature compartment. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "variable_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "variable_temperature",
+            "response_key": "variable_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "variable_temperature": {
+              "type": "number",
+              "description": "Target variable-compartment temperature in degrees Celsius."
+            }
+          }
+        },
+        "set_variable_temperature": {
+          "description": "Sets the target temperature of the variable-temperature compartment. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": -18,
+                "maximum": 10,
+                "multipleOf": 0.5
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "variable_temperature"
+          ],
+          "writes": [
+            "variable_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "variable_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_refrigerator_mode": {
+          "description": "Returns the refrigerator compartment operating mode. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "refrigerator_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "refrigerator_mode",
+            "response_key": "refrigerator_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "refrigerator_mode": {
+              "type": "string",
+              "description": "Refrigerator compartment operating mode."
+            }
+          }
+        },
+        "set_refrigerator_mode": {
+          "description": "Sets the refrigerator compartment operating mode. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "normal",
+                  "vacation"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "refrigerator_mode"
+          ],
+          "writes": [
+            "refrigerator_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "refrigerator_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_freezer_mode": {
+          "description": "Returns the freezer compartment operating mode. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "freezer_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "freezer_mode",
+            "response_key": "freezer_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "freezer_mode": {
+              "type": "string",
+              "description": "Freezer compartment operating mode."
+            }
+          }
+        },
+        "set_freezer_mode": {
+          "description": "Sets the freezer compartment operating mode. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "normal",
+                  "eco"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "freezer_mode"
+          ],
+          "writes": [
+            "freezer_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "freezer_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_variable_mode": {
+          "description": "Returns the variable-temperature compartment operating mode. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "variable_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "variable_mode",
+            "response_key": "variable_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "variable_mode": {
+              "type": "string",
+              "description": "Variable-temperature compartment operating mode."
+            }
+          }
+        },
+        "set_variable_mode": {
+          "description": "Sets the variable-temperature compartment operating mode. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "freezer",
+                  "soft_freeze",
+                  "refrigerator",
+                  "beverage"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "variable_mode"
+          ],
+          "writes": [
+            "variable_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "variable_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_fast_cool": {
+          "description": "Returns whether fast-cool mode is enabled. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "fast_cool"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fast_cool",
+            "response_key": "fast_cool",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "fast_cool": {
+              "type": "boolean",
+              "description": "Whether fast-cool mode is enabled."
+            }
+          }
+        },
+        "set_fast_cool": {
+          "description": "Enables or disables fast-cool mode. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "fast_cool"
+          ],
+          "writes": [
+            "fast_cool"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "fast_cool",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_fast_freeze": {
+          "description": "Returns whether fast-freeze mode is enabled. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "fast_freeze"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fast_freeze",
+            "response_key": "fast_freeze",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "fast_freeze": {
+              "type": "boolean",
+              "description": "Whether fast-freeze mode is enabled."
+            }
+          }
+        },
+        "set_fast_freeze": {
+          "description": "Enables or disables fast-freeze mode. The refrigerator must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "fast_freeze"
+          ],
+          "writes": [
+            "fast_freeze"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "fast_freeze",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

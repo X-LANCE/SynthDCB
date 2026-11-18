@@ -1,0 +1,656 @@
+{
+  "Notifications": {
+    "meta": {
+      "name": "Notifications",
+      "description": "Notification management settings, placed in Setting and contained by System. Supports querying and setting notification permission, alert behavior, and lock-screen content display preferences for each application and its notification channels, querying current synthetic notifications, and dismissing eligible items by ID. Applications, channels, and notifications use stable IDs; partial updates preserve other configuration. Nonexistent IDs and notifications that cannot be dismissed must return explicit failures. Overall application permission, channel configuration, privacy display preferences, and Focus policy jointly determine actual presentation and alerts; allowing notifications does not guarantee immediate sound. Notification-sending authorization is centrally owned by Privacy. This module neither duplicates permission records nor changes Sound volumes.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "application_settings": {
+          "type": "dict",
+          "description": "Notification presentation preferences keyed by stable application ID. The notifications_enabled field is the application's local notification enablement preference and is distinct from notification-sending authorization owned by Privacy.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "Chat": {
+                "name": "Chat",
+                "notifications_enabled": true,
+                "alert_behavior": "alert",
+                "lock_screen_display": "show_content"
+              },
+              "Calendar": {
+                "name": "Calendar",
+                "notifications_enabled": true,
+                "alert_behavior": "alert",
+                "lock_screen_display": "hide_content"
+              }
+            },
+            "schema": {
+              "type": "object",
+              "propertyNames": {
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "notifications_enabled": {
+                    "type": "boolean"
+                  },
+                  "alert_behavior": {
+                    "type": "string",
+                    "enum": [
+                      "alert",
+                      "silent"
+                    ]
+                  },
+                  "lock_screen_display": {
+                    "type": "string",
+                    "enum": [
+                      "show_content",
+                      "hide_content",
+                      "do_not_show"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "notifications_enabled",
+                  "alert_behavior",
+                  "lock_screen_display"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "channel_settings": {
+          "type": "dict",
+          "description": "Notification channel preferences keyed by stable channel ID. Each channel belongs to one application. Channel settings refine but do not override a disabled application preference or external Privacy and Focus restrictions.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "chat_messages": {
+                "app_id": "Chat",
+                "name": "Messages",
+                "notifications_enabled": true,
+                "alert_behavior": "alert",
+                "lock_screen_display": "show_content"
+              },
+              "chat_updates": {
+                "app_id": "Chat",
+                "name": "Updates",
+                "notifications_enabled": true,
+                "alert_behavior": "silent",
+                "lock_screen_display": "hide_content"
+              },
+              "calendar_reminders": {
+                "app_id": "Calendar",
+                "name": "Reminders",
+                "notifications_enabled": true,
+                "alert_behavior": "alert",
+                "lock_screen_display": "hide_content"
+              }
+            },
+            "schema": {
+              "type": "object",
+              "propertyNames": {
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "app_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]+$",
+                    "maxLength": 128
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "notifications_enabled": {
+                    "type": "boolean"
+                  },
+                  "alert_behavior": {
+                    "type": "string",
+                    "enum": [
+                      "alert",
+                      "silent"
+                    ]
+                  },
+                  "lock_screen_display": {
+                    "type": "string",
+                    "enum": [
+                      "show_content",
+                      "hide_content",
+                      "do_not_show"
+                    ]
+                  }
+                },
+                "required": [
+                  "app_id",
+                  "name",
+                  "notifications_enabled",
+                  "alert_behavior",
+                  "lock_screen_display"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "current_notifications": {
+          "type": "dict",
+          "description": "Currently posted synthetic notifications keyed by stable notification ID. Records contain metadata only and do not represent content obtained from a real application or network service.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "chat_001": {
+                "app_id": "Chat",
+                "channel_id": "chat_messages",
+                "title": "Alice",
+                "content": "Lunch at noon?",
+                "dismissible": true
+              },
+              "calendar_001": {
+                "app_id": "Calendar",
+                "channel_id": "calendar_reminders",
+                "title": "Calendar reminder",
+                "content": "Team meeting in 10 minutes",
+                "dismissible": false
+              }
+            },
+            "schema": {
+              "type": "object",
+              "propertyNames": {
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "app_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]+$",
+                    "maxLength": 128
+                  },
+                  "channel_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]+$",
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 256
+                  },
+                  "content": {
+                    "type": "string",
+                    "maxLength": 1024
+                  },
+                  "dismissible": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "app_id",
+                  "channel_id",
+                  "title",
+                  "content",
+                  "dismissible"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_application_setting": {
+          "description": "Return the notification presentation preferences for one existing application ID. This reports local notification settings and does not report or modify the separate notification-sending authorization owned by Privacy.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "app_id": {
+                "type": "string",
+                "description": "An existing stable application ID.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "Chat",
+                  "Calendar"
+                ]
+              }
+            },
+            "required": [
+              "app_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "application_settings"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "application_settings",
+            "id_parameter": "app_id",
+            "response_key": "application_setting",
+            "preconditions": {
+              "application_settings": {
+                "contains_key": {
+                  "parameter": "app_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "app_id": {
+              "property": "application_settings",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "application_setting": {
+              "type": "object",
+              "description": "The selected application's notification presentation preferences."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "Application ID does not exist."
+          }
+        },
+        "update_application_setting": {
+          "description": "Partially update an existing application's notification presentation preferences. Omitted fields remain unchanged, the application name remains unchanged, and all other application records are preserved. notifications_enabled controls this module's application-level notification preference but does not grant Privacy authorization or guarantee that a notification will be shown or make a sound.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "app_id": {
+                "type": "string",
+                "description": "An existing stable application ID.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "Chat",
+                  "Calendar"
+                ]
+              },
+              "notifications_enabled": {
+                "type": "boolean",
+                "description": "Optional application-level notification enablement preference."
+              },
+              "alert_behavior": {
+                "type": "string",
+                "description": "Optional application alert preference.",
+                "enum": [
+                  "alert",
+                  "silent"
+                ],
+                "examples": [
+                  "alert",
+                  "silent"
+                ]
+              },
+              "lock_screen_display": {
+                "type": "string",
+                "description": "Optional application lock-screen content preference.",
+                "enum": [
+                  "show_content",
+                  "hide_content",
+                  "do_not_show"
+                ],
+                "examples": [
+                  "show_content",
+                  "hide_content",
+                  "do_not_show"
+                ]
+              }
+            },
+            "required": [
+              "app_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "application_settings"
+          ],
+          "writes": [
+            "application_settings"
+          ],
+          "semantics": {
+            "kind": "collection_update",
+            "property": "application_settings",
+            "id_parameter": "app_id",
+            "fields": {
+              "notifications_enabled": {
+                "parameter": "notifications_enabled"
+              },
+              "alert_behavior": {
+                "parameter": "alert_behavior"
+              },
+              "lock_screen_display": {
+                "parameter": "lock_screen_display"
+              }
+            },
+            "preconditions": {
+              "application_settings": {
+                "contains_key": {
+                  "parameter": "app_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "app_id": {
+              "property": "application_settings",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "Application ID does not exist.",
+            "INVALID_ARGUMENT": "No preference field was supplied or a supplied value is unsupported."
+          }
+        },
+        "get_channel_setting": {
+          "description": "Return the notification preferences for one existing channel ID, including the stable ID of its owning application.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "channel_id": {
+                "type": "string",
+                "description": "An existing stable notification channel ID.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "chat_messages",
+                  "chat_updates",
+                  "calendar_reminders"
+                ]
+              }
+            },
+            "required": [
+              "channel_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "channel_settings"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "channel_settings",
+            "id_parameter": "channel_id",
+            "response_key": "channel_setting",
+            "preconditions": {
+              "channel_settings": {
+                "contains_key": {
+                  "parameter": "channel_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "channel_id": {
+              "property": "channel_settings",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "channel_setting": {
+              "type": "object",
+              "description": "The selected notification channel's preferences and owning application ID."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "Channel ID does not exist."
+          }
+        },
+        "update_channel_setting": {
+          "description": "Partially update an existing notification channel. Omitted fields remain unchanged, ownership and channel name remain unchanged, and all other channel records are preserved. Enabling a channel does not override a disabled application preference, Privacy authorization, Focus policy, or Sound state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "channel_id": {
+                "type": "string",
+                "description": "An existing stable notification channel ID.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "chat_messages",
+                  "chat_updates",
+                  "calendar_reminders"
+                ]
+              },
+              "notifications_enabled": {
+                "type": "boolean",
+                "description": "Optional channel-level notification enablement preference."
+              },
+              "alert_behavior": {
+                "type": "string",
+                "description": "Optional channel alert preference.",
+                "enum": [
+                  "alert",
+                  "silent"
+                ],
+                "examples": [
+                  "alert",
+                  "silent"
+                ]
+              },
+              "lock_screen_display": {
+                "type": "string",
+                "description": "Optional channel lock-screen content preference.",
+                "enum": [
+                  "show_content",
+                  "hide_content",
+                  "do_not_show"
+                ],
+                "examples": [
+                  "show_content",
+                  "hide_content",
+                  "do_not_show"
+                ]
+              }
+            },
+            "required": [
+              "channel_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "channel_settings"
+          ],
+          "writes": [
+            "channel_settings"
+          ],
+          "semantics": {
+            "kind": "collection_update",
+            "property": "channel_settings",
+            "id_parameter": "channel_id",
+            "fields": {
+              "notifications_enabled": {
+                "parameter": "notifications_enabled"
+              },
+              "alert_behavior": {
+                "parameter": "alert_behavior"
+              },
+              "lock_screen_display": {
+                "parameter": "lock_screen_display"
+              }
+            },
+            "preconditions": {
+              "channel_settings": {
+                "contains_key": {
+                  "parameter": "channel_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "channel_id": {
+              "property": "channel_settings",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "Channel ID does not exist.",
+            "INVALID_ARGUMENT": "No preference field was supplied or a supplied value is unsupported."
+          }
+        },
+        "get_current_notifications": {
+          "description": "Return all currently posted synthetic notifications keyed by stable notification ID. The records are local simulation metadata and querying them does not dismiss or otherwise change them.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "current_notifications"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "current_notifications",
+            "response_key": "current_notifications",
+            "preconditions": {}
+          },
+          "response": {
+            "current_notifications": {
+              "type": "object",
+              "description": "Dictionary of currently posted synthetic notifications keyed by notification ID."
+            }
+          }
+        },
+        "get_notification": {
+          "description": "Return one currently posted synthetic notification by its stable ID without changing it.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "notification_id": {
+                "type": "string",
+                "description": "An existing stable notification ID.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "chat_001",
+                  "calendar_001"
+                ]
+              }
+            },
+            "required": [
+              "notification_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "current_notifications"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "current_notifications",
+            "id_parameter": "notification_id",
+            "response_key": "notification",
+            "preconditions": {
+              "current_notifications": {
+                "contains_key": {
+                  "parameter": "notification_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "notification_id": {
+              "property": "current_notifications",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "notification": {
+              "type": "object",
+              "description": "The selected synthetic notification record."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "Notification ID does not exist."
+          }
+        },
+        "dismiss_notification": {
+          "description": "Dismiss an existing synthetic notification by deleting only its record. The notification must have dismissible set to true. A nonexistent ID or a nondismissible notification causes an explicit failure and leaves every notification unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "notification_id": {
+                "type": "string",
+                "description": "The stable ID of an existing dismissible notification.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "chat_001"
+                ]
+              }
+            },
+            "required": [
+              "notification_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "current_notifications"
+          ],
+          "writes": [
+            "current_notifications"
+          ],
+          "semantics": {
+            "kind": "collection_delete",
+            "property": "current_notifications",
+            "id_parameter": "notification_id",
+            "preconditions": {
+              "current_notifications": {
+                "contains_key": {
+                  "parameter": "notification_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "notification_id": {
+              "property": "current_notifications",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "Notification ID does not exist.",
+            "NOT_DISMISSIBLE": "The selected notification is marked nondismissible."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

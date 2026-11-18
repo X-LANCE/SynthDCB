@@ -1,0 +1,381 @@
+{
+  "Dashcam": {
+    "meta": {
+      "name": "Dashcam",
+      "description": "Dashcam module. Supports starting and stopping recording, saving the current segment, querying recording state and local storage availability, and managing retention or deletion of simulated clips.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "recording_state": {
+          "type": "string",
+          "description": "Current dashcam recording state.",
+          "mode": 2,
+          "value": {
+            "default": "stopped",
+            "choices": [
+              "recording",
+              "stopped"
+            ]
+          }
+        },
+        "storage_available": {
+          "type": "boolean",
+          "description": "Whether compatible local storage is currently available for recording and saving clips.",
+          "mode": 2,
+          "value": {
+            "default": true
+          }
+        },
+        "clips": {
+          "type": "dict",
+          "description": "Saved simulated clips keyed by stable clip ID. Each clip records whether it is retained.",
+          "mode": 2,
+          "value": {
+            "default": {},
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "retained": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "retained"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_recording_state": {
+          "description": "Return the current recording state without changing dashcam state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "recording_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "recording_state",
+            "response_key": "recording_state"
+          },
+          "response": {
+            "recording_state": {
+              "type": "string",
+              "description": "Current state: recording or stopped."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_storage_available": {
+          "description": "Return whether local storage is available without changing dashcam state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "storage_available"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "storage_available",
+            "response_key": "storage_available"
+          },
+          "response": {
+            "storage_available": {
+              "type": "boolean",
+              "description": "Whether local storage is available for recording and saving clips."
+            }
+          },
+          "errorcodes": {}
+        },
+        "start_recording": {
+          "description": "Start dashcam recording. The action succeeds only when recording is stopped and local storage is available; otherwise it is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "recording_state",
+            "storage_available"
+          ],
+          "writes": [
+            "recording_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "recording_state": {
+                "value": "recording"
+              }
+            },
+            "preconditions": {
+              "recording_state": "stopped",
+              "storage_available": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "Recording must be stopped and local storage must be available."
+          }
+        },
+        "stop_recording": {
+          "description": "Stop active dashcam recording. The action is rejected without mutation when the dashcam is already stopped.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "recording_state"
+          ],
+          "writes": [
+            "recording_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "recording_state": {
+                "value": "stopped"
+              }
+            },
+            "preconditions": {
+              "recording_state": "recording"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The dashcam must be recording before it can be stopped."
+          }
+        },
+        "save_current_segment": {
+          "description": "Save the current recording segment as a new retained simulated clip and return its stable clip ID. The action succeeds only while recording and when local storage is available; failure leaves all existing clips unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "recording_state",
+            "storage_available",
+            "clips"
+          ],
+          "writes": [
+            "clips"
+          ],
+          "semantics": {
+            "kind": "collection_add",
+            "property": "clips",
+            "fields": {
+              "retained": {
+                "value": true
+              }
+            },
+            "response_key": "clip_id",
+            "preconditions": {
+              "recording_state": "recording",
+              "storage_available": true
+            }
+          },
+          "response": {
+            "clip_id": {
+              "type": "string",
+              "description": "Stable ID assigned to the newly saved clip."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "A segment can be saved only while recording with local storage available."
+          }
+        },
+        "get_clip": {
+          "description": "Return the simulated clip identified by clip_id. An unknown ID is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "clip_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "clip_1"
+                ]
+              }
+            },
+            "required": [
+              "clip_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "clips"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "clips",
+            "id_parameter": "clip_id",
+            "response_key": "clip",
+            "preconditions": {
+              "clips": {
+                "contains_key": {
+                  "parameter": "clip_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "clip_id": {
+              "property": "clips",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "clip": {
+              "type": "object",
+              "description": "The requested simulated clip record, including its retained flag."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "No saved clip exists with the supplied clip_id."
+          }
+        },
+        "set_clip_retained": {
+          "description": "Set whether a saved simulated clip is retained. Only the retained field of the selected clip changes; all other clips are preserved. An unknown ID or invalid value leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "clip_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "clip_1"
+                ]
+              },
+              "retained": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "clip_id",
+              "retained"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "clips"
+          ],
+          "writes": [
+            "clips"
+          ],
+          "semantics": {
+            "kind": "collection_update",
+            "property": "clips",
+            "id_parameter": "clip_id",
+            "fields": {
+              "retained": {
+                "parameter": "retained"
+              }
+            },
+            "preconditions": {
+              "clips": {
+                "contains_key": {
+                  "parameter": "clip_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "clip_id": {
+              "property": "clips",
+              "field": "$key"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "No saved clip exists with the supplied clip_id."
+          }
+        },
+        "delete_clip": {
+          "description": "Permanently delete the saved simulated clip identified by clip_id, whether retained or unretained. All other clips are preserved. An unknown ID is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "clip_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "clip_1"
+                ]
+              }
+            },
+            "required": [
+              "clip_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "clips"
+          ],
+          "writes": [
+            "clips"
+          ],
+          "semantics": {
+            "kind": "collection_delete",
+            "property": "clips",
+            "id_parameter": "clip_id",
+            "preconditions": {
+              "clips": {
+                "contains_key": {
+                  "parameter": "clip_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "clip_id": {
+              "property": "clips",
+              "field": "$key"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "No saved clip exists with the supplied clip_id."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

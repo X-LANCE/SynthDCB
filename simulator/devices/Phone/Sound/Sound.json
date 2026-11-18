@@ -1,0 +1,779 @@
+{
+  "Sound": {
+    "meta": {
+      "name": "Sound",
+      "description": "Sound settings, placed in Setting and contained by System. Supports separate media, ringtone, notification, and alarm volumes, switching among normal, vibrate, and silent modes, setting incoming-call vibration preferences, and selecting ringtones and notification sounds from local synthetic resources. Volumes are represented uniformly as 0–100%, with native-level mappings declared. Fixed platform rules linking volume streams must be explicit; all streams cannot be treated as one master volume. Supports querying the current audio output route and selecting among connected, available outputs. Bluetooth device connections are owned by Bluetooth. Focus affects interruption permission only and does not overwrite stored volumes. The virtual Space does not hold physical sound properties.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "media_volume": {
+          "type": "integer",
+          "description": "Independent media-stream volume from 0 through 100 percent. It maps to synthetic native levels 0 through 25 using floor((percentage * 25 + 50) / 100).",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "unit": "percent",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "ringtone_volume": {
+          "type": "integer",
+          "description": "Independent ringtone-stream volume from 0 through 100 percent. It maps to synthetic native levels 0 through 7 using floor((percentage * 7 + 50) / 100). Changing it does not change notification volume.",
+          "mode": 3,
+          "value": {
+            "default": 70,
+            "unit": "percent",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "notification_volume": {
+          "type": "integer",
+          "description": "Independent notification-stream volume from 0 through 100 percent. It maps to synthetic native levels 0 through 7 using floor((percentage * 7 + 50) / 100). Changing it does not change ringtone volume.",
+          "mode": 3,
+          "value": {
+            "default": 70,
+            "unit": "percent",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "alarm_volume": {
+          "type": "integer",
+          "description": "Independent alarm-stream volume from 0 through 100 percent. It maps to synthetic native levels 0 through 15 using floor((percentage * 15 + 50) / 100).",
+          "mode": 3,
+          "value": {
+            "default": 80,
+            "unit": "percent",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "ringer_mode": {
+          "type": "string",
+          "description": "Current incoming-call audible-alert policy. Normal permits the configured ringtone, vibrate suppresses the ringtone in favor of vibration when allowed by the vibration preference, and silent suppresses ringtone and incoming-call vibration. Changing mode preserves every stored stream volume.",
+          "mode": 3,
+          "value": {
+            "default": "normal",
+            "choices": [
+              "normal",
+              "vibrate",
+              "silent"
+            ]
+          }
+        },
+        "incoming_call_vibration": {
+          "type": "string",
+          "description": "Incoming-call vibration preference. Never disables call vibration; vibrate_mode permits it only in vibrate ringer mode; always permits it in normal and vibrate modes. Silent mode still suppresses incoming-call vibration. This preference does not change ringer mode or volumes.",
+          "mode": 3,
+          "value": {
+            "default": "vibrate_mode",
+            "choices": [
+              "never",
+              "vibrate_mode",
+              "always"
+            ]
+          }
+        },
+        "ringtone": {
+          "type": "string",
+          "description": "Selected local synthetic ringtone resource. None represents no ringtone resource and does not alter ringtone volume.",
+          "mode": 3,
+          "value": {
+            "default": "classic_ring",
+            "choices": [
+              "classic_ring",
+              "digital_ring",
+              "gentle_ring",
+              "none"
+            ]
+          }
+        },
+        "notification_sound": {
+          "type": "string",
+          "description": "Selected local synthetic notification-sound resource. None represents no notification sound and does not alter notification volume.",
+          "mode": 3,
+          "value": {
+            "default": "chime",
+            "choices": [
+              "chime",
+              "pop",
+              "soft_bell",
+              "none"
+            ]
+          }
+        },
+        "available_outputs": {
+          "type": "dict",
+          "description": "Read-only collection of currently connected and available audio outputs keyed by route ID. Each record has label and kind fields. The deterministic standalone model contains the always-available built-in speaker and earpiece. Sound does not create Bluetooth connections.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "speaker": {
+                "label": "Built-in speaker",
+                "kind": "speaker"
+              },
+              "earpiece": {
+                "label": "Built-in earpiece",
+                "kind": "earpiece"
+              }
+            }
+          }
+        },
+        "output_route": {
+          "type": "string",
+          "description": "ID of the currently selected connected, available audio output.",
+          "mode": 2,
+          "value": {
+            "default": "speaker",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "max_length": 128
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_media_volume": {
+          "description": "Return the independent media volume percentage.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "media_volume"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "media_volume",
+            "response_key": "media_volume",
+            "preconditions": {}
+          },
+          "response": {
+            "media_volume": {
+              "type": "integer",
+              "description": "Current media volume percentage."
+            }
+          }
+        },
+        "set_media_volume": {
+          "description": "Set media volume to a whole percentage from 0 through 100. No other volume stream changes. Invalid values leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1,
+                "examples": [
+                  0,
+                  50,
+                  100
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "media_volume"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "media_volume",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_ringtone_volume": {
+          "description": "Return the independent ringtone volume percentage.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "ringtone_volume"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "ringtone_volume",
+            "response_key": "ringtone_volume",
+            "preconditions": {}
+          },
+          "response": {
+            "ringtone_volume": {
+              "type": "integer",
+              "description": "Current ringtone volume percentage."
+            }
+          }
+        },
+        "set_ringtone_volume": {
+          "description": "Set ringtone volume to a whole percentage from 0 through 100. Notification, media, and alarm volumes remain unchanged. Invalid values leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1,
+                "examples": [
+                  0,
+                  70,
+                  100
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "ringtone_volume"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "ringtone_volume",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_notification_volume": {
+          "description": "Return the independent notification volume percentage.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "notification_volume"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "notification_volume",
+            "response_key": "notification_volume",
+            "preconditions": {}
+          },
+          "response": {
+            "notification_volume": {
+              "type": "integer",
+              "description": "Current notification volume percentage."
+            }
+          }
+        },
+        "set_notification_volume": {
+          "description": "Set notification volume to a whole percentage from 0 through 100. Ringtone, media, and alarm volumes remain unchanged. Invalid values leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1,
+                "examples": [
+                  0,
+                  70,
+                  100
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "notification_volume"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "notification_volume",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_alarm_volume": {
+          "description": "Return the independent alarm volume percentage.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "alarm_volume"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "alarm_volume",
+            "response_key": "alarm_volume",
+            "preconditions": {}
+          },
+          "response": {
+            "alarm_volume": {
+              "type": "integer",
+              "description": "Current alarm volume percentage."
+            }
+          }
+        },
+        "set_alarm_volume": {
+          "description": "Set alarm volume to a whole percentage from 0 through 100. Media, ringtone, and notification volumes remain unchanged. Invalid values leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1,
+                "examples": [
+                  0,
+                  80,
+                  100
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "alarm_volume"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "alarm_volume",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_ringer_mode": {
+          "description": "Return the current ringer mode without changing stored stream volumes.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "ringer_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "ringer_mode",
+            "response_key": "ringer_mode",
+            "preconditions": {}
+          },
+          "response": {
+            "ringer_mode": {
+              "type": "string",
+              "description": "Current mode: normal, vibrate, or silent."
+            }
+          }
+        },
+        "set_ringer_mode": {
+          "description": "Set ringer mode to normal, vibrate, or silent. The operation preserves all stream volumes, sound selections, and the incoming-call vibration preference. Invalid modes leave state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "normal",
+                  "vibrate",
+                  "silent"
+                ],
+                "examples": [
+                  "normal",
+                  "vibrate",
+                  "silent"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "ringer_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "ringer_mode",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_incoming_call_vibration": {
+          "description": "Return the current incoming-call vibration preference.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "incoming_call_vibration"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "incoming_call_vibration",
+            "response_key": "incoming_call_vibration",
+            "preconditions": {}
+          },
+          "response": {
+            "incoming_call_vibration": {
+              "type": "string",
+              "description": "Current preference: never, vibrate_mode, or always."
+            }
+          }
+        },
+        "set_incoming_call_vibration": {
+          "description": "Set the incoming-call vibration preference to never, vibrate_mode, or always. This does not change ringer mode or any volume. Invalid values leave state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "never",
+                  "vibrate_mode",
+                  "always"
+                ],
+                "examples": [
+                  "never",
+                  "vibrate_mode",
+                  "always"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "incoming_call_vibration"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "incoming_call_vibration",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_ringtone": {
+          "description": "Return the selected local synthetic ringtone resource.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "ringtone"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "ringtone",
+            "response_key": "ringtone",
+            "preconditions": {}
+          },
+          "response": {
+            "ringtone": {
+              "type": "string",
+              "description": "Selected synthetic ringtone resource ID."
+            }
+          }
+        },
+        "set_ringtone": {
+          "description": "Select classic_ring, digital_ring, gentle_ring, or none as the local synthetic ringtone. The operation does not change ringtone volume or ringer mode. Invalid values leave state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "classic_ring",
+                  "digital_ring",
+                  "gentle_ring",
+                  "none"
+                ],
+                "examples": [
+                  "classic_ring",
+                  "gentle_ring",
+                  "none"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "ringtone"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "ringtone",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_notification_sound": {
+          "description": "Return the selected local synthetic notification-sound resource.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "notification_sound"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "notification_sound",
+            "response_key": "notification_sound",
+            "preconditions": {}
+          },
+          "response": {
+            "notification_sound": {
+              "type": "string",
+              "description": "Selected synthetic notification-sound resource ID."
+            }
+          }
+        },
+        "set_notification_sound": {
+          "description": "Select chime, pop, soft_bell, or none as the local synthetic notification sound. The operation does not change notification volume. Invalid values leave state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "chime",
+                  "pop",
+                  "soft_bell",
+                  "none"
+                ],
+                "examples": [
+                  "chime",
+                  "soft_bell",
+                  "none"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "notification_sound"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "notification_sound",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_available_output": {
+          "description": "Return one currently connected, available audio-output record by route ID. Unknown or unavailable IDs are rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "output_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "speaker",
+                  "earpiece"
+                ]
+              }
+            },
+            "required": [
+              "output_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "available_outputs"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "available_outputs",
+            "id_parameter": "output_id",
+            "response_key": "output",
+            "preconditions": {
+              "available_outputs": {
+                "contains_key": {
+                  "parameter": "output_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "output_id": {
+              "property": "available_outputs",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "output": {
+              "type": "object",
+              "description": "The available output record containing its label and kind."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The output ID is not currently connected and available."
+          }
+        },
+        "get_output_route": {
+          "description": "Return the ID of the currently selected audio output route.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "output_route"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "output_route",
+            "response_key": "output_route",
+            "preconditions": {}
+          },
+          "response": {
+            "output_route": {
+              "type": "string",
+              "description": "Currently selected connected, available output ID."
+            }
+          }
+        },
+        "select_output_route": {
+          "description": "Select an output route that is present in available_outputs. This resolves routing immediately but does not connect or disconnect any Bluetooth or other external device. Unknown or unavailable IDs leave the current route unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "output_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "speaker",
+                  "earpiece"
+                ]
+              }
+            },
+            "required": [
+              "output_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "available_outputs"
+          ],
+          "writes": [
+            "output_route"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "output_route": {
+                "parameter": "output_id"
+              }
+            },
+            "preconditions": {
+              "available_outputs": {
+                "contains_key": {
+                  "parameter": "output_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "output_id": {
+              "property": "available_outputs",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The output ID is not currently connected and available."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

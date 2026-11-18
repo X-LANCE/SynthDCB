@@ -1,0 +1,239 @@
+{
+  "Television": {
+    "meta": {
+      "name": "Television",
+      "description": "A television variant. It adds channel selection, program playback, and casting states to the base display capabilities, and users can query and set the current channel or media content.",
+      "version": "1.0.0",
+      "from": "../Monitor.json"
+    },
+    "properties": {
+      "update": {
+        "channel": {
+          "type": "integer",
+          "description": "The currently selected television channel.",
+          "mode": 3,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 999,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "media_content": {
+          "type": "string",
+          "description": "The program or media content currently selected for playback.",
+          "mode": 3,
+          "value": {
+            "default": "",
+            "max_length": 256
+          }
+        },
+        "casting": {
+          "type": "boolean",
+          "description": "Whether the television is currently displaying cast content.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_channel": {
+          "description": "Return the currently selected television channel. Available only while the television is powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "channel"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "channel",
+            "response_key": "channel",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "channel": {
+              "type": "integer",
+              "description": "The selected television channel."
+            }
+          }
+        },
+        "set_channel": {
+          "description": "Select a television channel from 1 through 999. Available only while the television is powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 999,
+                "description": "The television channel to select."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "channel"
+          ],
+          "writes": [
+            "channel"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "channel",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_media_content": {
+          "description": "Return the program or media content currently selected for playback. Available only while the television is powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "media_content"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "media_content",
+            "response_key": "media_content",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "media_content": {
+              "type": "string",
+              "description": "The selected program or media content."
+            }
+          }
+        },
+        "set_media_content": {
+          "description": "Set the program or media content selected for playback. The value may be an empty string to clear the selection. Available only while the television is powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "maxLength": 256,
+                "description": "The program or media content to select."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "media_content"
+          ],
+          "writes": [
+            "media_content"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "media_content",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_casting": {
+          "description": "Return whether the television is currently displaying cast content. Available only while the television is powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "casting"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "casting",
+            "response_key": "casting",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "casting": {
+              "type": "boolean",
+              "description": "Whether cast content is being displayed."
+            }
+          }
+        },
+        "set_casting": {
+          "description": "Set whether the television is displaying cast content. Available only while the television is powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether cast content should be displayed."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "casting"
+          ],
+          "writes": [
+            "casting"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "casting",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

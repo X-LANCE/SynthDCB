@@ -1,0 +1,516 @@
+{
+  "Connectivity": {
+    "meta": {
+      "name": "Connectivity",
+      "description": "Cellular data and network availability settings, placed in Setting and contained by System. Supports querying SIM and cellular service state, enabling/disabling mobile data, setting data roaming permission, and querying the current upstream network and internet availability. SIM slot count is a read-only capability; signal strength, link state, and internet availability are read-only feedback. Effective mobile data availability requires a valid SIM, service coverage, and satisfied airplane-mode dependencies. Enabling the switch does not guarantee connection, and allowing roaming does not mean the device is currently roaming. Wi-Fi connection state is owned by WiFi; this module only references it in its aggregated view.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "sim_slot_count": {
+          "type": "integer",
+          "description": "Fixed number of cellular SIM slots supported by this simulated phone.",
+          "mode": 2,
+          "value": {
+            "default": 1,
+            "unit": "slots",
+            "minimum": 1,
+            "maximum": 1,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "sim_state": {
+          "type": "string",
+          "description": "Read-only state of the SIM used for cellular data. Ready indicates a valid usable SIM, absent indicates no SIM, and invalid indicates a present but unusable SIM.",
+          "mode": 2,
+          "value": {
+            "default": "ready",
+            "choices": [
+              "absent",
+              "invalid",
+              "ready"
+            ]
+          }
+        },
+        "service_state": {
+          "type": "string",
+          "description": "Read-only cellular service feedback. Home and roaming indicate coverage, while unavailable indicates that cellular service cannot currently be used.",
+          "mode": 2,
+          "value": {
+            "default": "home",
+            "choices": [
+              "unavailable",
+              "home",
+              "roaming"
+            ]
+          }
+        },
+        "mobile_data_enabled": {
+          "type": "boolean",
+          "description": "Whether use of cellular mobile data is requested. Enabling this setting does not by itself guarantee a cellular connection or internet access.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "data_roaming_enabled": {
+          "type": "boolean",
+          "description": "Whether cellular data use is permitted while roaming. This permission does not indicate that the phone is currently roaming.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "signal_strength_percent": {
+          "type": "integer",
+          "description": "Read-only normalized cellular signal strength from 0 through 100 percent. This synthetic percentage is feedback and does not by itself establish connectivity.",
+          "mode": 2,
+          "value": {
+            "default": 75,
+            "unit": "percent",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "cellular_link_state": {
+          "type": "string",
+          "description": "Read-only cellular data link feedback derived from the mobile-data setting, SIM state, service state, signal strength, roaming permission, and airplane-mode dependency.",
+          "mode": 2,
+          "value": {
+            "default": "disconnected",
+            "choices": [
+              "disconnected",
+              "connected"
+            ]
+          }
+        },
+        "upstream_network": {
+          "type": "string",
+          "description": "Read-only aggregated upstream network selected by the simulation. An active Wi-Fi connection has priority over an eligible connected cellular link. Wi-Fi state remains owned by WiFi.",
+          "mode": 2,
+          "value": {
+            "default": "none",
+            "choices": [
+              "none",
+              "cellular",
+              "wifi"
+            ]
+          }
+        },
+        "internet_available": {
+          "type": "boolean",
+          "description": "Read-only deterministic internet-availability feedback for the selected upstream. It is true when dependency recomputation selects an active Wi-Fi connection or an eligible connected cellular link, and false when no upstream is selected.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_sim_slot_count": {
+          "description": "Return the fixed number of cellular SIM slots supported by this simulated phone.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "sim_slot_count"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "sim_slot_count",
+            "response_key": "sim_slot_count",
+            "preconditions": {}
+          },
+          "response": {
+            "sim_slot_count": {
+              "type": "integer",
+              "description": "Number of supported SIM slots."
+            }
+          }
+        },
+        "get_sim_state": {
+          "description": "Return whether the cellular-data SIM is absent, invalid, or ready without changing its state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "sim_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "sim_state",
+            "response_key": "sim_state",
+            "preconditions": {}
+          },
+          "response": {
+            "sim_state": {
+              "type": "string",
+              "description": "Current cellular-data SIM state."
+            }
+          }
+        },
+        "get_service_state": {
+          "description": "Return the current cellular service feedback as unavailable, home, or roaming. This does not change roaming permission.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "service_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "service_state",
+            "response_key": "service_state",
+            "preconditions": {}
+          },
+          "response": {
+            "service_state": {
+              "type": "string",
+              "description": "Current cellular service state."
+            }
+          }
+        },
+        "get_mobile_data_enabled": {
+          "description": "Return whether cellular mobile data is enabled as a user setting. The result does not by itself assert that a cellular link or internet access is available.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "mobile_data_enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "mobile_data_enabled",
+            "response_key": "mobile_data_enabled",
+            "preconditions": {}
+          },
+          "response": {
+            "mobile_data_enabled": {
+              "type": "boolean",
+              "description": "Current mobile-data enabled setting."
+            }
+          }
+        },
+        "set_mobile_data_enabled": {
+          "description": "Enable or disable the mobile-data setting. Disabling immediately makes an existing cellular link ineligible and clears cellular-derived upstream and internet feedback while preserving any Wi-Fi upstream. Enabling does not manufacture a connection; full derived feedback is recomputed when network dependencies are evaluated. Invalid input is rejected and leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Desired mobile-data enabled setting.",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "sim_state",
+            "service_state",
+            "mobile_data_enabled",
+            "data_roaming_enabled",
+            "signal_strength_percent",
+            "upstream_network"
+          ],
+          "writes": [
+            "mobile_data_enabled",
+            "cellular_link_state",
+            "upstream_network",
+            "internet_available"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "mobile_data_enabled",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_data_roaming_enabled": {
+          "description": "Return whether cellular data use is permitted while roaming. This permission is independent of the current service state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "data_roaming_enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "data_roaming_enabled",
+            "response_key": "data_roaming_enabled",
+            "preconditions": {}
+          },
+          "response": {
+            "data_roaming_enabled": {
+              "type": "boolean",
+              "description": "Current data-roaming permission."
+            }
+          }
+        },
+        "set_data_roaming_enabled": {
+          "description": "Permit or deny cellular data use while roaming. If service is currently roaming, denying permission immediately disconnects an existing cellular link and clears cellular-derived upstream and internet feedback while preserving any Wi-Fi upstream. This setting does not make the phone enter or leave roaming service. Invalid input is rejected and leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether cellular data should be permitted while roaming.",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "sim_state",
+            "service_state",
+            "mobile_data_enabled",
+            "data_roaming_enabled",
+            "signal_strength_percent",
+            "upstream_network"
+          ],
+          "writes": [
+            "data_roaming_enabled",
+            "cellular_link_state",
+            "upstream_network",
+            "internet_available"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "data_roaming_enabled",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_signal_strength_percent": {
+          "description": "Return the current normalized cellular signal-strength feedback from 0 through 100 percent without changing connectivity.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "signal_strength_percent"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "signal_strength_percent",
+            "response_key": "signal_strength_percent",
+            "preconditions": {}
+          },
+          "response": {
+            "signal_strength_percent": {
+              "type": "integer",
+              "description": "Current normalized cellular signal strength percentage."
+            }
+          }
+        },
+        "get_cellular_link_state": {
+          "description": "Return the current read-only cellular data link state. This feedback is distinct from the mobile-data switch.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "cellular_link_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cellular_link_state",
+            "response_key": "cellular_link_state",
+            "preconditions": {}
+          },
+          "response": {
+            "cellular_link_state": {
+              "type": "string",
+              "description": "Current cellular link state."
+            }
+          }
+        },
+        "get_upstream_network": {
+          "description": "Return the phone's current aggregated upstream selection as none, cellular, or wifi. This query does not modify Wi-Fi or cellular state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "upstream_network"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "upstream_network",
+            "response_key": "upstream_network",
+            "preconditions": {}
+          },
+          "response": {
+            "upstream_network": {
+              "type": "string",
+              "description": "Current aggregated upstream network selection."
+            }
+          }
+        },
+        "get_internet_available": {
+          "description": "Return whether internet access is currently available through the deterministically selected upstream network.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "internet_available"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "internet_available",
+            "response_key": "internet_available",
+            "preconditions": {}
+          },
+          "response": {
+            "internet_available": {
+              "type": "boolean",
+              "description": "Whether internet access is currently available through the selected upstream."
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "After a successful setting change, immediately disconnects cellular feedback whenever local cellular requirements are no longer satisfied. Disabling mobile data always disconnects cellular service. Denying roaming while service is roaming also disconnects cellular service. If the removed link was the cellular upstream, the upstream becomes none and internet availability becomes false; an existing Wi-Fi upstream is preserved.",
+          "effect_properties": [
+            {
+              "name": "sim_state",
+              "description": "SIM usability used to determine whether cellular service remains locally eligible."
+            },
+            {
+              "name": "service_state",
+              "description": "Coverage and roaming state used to determine whether cellular service remains locally eligible."
+            },
+            {
+              "name": "mobile_data_enabled",
+              "description": "Mobile-data request whose disabled state invalidates a cellular link."
+            },
+            {
+              "name": "data_roaming_enabled",
+              "description": "Roaming permission required when cellular service is roaming."
+            },
+            {
+              "name": "signal_strength_percent",
+              "description": "Cellular signal feedback whose zero value makes the cellular link locally ineligible."
+            },
+            {
+              "name": "cellular_link_state",
+              "description": "Derived cellular link feedback cleared when local requirements fail."
+            },
+            {
+              "name": "upstream_network",
+              "description": "Aggregated upstream selection cleared only when its invalidated source is cellular."
+            },
+            {
+              "name": "internet_available",
+              "description": "Internet feedback cleared when no valid upstream remains."
+            }
+          ]
+        },
+        "dependency_changed": {
+          "description": "When airplane-mode or Wi-Fi connection dependencies change, deterministically recomputes all derived connectivity feedback. Cellular is connected only when mobile data is enabled, the SIM is ready, service is available, signal strength is positive, roaming is permitted when required, and airplane mode is disabled. An enabled Wi-Fi connection is selected before cellular; otherwise eligible cellular is selected, and no eligible link produces no upstream. Internet availability is true exactly when this recomputation selects an upstream.",
+          "effect_properties": [
+            {
+              "name": "sim_state",
+              "description": "SIM usability required for an eligible cellular link."
+            },
+            {
+              "name": "service_state",
+              "description": "Cellular coverage and roaming state used in cellular eligibility."
+            },
+            {
+              "name": "mobile_data_enabled",
+              "description": "Requested mobile-data state used in cellular eligibility."
+            },
+            {
+              "name": "data_roaming_enabled",
+              "description": "Permission required for cellular eligibility while roaming."
+            },
+            {
+              "name": "signal_strength_percent",
+              "description": "Normalized signal feedback required to be positive for cellular eligibility."
+            },
+            {
+              "name": "cellular_link_state",
+              "description": "Derived cellular link state recomputed from cellular settings and dependencies."
+            },
+            {
+              "name": "upstream_network",
+              "description": "Derived aggregate upstream selected from Wi-Fi and cellular availability."
+            },
+            {
+              "name": "internet_available",
+              "description": "Derived availability indicating whether the recomputation selected an upstream."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

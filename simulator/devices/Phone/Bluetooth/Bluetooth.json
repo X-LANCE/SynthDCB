@@ -1,0 +1,615 @@
+{
+  "Bluetooth": {
+    "meta": {
+      "name": "Bluetooth",
+      "description": "Bluetooth settings, placed in Setting and contained by System. Supports enabling/disabling Bluetooth, scanning simulated nearby devices, querying devices, requesting pairing, unpairing, connecting, and disconnecting, with separate queries for pairing records, active connections, and profiles such as audio. Devices use stable IDs. Scanning, pairing, and connecting require Bluetooth to be enabled and comply with airplane-mode policy. Pairing confirmation may be denied, and a paired device is not guaranteed to connect. Disabling Bluetooth ends active connections but preserves pairing records. Unpairing removes the specified record and ends its connection without affecting other records. Connection capacity and supported profiles are read-only simulation capabilities.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether Bluetooth is enabled. Enabling does not scan, pair, or connect automatically.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "radio_allowed": {
+          "type": "boolean",
+          "description": "Whether the current phone airplane-mode policy permits Bluetooth radio use. A false value prevents enabling, scanning, pairing, and connecting.",
+          "mode": 2,
+          "value": {
+            "default": true
+          }
+        },
+        "nearby_devices": {
+          "type": "dict",
+          "description": "Deterministic simulated nearby devices keyed by stable device ID. Each record contains a display name, supported profile IDs, and a pairing confirmation outcome.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "headphones_1": {
+                "name": "Simulated Headphones",
+                "supported_profiles": [
+                  "audio"
+                ],
+                "pairing_confirmation": "accepted"
+              },
+              "keyboard_1": {
+                "name": "Simulated Keyboard",
+                "supported_profiles": [
+                  "input"
+                ],
+                "pairing_confirmation": "accepted"
+              },
+              "speaker_denied": {
+                "name": "Confirmation-Denied Speaker",
+                "supported_profiles": [
+                  "audio"
+                ],
+                "pairing_confirmation": "denied"
+              }
+            }
+          }
+        },
+        "paired_devices": {
+          "type": "dict",
+          "description": "Persistent pairing records keyed by stable device ID. Each record retains the simulated device name and supported profiles.",
+          "mode": 2,
+          "value": {
+            "default": {}
+          }
+        },
+        "active_connections": {
+          "type": "dict",
+          "description": "Active Bluetooth connections keyed by paired device ID. Each record identifies the connected profile. Records are cleared when Bluetooth is disabled or blocked by airplane-mode policy.",
+          "mode": 2,
+          "value": {
+            "default": {}
+          }
+        },
+        "supported_profiles": {
+          "type": "dict",
+          "description": "Read-only Bluetooth profiles supported by this simulated phone, keyed by profile ID.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "audio": {
+                "name": "Audio"
+              },
+              "input": {
+                "name": "Input"
+              }
+            }
+          }
+        },
+        "connection_capacity": {
+          "type": "integer",
+          "description": "Maximum number of simultaneously connected device records supported by this simulation.",
+          "mode": 2,
+          "value": {
+            "default": 1,
+            "unit": "devices",
+            "minimum": 1,
+            "maximum": 1,
+            "step": 1,
+            "step_origin": 1
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_enabled": {
+          "description": "Return whether Bluetooth is currently enabled.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "enabled",
+            "response_key": "enabled",
+            "preconditions": {}
+          },
+          "response": {
+            "enabled": {
+              "type": "boolean",
+              "description": "The current Bluetooth enabled state."
+            }
+          }
+        },
+        "set_enabled": {
+          "description": "Enable or disable Bluetooth. Enabling is rejected when radio_allowed is false. Disabling immediately removes every active connection while preserving all pairing records. Invalid or blocked requests leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "description": "The desired Bluetooth enabled state.",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "enabled"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "radio_allowed",
+            "active_connections"
+          ],
+          "writes": [
+            "enabled",
+            "active_connections"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "enabled",
+            "parameter": "enabled",
+            "preconditions": {}
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "Bluetooth cannot be enabled while the effective airplane-mode radio policy blocks it."
+          }
+        },
+        "get_radio_allowed": {
+          "description": "Return whether the effective airplane-mode policy currently permits Bluetooth radio use.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "radio_allowed"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "radio_allowed",
+            "response_key": "radio_allowed",
+            "preconditions": {}
+          },
+          "response": {
+            "radio_allowed": {
+              "type": "boolean",
+              "description": "Whether current phone policy permits Bluetooth radio use."
+            }
+          }
+        },
+        "scan": {
+          "description": "Return the deterministic simulated nearby-device dictionary. Bluetooth must be enabled and permitted by airplane-mode policy. Scanning does not pair or connect any device and does not change state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "enabled",
+            "radio_allowed",
+            "nearby_devices"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "nearby_devices",
+            "response_key": "nearby_devices",
+            "preconditions": {
+              "enabled": true,
+              "radio_allowed": true
+            }
+          },
+          "response": {
+            "nearby_devices": {
+              "type": "object",
+              "description": "Nearby simulated devices keyed by stable device ID."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "Bluetooth is disabled or blocked by airplane-mode policy."
+          }
+        },
+        "get_paired_devices": {
+          "description": "Return all persistent Bluetooth pairing records keyed by stable device ID. Pairing records remain available when Bluetooth is disabled.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "paired_devices"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "paired_devices",
+            "response_key": "paired_devices",
+            "preconditions": {}
+          },
+          "response": {
+            "paired_devices": {
+              "type": "object",
+              "description": "Persistent pairing records keyed by stable device ID."
+            }
+          }
+        },
+        "get_active_connections": {
+          "description": "Return all active Bluetooth connection records keyed by paired device ID.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "active_connections"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "active_connections",
+            "response_key": "active_connections",
+            "preconditions": {}
+          },
+          "response": {
+            "active_connections": {
+              "type": "object",
+              "description": "Active connection records keyed by paired device ID."
+            }
+          }
+        },
+        "get_supported_profiles": {
+          "description": "Return the read-only dictionary of Bluetooth profiles supported by this simulated phone.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "supported_profiles"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "supported_profiles",
+            "response_key": "supported_profiles",
+            "preconditions": {}
+          },
+          "response": {
+            "supported_profiles": {
+              "type": "object",
+              "description": "Supported Bluetooth profiles keyed by profile ID."
+            }
+          }
+        },
+        "get_connection_capacity": {
+          "description": "Return the read-only maximum number of simultaneous connected device records supported by this simulation.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "connection_capacity"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "connection_capacity",
+            "response_key": "connection_capacity",
+            "preconditions": {}
+          },
+          "response": {
+            "connection_capacity": {
+              "type": "integer",
+              "description": "Maximum simultaneous connected-device count."
+            }
+          }
+        },
+        "request_pairing": {
+          "description": "Request pairing with a simulated nearby device. Bluetooth must be enabled and permitted, and device_id must identify a nearby device. A record whose pairing_confirmation is denied causes a deterministic rejection and no state change. An accepted request creates or preserves the pairing under the same stable device ID without connecting it or changing unrelated records.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "device_id": {
+                "type": "string",
+                "description": "Stable ID of an existing simulated nearby device.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "headphones_1",
+                  "keyboard_1",
+                  "speaker_denied"
+                ]
+              }
+            },
+            "required": [
+              "device_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "enabled",
+            "radio_allowed",
+            "nearby_devices",
+            "paired_devices"
+          ],
+          "writes": [
+            "paired_devices"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Pairing must preserve the nearby device's stable ID, copy selected record fields, and conditionally reject the request according to that record's deterministic confirmation outcome.",
+            "preconditions": {
+              "enabled": true,
+              "radio_allowed": true,
+              "nearby_devices": {
+                "contains_key": {
+                  "parameter": "device_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "device_id": {
+              "property": "nearby_devices",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "device_id": {
+              "type": "string",
+              "description": "Stable ID of the successfully paired device."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The nearby device ID does not exist.",
+            "PRECONDITION_FAILED": "Bluetooth is disabled or blocked by airplane-mode policy.",
+            "PAIRING_DENIED": "The simulated device denied pairing confirmation."
+          }
+        },
+        "unpair": {
+          "description": "Remove one existing pairing record by stable device ID and remove that device's active connection if present. Every unrelated pairing and connection record is preserved. An unknown ID is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "device_id": {
+                "type": "string",
+                "description": "Stable ID of an existing paired device.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "headphones_1",
+                  "keyboard_1"
+                ]
+              }
+            },
+            "required": [
+              "device_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "paired_devices",
+            "active_connections"
+          ],
+          "writes": [
+            "paired_devices",
+            "active_connections"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Unpairing atomically deletes the selected pairing and conditionally deletes the matching active connection while preserving all unrelated records.",
+            "preconditions": {
+              "paired_devices": {
+                "contains_key": {
+                  "parameter": "device_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "device_id": {
+              "property": "paired_devices",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The paired device ID does not exist."
+          }
+        },
+        "connect": {
+          "description": "Connect one paired device using a supported profile. Bluetooth must be enabled and permitted. The device must be paired, the profile must be supported by both the phone and that device, and the active connected-device count must remain within connection_capacity. Repeating the same device and profile is idempotent. A failed request leaves every connection unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "device_id": {
+                "type": "string",
+                "description": "Stable ID of an existing paired device.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "headphones_1",
+                  "keyboard_1"
+                ]
+              },
+              "profile": {
+                "type": "string",
+                "description": "Bluetooth profile to activate for the connection.",
+                "enum": [
+                  "audio",
+                  "input"
+                ],
+                "examples": [
+                  "audio",
+                  "input"
+                ]
+              }
+            },
+            "required": [
+              "device_id",
+              "profile"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "enabled",
+            "radio_allowed",
+            "paired_devices",
+            "active_connections",
+            "supported_profiles",
+            "connection_capacity"
+          ],
+          "writes": [
+            "active_connections"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Connection creation must validate phone and device profile support, enforce capacity across the active connection collection, and store the result under the paired device's stable ID.",
+            "preconditions": {
+              "enabled": true,
+              "radio_allowed": true,
+              "paired_devices": {
+                "contains_key": {
+                  "parameter": "device_id"
+                }
+              },
+              "supported_profiles": {
+                "contains_key": {
+                  "parameter": "profile"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "device_id": {
+              "property": "paired_devices",
+              "field": "$key"
+            },
+            "profile": {
+              "property": "supported_profiles",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "device_id": {
+              "type": "string",
+              "description": "Stable ID of the connected device."
+            },
+            "profile": {
+              "type": "string",
+              "description": "Profile used by the active connection."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The paired device ID or phone profile ID does not exist.",
+            "PRECONDITION_FAILED": "Bluetooth is disabled or blocked by airplane-mode policy.",
+            "UNSUPPORTED_PROFILE": "The paired device does not support the requested profile.",
+            "CAPACITY_REACHED": "Connecting the device would exceed the simulation connection capacity."
+          }
+        },
+        "disconnect": {
+          "description": "Disconnect one actively connected device by stable device ID. The pairing record and every unrelated connection are preserved. An unknown active connection ID is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "device_id": {
+                "type": "string",
+                "description": "Stable ID of an actively connected device.",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 128,
+                "examples": [
+                  "headphones_1",
+                  "keyboard_1"
+                ]
+              }
+            },
+            "required": [
+              "device_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "active_connections"
+          ],
+          "writes": [
+            "active_connections"
+          ],
+          "semantics": {
+            "kind": "collection_delete",
+            "property": "active_connections",
+            "id_parameter": "device_id",
+            "preconditions": {
+              "active_connections": {
+                "contains_key": {
+                  "parameter": "device_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "device_id": {
+              "property": "active_connections",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The active connection ID does not exist."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "dependency_changed": {
+          "description": "When the effective phone airplane-mode policy changes, updates radio_allowed. If the policy becomes blocking, Bluetooth is disabled and all active connections are ended while pairing records are preserved. A later permitted policy does not automatically re-enable or reconnect Bluetooth.",
+          "effect_properties": [
+            {
+              "name": "radio_allowed",
+              "description": "Effective phone policy determining whether Bluetooth radio use is permitted."
+            },
+            {
+              "name": "enabled",
+              "description": "Bluetooth enabled state, which is cleared when radio use becomes blocked."
+            },
+            {
+              "name": "active_connections",
+              "description": "Active connections, which are cleared when radio use becomes blocked."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

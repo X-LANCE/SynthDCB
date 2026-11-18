@@ -1,0 +1,738 @@
+{
+  "ScreenCapture": {
+    "meta": {
+      "name": "ScreenCapture",
+      "description": "Screenshot and screen recording application, placed in Application and contained by System. Supports requesting simulated capture authorization, taking screenshots, starting and stopping screen recording, querying authorization and recording state, and querying or deleting screenshot and completed recording records by stable ID. Records contain only metadata such as type, time, and duration; no actual images or videos are generated. Authorization may be denied or revoked, and protected content or resource conflicts may block capture. Failures create no successful records, and repeated recording starts are rejected. Recording duration uses monotonic time. Normal stopping creates a completed record; authorization revocation or resource loss terminates recording with an explicitly marked interrupted result. Enabling microphone audio recording additionally requires Privacy authorization; screen capture authorization does not replace microphone permission.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "authorization_status": {
+          "type": "string",
+          "description": "Current simulated screen capture authorization state. A granted state permits capture subject to the other interlocks. Explicit revocation interrupts an active recording.",
+          "mode": 2,
+          "value": {
+            "default": "not_requested",
+            "choices": [
+              "not_requested",
+              "granted",
+              "denied",
+              "revoked"
+            ]
+          }
+        },
+        "recording_state": {
+          "type": "string",
+          "description": "Current screen recording lifecycle state. Both normal stopping and interruption return this state to idle; the resulting metadata record identifies the outcome.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "recording"
+            ]
+          }
+        },
+        "microphone_audio_enabled": {
+          "type": "boolean",
+          "description": "Whether newly started screen recordings include simulated microphone-audio metadata. Enabling requires microphone_access_granted, and this setting cannot be changed during recording.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "microphone_access_granted": {
+          "type": "boolean",
+          "description": "Read-only microphone authorization derived exactly from the declared Privacy dependency property microphone_authorized: true maps to true and false maps to false. Screen capture authorization does not grant microphone access.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        },
+        "capture_block_reason": {
+          "type": "string",
+          "description": "Read-only current capture block reason derived from the declared system capture-condition dependency. protected_content_active=true maps to protected_content regardless of resource availability; otherwise capture_resource_available=false maps to resource_conflict; otherwise the value is none.",
+          "mode": 2,
+          "value": {
+            "default": "none",
+            "choices": [
+              "none",
+              "protected_content",
+              "resource_conflict"
+            ]
+          }
+        },
+        "captures": {
+          "type": "dict",
+          "description": "Metadata-only capture records keyed by stable IDs. A screenshot record has exactly type, capture_minute, duration_minutes, and result. A recording record has exactly type, start_minute, end_minute, duration_minutes, microphone_audio_included, result, and interruption_reason. Completed recordings use interruption_reason none; interrupted recordings use authorization_revoked, protected_content, resource_conflict, or microphone_authorization_revoked.",
+          "mode": 2,
+          "value": {
+            "default": {},
+            "schema": {
+              "type": "object",
+              "propertyNames": {
+                "pattern": "^capture_[0-9]{6,}$",
+                "maxLength": 128
+              },
+              "additionalProperties": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "const": "screenshot"
+                      },
+                      "capture_minute": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "duration_minutes": {
+                        "const": 0
+                      },
+                      "result": {
+                        "const": "completed"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "capture_minute",
+                      "duration_minutes",
+                      "result"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "const": "recording"
+                      },
+                      "start_minute": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "end_minute": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "duration_minutes": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "microphone_audio_included": {
+                        "type": "boolean"
+                      },
+                      "result": {
+                        "const": "completed"
+                      },
+                      "interruption_reason": {
+                        "const": "none"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "start_minute",
+                      "end_minute",
+                      "duration_minutes",
+                      "microphone_audio_included",
+                      "result",
+                      "interruption_reason"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "const": "recording"
+                      },
+                      "start_minute": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "end_minute": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "duration_minutes": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "microphone_audio_included": {
+                        "type": "boolean"
+                      },
+                      "result": {
+                        "const": "interrupted"
+                      },
+                      "interruption_reason": {
+                        "type": "string",
+                        "enum": [
+                          "authorization_revoked",
+                          "protected_content",
+                          "resource_conflict",
+                          "microphone_authorization_revoked"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "start_minute",
+                      "end_minute",
+                      "duration_minutes",
+                      "microphone_audio_included",
+                      "result",
+                      "interruption_reason"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "recording_started_at_minute": {
+          "type": "integer",
+          "description": "Internal monotonic elapsed simulation minute at which the active recording started, or zero when no recording is active.",
+          "mode": 0,
+          "value": {
+            "default": 0,
+            "unit": "minutes",
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "next_capture_number": {
+          "type": "integer",
+          "description": "Internal monotonically increasing sequence number used to allocate stable capture IDs without reusing deleted IDs.",
+          "mode": 0,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "step": 1,
+            "step_origin": 1
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_authorization_status": {
+          "description": "Return the current simulated screen capture authorization status without changing it.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "authorization_status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "authorization_status",
+            "response_key": "authorization_status",
+            "preconditions": {}
+          },
+          "response": {
+            "authorization_status": {
+              "type": "string",
+              "description": "Current authorization status: not_requested, granted, denied, or revoked."
+            }
+          }
+        },
+        "request_capture_authorization": {
+          "description": "Resolve a simulated screen capture authorization request using an explicit granted or denied user decision. Requests are accepted only while recording is idle. A granted decision sets authorization_status to granted, and a denied decision sets it to denied. Invalid input or an active recording leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "decision": {
+                "type": "string",
+                "description": "Explicit simulated authorization decision.",
+                "enum": [
+                  "granted",
+                  "denied"
+                ],
+                "examples": [
+                  "granted",
+                  "denied"
+                ]
+              }
+            },
+            "required": [
+              "decision"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "recording_state"
+          ],
+          "writes": [
+            "authorization_status"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The operation applies a resolved simulated user authorization decision to an internally managed authorization state.",
+            "preconditions": {
+              "recording_state": "idle"
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "Capture authorization cannot be requested while a screen recording is active."
+          }
+        },
+        "revoke_capture_authorization": {
+          "description": "Set authorization_status to revoked. If a recording is active, atomically terminate it, allocate one stable capture ID, and create an interrupted recording record with interruption_reason authorization_revoked. Its end_minute is the current monotonic elapsed simulation minute and duration_minutes is max(end_minute minus start_minute, 0). Revocation while idle creates no record. A successful interruption returns recording_state to idle and resets recording_started_at_minute to zero.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "recording_state",
+            "microphone_audio_enabled",
+            "captures",
+            "recording_started_at_minute",
+            "next_capture_number"
+          ],
+          "writes": [
+            "authorization_status",
+            "recording_state",
+            "captures",
+            "recording_started_at_minute",
+            "next_capture_number"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Revocation conditionally terminates an active recording and creates interruption metadata using monotonic simulation time."
+          }
+        },
+        "get_recording_state": {
+          "description": "Return whether screen recording is idle or currently recording.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "recording_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "recording_state",
+            "response_key": "recording_state",
+            "preconditions": {}
+          },
+          "response": {
+            "recording_state": {
+              "type": "string",
+              "description": "Current recording state: idle or recording."
+            }
+          }
+        },
+        "get_microphone_audio_enabled": {
+          "description": "Return whether newly started screen recordings are configured to include simulated microphone audio.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "microphone_audio_enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "microphone_audio_enabled",
+            "response_key": "microphone_audio_enabled",
+            "preconditions": {}
+          },
+          "response": {
+            "microphone_audio_enabled": {
+              "type": "boolean",
+              "description": "Whether newly started recordings are configured to include microphone audio."
+            }
+          }
+        },
+        "set_microphone_audio_enabled": {
+          "description": "Enable or disable microphone audio for newly started recordings. The setting can change only while recording is idle. Enabling additionally requires microphone_access_granted to be true; disabling does not require microphone authorization. A rejected call leaves the setting unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether newly started recordings should include microphone audio.",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "recording_state",
+            "microphone_access_granted"
+          ],
+          "writes": [
+            "microphone_audio_enabled"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "microphone_audio_enabled",
+            "parameter": "value",
+            "preconditions": {
+              "recording_state": "idle"
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The setting cannot change during recording, and enabling it requires microphone authorization from Privacy."
+          }
+        },
+        "get_microphone_access_granted": {
+          "description": "Return the microphone access state derived from the declared Privacy dependency property microphone_authorized.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "microphone_access_granted"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "microphone_access_granted",
+            "response_key": "microphone_access_granted",
+            "preconditions": {}
+          },
+          "response": {
+            "microphone_access_granted": {
+              "type": "boolean",
+              "description": "Whether the declared Privacy dependency currently grants microphone access."
+            }
+          }
+        },
+        "get_capture_block_reason": {
+          "description": "Return the current capture block reason derived from protected-content and capture-resource conditions, or none when those conditions permit capture.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "capture_block_reason"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "capture_block_reason",
+            "response_key": "capture_block_reason",
+            "preconditions": {}
+          },
+          "response": {
+            "capture_block_reason": {
+              "type": "string",
+              "description": "Current capture block reason: none, protected_content, or resource_conflict."
+            }
+          }
+        },
+        "get_captures": {
+          "description": "Return all metadata-only screenshot and completed or interrupted recording records keyed by stable capture ID. This query does not create, delete, or modify records.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "captures"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "captures",
+            "response_key": "captures",
+            "preconditions": {}
+          },
+          "response": {
+            "captures": {
+              "type": "object",
+              "description": "All stored metadata-only capture records keyed by stable capture ID."
+            }
+          }
+        },
+        "take_screenshot": {
+          "description": "Create one metadata-only screenshot record. Authorization must be granted and capture_block_reason must be none. On success, allocate capture_NNNNNN from next_capture_number and store exactly type screenshot, capture_minute equal to the current monotonic elapsed simulation minute, duration_minutes 0, and result completed. Protected content, a resource conflict, or missing authorization creates no record and does not consume an ID.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "authorization_status",
+            "capture_block_reason",
+            "captures",
+            "next_capture_number"
+          ],
+          "writes": [
+            "captures",
+            "next_capture_number"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "A successful screenshot allocates a stable ID and stores metadata containing the current monotonic simulation minute."
+          },
+          "response": {
+            "capture_id": {
+              "type": "string",
+              "description": "Stable ID of the newly created screenshot metadata record."
+            }
+          },
+          "errorcodes": {
+            "NOT_AUTHORIZED": "Screen capture authorization is not granted.",
+            "PROTECTED_CONTENT": "The current content is protected from capture.",
+            "RESOURCE_CONFLICT": "A capture resource conflict currently blocks the screenshot."
+          }
+        },
+        "start_recording": {
+          "description": "Start one screen recording and store the current monotonic elapsed simulation minute in recording_started_at_minute. Authorization must be granted, recording_state must be idle, and capture_block_reason must be none. If microphone audio is enabled, microphone_access_granted must also be true. Repeated starts and all other failed starts leave state unchanged and create no record.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "authorization_status",
+            "recording_state",
+            "microphone_audio_enabled",
+            "microphone_access_granted",
+            "capture_block_reason"
+          ],
+          "writes": [
+            "recording_state",
+            "recording_started_at_minute"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Starting recording validates multiple conditional authorization and resource interlocks and stores the current monotonic simulation minute."
+          },
+          "errorcodes": {
+            "ALREADY_RECORDING": "A screen recording is already active.",
+            "NOT_AUTHORIZED": "Screen capture authorization is not granted.",
+            "MICROPHONE_NOT_AUTHORIZED": "Microphone audio is enabled but Privacy has not granted microphone access.",
+            "PROTECTED_CONTENT": "The current content is protected from capture.",
+            "RESOURCE_CONFLICT": "A capture resource conflict currently blocks recording."
+          }
+        },
+        "stop_recording": {
+          "description": "Normally stop the active screen recording. On success, allocate one stable capture ID and create a recording record with type recording, the stored start_minute, end_minute equal to the current monotonic elapsed simulation minute, duration_minutes equal to max(end_minute minus start_minute, 0), microphone_audio_included equal to the frozen microphone_audio_enabled setting, result completed, and interruption_reason none. Then set recording_state to idle and recording_started_at_minute to zero. A call while idle is rejected and creates no record.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "recording_state",
+            "microphone_audio_enabled",
+            "captures",
+            "recording_started_at_minute",
+            "next_capture_number"
+          ],
+          "writes": [
+            "recording_state",
+            "captures",
+            "recording_started_at_minute",
+            "next_capture_number"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Stopping creates a stable completed recording record whose duration is calculated from monotonic simulation time."
+          },
+          "response": {
+            "capture_id": {
+              "type": "string",
+              "description": "Stable ID of the newly created completed recording metadata record."
+            }
+          },
+          "errorcodes": {
+            "NOT_RECORDING": "No screen recording is active."
+          }
+        },
+        "get_capture": {
+          "description": "Return one existing screenshot or completed or interrupted recording metadata record by stable ID. An unknown ID is rejected without changing the collection.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "capture_id": {
+                "type": "string",
+                "description": "Stable ID of an existing capture metadata record.",
+                "pattern": "^capture_[0-9]{6,}$",
+                "maxLength": 128,
+                "examples": [
+                  "capture_000001"
+                ]
+              }
+            },
+            "required": [
+              "capture_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "captures"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "captures",
+            "id_parameter": "capture_id",
+            "response_key": "capture",
+            "preconditions": {
+              "captures": {
+                "contains_key": {
+                  "parameter": "capture_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "capture_id": {
+              "property": "captures",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "capture": {
+              "type": "object",
+              "description": "The metadata-only screenshot or recording record stored under the requested ID."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "Capture record ID does not exist."
+          }
+        },
+        "delete_capture": {
+          "description": "Delete one existing screenshot or completed or interrupted recording metadata record by stable ID while preserving every other record. Active recording state is unaffected. An unknown ID is rejected without changing the collection.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "capture_id": {
+                "type": "string",
+                "description": "Stable ID of an existing capture metadata record to delete.",
+                "pattern": "^capture_[0-9]{6,}$",
+                "maxLength": 128,
+                "examples": [
+                  "capture_000001"
+                ]
+              }
+            },
+            "required": [
+              "capture_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "captures"
+          ],
+          "writes": [
+            "captures"
+          ],
+          "semantics": {
+            "kind": "collection_delete",
+            "property": "captures",
+            "id_parameter": "capture_id",
+            "preconditions": {
+              "captures": {
+                "contains_key": {
+                  "parameter": "capture_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "capture_id": {
+              "property": "captures",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "Capture record ID does not exist."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "dependency_changed": {
+          "description": "When declared dependencies change, sets microphone_access_granted exactly equal to the Privacy source property microphone_authorized. It derives capture_block_reason from the system capture-condition source properties as follows: protected_content_active=true produces protected_content; otherwise capture_resource_available=false produces resource_conflict; otherwise it produces none. If recording is active after applying those mappings, an interruption is selected using this strict precedence: authorization_status other than granted produces authorization_revoked; otherwise protected_content_active=true produces protected_content; otherwise capture_resource_available=false produces resource_conflict; otherwise microphone_audio_enabled=true with microphone_authorized=false produces microphone_authorization_revoked; otherwise recording continues. A selected interruption creates exactly one recording record with result interrupted, the selected interruption_reason, the stored start minute, the current monotonic end minute, nonnegative elapsed duration, and the active microphone-audio setting, then returns recording state to idle and clears the stored start minute.",
+          "effect_properties": [
+            {
+              "name": "authorization_status",
+              "description": "Current local capture authorization used as the highest-priority active-recording validity condition."
+            },
+            {
+              "name": "recording_state",
+              "description": "Current recording state used to apply interruption only while a recording is active."
+            },
+            {
+              "name": "microphone_audio_enabled",
+              "description": "Whether the active recording requires continued microphone authorization."
+            },
+            {
+              "name": "microphone_access_granted",
+              "description": "Derived microphone access state set from the Privacy source property microphone_authorized."
+            },
+            {
+              "name": "capture_block_reason",
+              "description": "Derived block reason set from protected_content_active and capture_resource_available with protected content taking precedence."
+            },
+            {
+              "name": "captures",
+              "description": "Metadata collection receiving one interrupted recording record when an active recording loses a required condition."
+            },
+            {
+              "name": "recording_started_at_minute",
+              "description": "Stored monotonic start minute used to calculate an interrupted recording's duration."
+            },
+            {
+              "name": "next_capture_number",
+              "description": "Internal sequence used to allocate the interrupted recording record's stable ID."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,610 @@
+{
+  "SeatComfort": {
+    "meta": {
+      "name": "SeatComfort",
+      "description": "Powered seat position adjustment module, instantiated for each actual seat. Supports querying and adjusting the powered position axes of that seat and stopping adjustment. Available axes and travel ranges are fixed capabilities; axes that are not installed offer no control. Target and actual positions are separate, with progress and obstruction state available during motion.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether powered seat adjustment is available.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "axes": {
+          "type": "dict",
+          "description": "Installed position axes keyed by axis name. Each record contains immutable normalized travel limits and unit together with internally updated actual, target, and motion-start positions. Axes absent from this dictionary are not installed and cannot be controlled.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "fore_aft": {
+                "minimum": 0,
+                "maximum": 100,
+                "unit": "%",
+                "actual": 50,
+                "requested_position": 50,
+                "start": 50
+              },
+              "height": {
+                "minimum": 0,
+                "maximum": 100,
+                "unit": "%",
+                "actual": 50,
+                "requested_position": 50,
+                "start": 50
+              },
+              "recline": {
+                "minimum": 0,
+                "maximum": 100,
+                "unit": "%",
+                "actual": 50,
+                "requested_position": 50,
+                "start": 50
+              },
+              "lumbar": {
+                "minimum": 0,
+                "maximum": 100,
+                "unit": "%",
+                "actual": 50,
+                "requested_position": 50,
+                "start": 50
+              }
+            },
+            "schema": {
+              "type": "object",
+              "propertyNames": {
+                "enum": [
+                  "fore_aft",
+                  "height",
+                  "recline",
+                  "lumbar"
+                ]
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "minimum": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "maximum": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "unit": {
+                    "type": "string",
+                    "const": "%"
+                  },
+                  "actual": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "requested_position": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "start": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  }
+                },
+                "required": [
+                  "minimum",
+                  "maximum",
+                  "unit",
+                  "actual",
+                  "requested_position",
+                  "start"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "motion_status": {
+          "type": "string",
+          "description": "Current adjustment state. Paused indicates that power was removed during motion; obstructed indicates that motion stopped after obstruction detection.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "moving",
+              "paused",
+              "obstructed"
+            ]
+          }
+        },
+        "active_axis": {
+          "type": "string",
+          "description": "Axis associated with the current or interrupted adjustment, or none when no adjustment is pending.",
+          "mode": 2,
+          "value": {
+            "default": "none",
+            "choices": [
+              "none",
+              "fore_aft",
+              "height",
+              "recline",
+              "lumbar"
+            ]
+          }
+        },
+        "progress_percent": {
+          "type": "integer",
+          "description": "Integer progress of the active adjustment from its recorded start position to its target. It is 0 while a newly requested movement is pending and 100 when no adjustment is pending or the target has been reached.",
+          "mode": 2,
+          "value": {
+            "default": 100,
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "%"
+          }
+        },
+        "obstruction_state": {
+          "type": "string",
+          "description": "Seat adjustment obstruction feedback supplied by the simulated seat mechanism through the obstruction reporting actions.",
+          "mode": 2,
+          "value": {
+            "default": "clear",
+            "choices": [
+              "clear",
+              "detected"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_axes": {
+          "description": "Return all installed axes with their fixed limits, units, actual positions, target positions, and motion-start positions. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "axes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "axes",
+            "response_key": "axes",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "axes": {
+              "type": "object",
+              "description": "Installed axis capability and position records keyed by axis name."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on."
+          }
+        },
+        "get_motion_status": {
+          "description": "Return the current adjustment state. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "motion_status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "motion_status",
+            "response_key": "motion_status",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "motion_status": {
+              "type": "string",
+              "description": "Current state: idle, moving, paused, or obstructed."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on."
+          }
+        },
+        "get_active_axis": {
+          "description": "Return the axis associated with the current or interrupted adjustment. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "active_axis"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "active_axis",
+            "response_key": "active_axis",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "active_axis": {
+              "type": "string",
+              "description": "Active axis name, or none when no adjustment is pending."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on."
+          }
+        },
+        "get_progress_percent": {
+          "description": "Return adjustment progress as an integer from 0 through 100 percent. A newly requested movement reports 0 until the first eligible minute tick completes it, after which it reports 100. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "progress_percent"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "progress_percent",
+            "response_key": "progress_percent",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "progress_percent": {
+              "type": "integer",
+              "description": "Current adjustment progress percentage."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on."
+          }
+        },
+        "get_obstruction_state": {
+          "description": "Return the current seat mechanism obstruction feedback. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "obstruction_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "obstruction_state",
+            "response_key": "obstruction_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "obstruction_state": {
+              "type": "string",
+              "description": "Current obstruction feedback: clear or detected."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on."
+          }
+        },
+        "adjust_position": {
+          "description": "Begin moving one installed axis toward target, expressed as an integer percentage of that axis's normalized travel. The target must fall within the selected axis record's fixed minimum and maximum. The action is allowed only while powered, idle, and unobstructed. An absent axis, an out-of-range target, or a failed precondition leaves all state unchanged. On a successful unequal-target request, only the selected axis record is changed: start is set to its current actual value and target is set to the requested target; actual remains unchanged, motion_status becomes moving, active_axis becomes the selected axis, and progress_percent becomes 0. The movement completes on the first eligible minute tick. On a successful equal-target request, the selected record's start and target are both set to its current actual value, actual remains unchanged, motion_status remains idle, active_axis becomes none, and progress_percent becomes 100. Every unselected axis record remains unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "axis": {
+                "type": "string",
+                "enum": [
+                  "fore_aft",
+                  "height",
+                  "recline",
+                  "lumbar"
+                ],
+                "examples": [
+                  "fore_aft",
+                  "height",
+                  "recline",
+                  "lumbar"
+                ]
+              },
+              "target": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "axis",
+              "target"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "axes",
+            "motion_status",
+            "obstruction_state"
+          ],
+          "writes": [
+            "axes",
+            "motion_status",
+            "active_axis",
+            "progress_percent"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The selected dictionary record must be validated against its per-instance travel limits and then updated atomically with the explicitly defined equal-target or unequal-target motion-state transition.",
+            "preconditions": {
+              "power": true,
+              "motion_status": "idle",
+              "obstruction_state": "clear",
+              "axes": {
+                "contains_key": {
+                  "parameter": "axis"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "axis": {
+              "property": "axes",
+              "field": "$key"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on.",
+            "AXIS_NOT_INSTALLED": "The requested axis is not installed on this seat.",
+            "TARGET_OUT_OF_RANGE": "Target must be within the selected axis's fixed minimum and maximum.",
+            "ADJUSTMENT_ACTIVE": "Stop the current or interrupted adjustment before starting another.",
+            "OBSTRUCTION_DETECTED": "Adjustment cannot start while an obstruction is detected."
+          }
+        },
+        "stop_adjustment": {
+          "description": "Stop a moving, paused, or obstructed adjustment. When an active axis exists, only that axis record's target is replaced with its current actual position; its actual, start, limits, and unit remain unchanged. Motion_status becomes idle, active_axis becomes none, and progress_percent becomes 100. Calling while already idle leaves the axis records unchanged and idempotently sets the same idle state. Obstruction feedback is preserved and must be cleared separately. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "axes",
+            "motion_status",
+            "active_axis"
+          ],
+          "writes": [
+            "axes",
+            "motion_status",
+            "active_axis",
+            "progress_percent"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Stopping must update the dynamically selected axis record, when present, and clear all associated motion state atomically.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on."
+          }
+        },
+        "report_obstruction": {
+          "description": "Report that the simulated seat mechanism has detected an obstruction. Obstruction_state becomes detected. If adjustment is moving, it stops without changing the active axis's actual or target position and motion_status becomes obstructed. Reporting an already detected obstruction succeeds idempotently. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "motion_status",
+            "obstruction_state"
+          ],
+          "writes": [
+            "obstruction_state",
+            "motion_status"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The action always records detected obstruction feedback but changes motion_status only when adjustment is currently moving.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on."
+          }
+        },
+        "clear_obstruction": {
+          "description": "Report that the simulated seat mechanism is no longer obstructed. Obstruction_state becomes clear. Clearing feedback does not resume or cancel a paused or obstructed adjustment; stop_adjustment must be used before a new adjustment can start. Clearing an already clear state succeeds idempotently. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "obstruction_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "obstruction_state": {
+                "value": "clear"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "motion_status",
+            "power"
+          ],
+          "writes": [
+            "motion_status",
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "When power changes from on to off while motion_status is moving, preserve all axis positions and targets and change motion_status to paused. Restoring power does not resume movement.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether moving adjustment must be paused after power removal."
+            },
+            {
+              "name": "motion_status",
+              "description": "Identifies movement that must transition to paused after power removal."
+            }
+          ]
+        },
+        "tick": {
+          "description": "On the first minute tick while powered with motion_status moving and obstruction_state clear, set the active axis's actual position to its target without changing that record's fixed limits, unit, start, or target. Then set progress_percent to 100, motion_status to idle, and active_axis to none. If obstruction_state is detected while status is moving, do not change any axis position and set motion_status to obstructed. Idle, paused, obstructed, and unpowered states do not advance.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether a pending adjustment may complete."
+            },
+            {
+              "name": "axes",
+              "description": "Provides the active axis target and receives the completed actual-position update."
+            },
+            {
+              "name": "motion_status",
+              "description": "Determines whether adjustment is moving and records completion or obstruction."
+            },
+            {
+              "name": "active_axis",
+              "description": "Selects the installed axis record being adjusted and is cleared on completion."
+            },
+            {
+              "name": "progress_percent",
+              "description": "Records 100 percent progress when the requested movement completes."
+            },
+            {
+              "name": "obstruction_state",
+              "description": "Prevents completion and changes moving status to obstructed when detection is active."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

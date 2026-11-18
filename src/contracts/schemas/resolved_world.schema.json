@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:resolved-world",
+  "title": "DCB resolved world",
+  "type": "object",
+  "required": ["world_id", "domain", "spaces", "objects", "runtime"],
+  "properties": {
+    "world_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "domain": {"$ref": "urn:dcb:v2:schema:common#/$defs/resolvedDomain"},
+    "spaces": {
+      "type": "object",
+      "propertyNames": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+      "additionalProperties": {"$ref": "urn:dcb:v2:schema:common#/$defs/spaceInstance"}
+    },
+    "objects": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+      "additionalProperties": {"$ref": "urn:dcb:v2:schema:common#/$defs/objectInstance"}
+    },
+    "runtime": {"$ref": "urn:dcb:v2:schema:common#/$defs/runtimeInit"},
+    "scene_metadata": {
+      "type": "object",
+      "additionalProperties": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+    }
+  },
+  "additionalProperties": false
+}

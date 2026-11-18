@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:common",
+  "title": "DCB v2 common contract definitions",
+  "type": "object",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+    },
+    "nonSessionIdentifier": {
+      "allOf": [
+        {"$ref": "#/$defs/identifier"},
+        {"not": {"const": "session"}}
+      ]
+    },
+    "functionName": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,63}$"
+    },
+    "toolId": {
+      "type": "string",
+      "pattern": "^(session|[A-Za-z][A-Za-z0-9_-]{0,63})_[a-z][a-z0-9_]{0,63}$"
+    },
+    "jsonValue": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "boolean"},
+        {"type": "number"},
+        {"type": "string"},
+        {
+          "type": "array",
+          "items": {"$ref": "#/$defs/jsonValue"}
+        },
+        {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/jsonValue"}
+        }
+      ]
+    },
+    "error": {
+      "type": "object",
+      "required": ["kind", "message"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "schema_validation",
+            "reference_validation",
+            "unknown_target",
+            "unknown_memory",
+            "unknown_function",
+            "invalid_parameters",
+          "execution_failure",
+          "undeclared_mutation",
+          "invalid_model_result",
+          "simulation_failure",
+            "effect_validation",
+            "effect_conflict",
+            "transaction_rollback",
+            "tool_not_discovered",
+            "session_finished",
+            "assertion_failure"
+          ]
+        },
+        "message": {"type": "string", "minLength": 1},
+        "path": {"type": "string"},
+        "details": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/jsonValue"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "timePolicy": {
+      "type": "object",
+      "required": [
+        "sleep_time_default_minutes",
+        "after_action_default_minutes",
+        "after_turn_default_minutes"
+      ],
+      "properties": {
+        "sleep_time_default_minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 1
+        },
+        "after_action_default_minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "after_turn_default_minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "max_elapsed_minutes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "timeState": {
+      "type": "object",
+      "required": ["date", "clock", "elapsed_minutes"],
+      "properties": {
+        "date": {"type": "string", "format": "date"},
+        "clock": {
+          "type": "string",
+          "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+        },
+        "elapsed_minutes": {"type": "integer", "minimum": 0},
+        "timezone": {"type": "string", "minLength": 1, "default": "UTC"}
+      },
+      "additionalProperties": false
+    },
+    "resolvedDomain": {
+      "type": "object",
+      "required": ["type", "metadata"],
+      "properties": {
+        "type": {"$ref": "#/$defs/identifier"},
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/jsonValue"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "initOperation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["op", "path", "value"],
+          "properties": {
+            "op": {"enum": ["add", "replace"]},
+            "path": {
+              "type": "string",
+              "pattern": "^/(?:domain/metadata|spaces|objects|runtime|scene_metadata)(?:/.*)?$"
+            },
+            "value": {"$ref": "#/$defs/jsonValue"}
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["op", "path"],
+          "properties": {
+            "op": {"const": "remove"},
+            "path": {
+              "type": "string",
+              "pattern": "^/(?:domain/metadata|spaces|objects|runtime|scene_metadata)(?:/.*)?$"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "spaceInstance": {
+      "type": "object",
+      "required": ["type", "properties", "metadata"],
+      "properties": {
+        "type": {"$ref": "#/$defs/identifier"},
+        "virtual": {"type": "boolean", "default": false},
+        "properties": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/jsonValue"}
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/jsonValue"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "objectInstance": {
+      "type": "object",
+      "required": ["class", "properties"],
+      "properties": {
+        "class": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*(?:\\.[A-Za-z][A-Za-z0-9_]*)+$"
+        },
+        "space_id": {
+          "oneOf": [
+            {"$ref": "#/$defs/nonSessionIdentifier"},
+            {"type": "null"}
+          ]
+        },
+        "properties": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {"$ref": "#/$defs/jsonValue"}
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/jsonValue"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "dynamicsRule": {
+      "type": "object",
+      "required": ["rule_id", "kind", "enabled", "parameters"],
+      "properties": {
+        "rule_id": {"$ref": "#/$defs/nonSessionIdentifier"},
+        "kind": {"$ref": "#/$defs/identifier"},
+        "enabled": {"type": "boolean"},
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/jsonValue"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "runtimeInit": {
+      "type": "object",
+      "required": ["time_policy", "time_state", "weather_state", "dynamics"],
+      "properties": {
+        "time_policy": {"$ref": "#/$defs/timePolicy"},
+        "time_state": {"$ref": "#/$defs/timeState"},
+        "weather_state": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/jsonValue"}
+        },
+        "dynamics": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/dynamicsRule"},
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "runtimeSnapshot": {
+      "type": "object",
+      "required": ["time_state", "weather_state"],
+      "properties": {
+        "time_state": {"$ref": "#/$defs/timeState"},
+        "weather_state": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/jsonValue"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "commandCode": {
+      "type": "string",
+      "enum": [
+        "[PASS]",
+        "[VALIDATION_ERROR]",
+        "[NOT_FOUND]",
+        "[EXECUTION_ERROR]",
+        "[EFFECT_ERROR]",
+        "[CONFLICT]",
+        "[ROLLED_BACK]",
+        "[TOOL_NOT_DISCOVERED]",
+        "[SESSION_FINISHED]"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

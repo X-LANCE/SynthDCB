@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:evaluation-request",
+  "title": "DCB v2 evaluation request",
+  "type": "object",
+  "required": [
+    "task",
+    "initial_snapshot",
+    "final_snapshot",
+    "target",
+    "termination",
+    "trajectory_audit",
+    "submitted_answers",
+    "submitted_reports"
+  ],
+  "properties": {
+    "task": {
+      "$ref": "urn:dcb:v2:schema:task"
+    },
+    "initial_snapshot": {
+      "$ref": "urn:dcb:v2:schema:state-snapshot"
+    },
+    "final_snapshot": {
+      "oneOf": [
+        {
+          "$ref": "urn:dcb:v2:schema:state-snapshot"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "target": {
+      "$ref": "urn:dcb:v2:schema:target"
+    },
+    "termination": {
+      "$ref": "urn:dcb:v2:schema:termination"
+    },
+    "trajectory_audit": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:dcb:v2:schema:audit-record"
+      }
+    },
+    "submitted_answers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/submittedAnswer"
+      }
+    },
+    "submitted_reports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/submittedReport"
+      }
+    },
+    "initial_memory": {
+      "$ref": "urn:dcb:v2:schema:memory"
+    },
+    "final_memory": {
+      "$ref": "urn:dcb:v2:schema:memory"
+    },
+    "memory_bindings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["memory_id", "target_kind", "target_id", "property"],
+        "properties": {
+          "memory_id": {"type": "string", "minLength": 1},
+          "target_kind": {"const": "object"},
+          "target_id": {"type": "string", "minLength": 1},
+          "property": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "replay_reference_snapshot": {
+      "$ref": "urn:dcb:v2:schema:state-snapshot"
+    },
+    "post_simulation": {
+      "$ref": "urn:dcb:v2:schema:post-simulation"
+    }
+  },
+  "$defs": {
+    "submittedAnswer": {
+      "type": "object",
+      "required": [
+        "value",
+        "call_id"
+      ],
+      "properties": {
+        "value": {
+          "$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"
+        },
+        "call_id": {
+          "$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"
+        }
+      },
+      "additionalProperties": false
+    },
+    "submittedReport": {
+      "type": "object",
+      "required": [
+        "description",
+        "status",
+        "reason_code",
+        "affected_properties",
+        "call_id"
+      ],
+      "properties": {
+        "description": {"type": "string"},
+        "status": {
+          "type": "string",
+          "enum": [
+            "infeasible",
+            "blocked"
+          ]
+        },
+        "reason_code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+        },
+        "affected_properties": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "call_id": {
+          "$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

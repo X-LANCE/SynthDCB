@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:property-catalog",
+  "title": "DCB v2 Domain property catalog",
+  "type": "object",
+  "required": [
+    "domain_type",
+    "space_types",
+    "space_properties",
+    "runtime_properties"
+  ],
+  "properties": {
+    "domain_type": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+    "space_types": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "uniqueItems": true,
+        "items": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"}
+      }
+    },
+    "space_properties": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/spacePropertySpec"}
+    },
+    "runtime_properties": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/propertySpec"}
+    }
+  },
+  "$defs": {
+    "spacePropertySpec": {
+      "allOf": [
+        {"$ref": "#/$defs/propertySpec"},
+        {
+          "if": {
+            "properties": {
+              "type": {"enum": ["integer", "number"]}
+            },
+            "required": ["type"]
+          },
+          "then": {
+            "required": ["initial_values", "target_ranges", "tolerance"]
+          }
+        }
+      ]
+    },
+    "propertySpec": {
+      "type": "object",
+      "required": [
+        "type",
+        "unit",
+        "minimum",
+        "maximum",
+        "precision",
+        "allowed_effect_functions",
+        "allowed_operators"
+      ],
+      "properties": {
+        "type": {"type": "string", "enum": ["boolean", "integer", "number", "string"]},
+        "unit": {"type": ["string", "null"]},
+        "minimum": {"type": ["number", "null"]},
+        "maximum": {"type": ["number", "null"]},
+        "precision": {"type": "integer", "minimum": 0},
+        "initial_values": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "number"}
+        },
+        "target_ranges": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["min", "max"],
+            "properties": {
+              "min": {"type": "number"},
+              "max": {"type": "number"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "tolerance": {"type": "number", "exclusiveMinimum": 0},
+        "allowed_effect_functions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "enum": ["set_contribution", "delta", "approach"]}
+        },
+        "allowed_operators": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["eq", "range", "gte", "lte", "delta_at_least", "closer_to", "unchanged"]
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

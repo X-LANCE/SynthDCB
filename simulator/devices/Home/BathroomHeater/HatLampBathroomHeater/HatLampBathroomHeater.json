@@ -1,0 +1,44 @@
+{
+  "HatLampBathroomHeater": {
+    "meta": {
+      "name": "HatLampBathroomHeater",
+      "description": "A heat-lamp bathroom-heater variant. Its heating mode changes space brightness.",
+      "version": "1.0.0",
+      "from": "../BathroomHeater.json"
+    },
+    "properties": {
+      "update": {},
+      "disabled": []
+    },
+    "functions": {
+      "update": {},
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "After a successful mutation, update this device's absolute illuminance contribution to the containing Home space. If power and lighting are both true, contribute 300 lux from lighting. If power and heating are both true, additionally contribute 300 lux multiplied by heating_intensity from the heat lamp. The total illuminance contribution is the sum of these independent contributions, and is recalculated whenever this event is dispatched.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the bathroom heater has electrical power."
+            },
+            {
+              "name": "lighting",
+              "description": "Whether bathroom lighting is enabled."
+            },
+            {
+              "name": "heating",
+              "description": "Whether bathroom heating is enabled."
+            },
+            {
+              "name": "heating_intensity",
+              "description": "Configured heating intensity used to calculate the heat-lamp illuminance contribution."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

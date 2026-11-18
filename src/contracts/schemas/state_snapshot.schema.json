@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:state-snapshot",
+  "title": "DCB v2 state snapshot",
+  "type": "object",
+  "required": [
+    "world_id",
+    "domain",
+    "objects",
+    "spaces",
+    "runtime"
+  ],
+  "properties": {
+    "world_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "domain": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "objects": {
+      "type": "object",
+      "propertyNames": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+      "additionalProperties": {"$ref": "urn:dcb:v2:schema:common#/$defs/objectInstance"}
+    },
+    "spaces": {
+      "type": "object",
+      "propertyNames": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+      "additionalProperties": {"$ref": "urn:dcb:v2:schema:common#/$defs/spaceInstance"}
+    },
+    "runtime": {"$ref": "urn:dcb:v2:schema:common#/$defs/runtimeSnapshot"},
+    "scene_metadata": {
+      "type": "object",
+      "additionalProperties": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+    }
+  },
+  "additionalProperties": false
+}

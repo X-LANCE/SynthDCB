@@ -1,0 +1,152 @@
+{
+  "id": "five_seat_electric",
+  "spaces": [
+    {
+      "id": "cabin",
+      "type": "cabin",
+      "virtual": false
+    },
+    {
+      "id": "driver_seat",
+      "type": "driver_seat",
+      "virtual": false
+    },
+    {
+      "id": "front_passenger_seat",
+      "type": "front_passenger_seat",
+      "virtual": false
+    },
+    {
+      "id": "rear_left_seat",
+      "type": "passenger_seat",
+      "virtual": false
+    },
+    {
+      "id": "rear_center_seat",
+      "type": "passenger_seat",
+      "virtual": false
+    },
+    {
+      "id": "rear_right_seat",
+      "type": "passenger_seat",
+      "virtual": false
+    },
+    {
+      "id": "trunk",
+      "type": "trunk",
+      "virtual": false
+    },
+    {
+      "id": "exterior",
+      "type": "exterior",
+      "virtual": false
+    },
+    {
+      "id": "propulsion",
+      "type": "propulsion",
+      "virtual": true
+    },
+    {
+      "id": "energy",
+      "type": "electric_energy",
+      "virtual": true
+    },
+    {
+      "id": "multimedia",
+      "type": "multimedia",
+      "virtual": true
+    }
+  ],
+  "connections": [
+    {
+      "space_1": "driver_seat",
+      "space_2": "cabin",
+      "type": "passage",
+      "current_state": "open"
+    },
+    {
+      "space_1": "front_passenger_seat",
+      "space_2": "cabin",
+      "type": "passage",
+      "current_state": "open"
+    },
+    {
+      "space_1": "rear_left_seat",
+      "space_2": "cabin",
+      "type": "passage",
+      "current_state": "open"
+    },
+    {
+      "space_1": "rear_center_seat",
+      "space_2": "cabin",
+      "type": "passage",
+      "current_state": "open"
+    },
+    {
+      "space_1": "rear_right_seat",
+      "space_2": "cabin",
+      "type": "passage",
+      "current_state": "open"
+    },
+    {
+      "space_1": "driver_seat",
+      "space_2": "exterior",
+      "type": "door",
+      "device_class": "Door"
+    },
+    {
+      "space_1": "driver_seat",
+      "space_2": "exterior",
+      "type": "window",
+      "device_class": "Window"
+    },
+    {
+      "space_1": "front_passenger_seat",
+      "space_2": "exterior",
+      "type": "door",
+      "device_class": "Door"
+    },
+    {
+      "space_1": "front_passenger_seat",
+      "space_2": "exterior",
+      "type": "window",
+      "device_class": "Window"
+    },
+    {
+      "space_1": "rear_left_seat",
+      "space_2": "exterior",
+      "type": "door",
+      "device_class": "Door"
+    },
+    {
+      "space_1": "rear_left_seat",
+      "space_2": "exterior",
+      "type": "window",
+      "device_class": "Window"
+    },
+    {
+      "space_1": "rear_right_seat",
+      "space_2": "exterior",
+      "type": "door",
+      "device_class": "Door"
+    },
+    {
+      "space_1": "rear_right_seat",
+      "space_2": "exterior",
+      "type": "window",
+      "device_class": "Window"
+    },
+    {
+      "space_1": "cabin",
+      "space_2": "exterior",
+      "type": "window",
+      "device_class": "Sunroof"
+    },
+    {
+      "space_1": "trunk",
+      "space_2": "exterior",
+      "type": "door",
+      "device_class": "TrunkDoor"
+    }
+  ]
+}

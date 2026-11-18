@@ -1,0 +1,178 @@
+{
+  "Dryer": {
+    "meta": {
+      "name": "Dryer",
+      "description": "Dryer. It supports only drying-related functions.",
+      "version": "1.0.0",
+      "from": "../WasherDryer.json"
+    },
+    "process": {
+      "mode_property": "cycle_mode",
+      "start_function": "start_cycle",
+      "pause_function": "pause_cycle",
+      "resume_function": "resume_cycle",
+      "modes": {
+        "dry_only": [
+          {
+            "phase": "dry",
+            "minutes": {
+              "property": "drying_duration"
+            }
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "cycle_mode": {
+          "type": "string",
+          "description": "Selected dry-only cycle mode.",
+          "mode": 2,
+          "value": {
+            "default": "dry_only",
+            "choices": [
+              "dry_only"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current drying-process phase.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "dry",
+              "completed"
+            ]
+          }
+        }
+      },
+      "disabled": [
+        "washing_program",
+        "water_temperature",
+        "spin_speed"
+      ]
+    },
+    "functions": {
+      "update": {
+        "start_cycle": {
+          "description": "The program argument has the single value dry_only. Start the dry_only cycle while powered and idle or completed. Set cycle_mode to dry_only, status to running, phase to dry, progress_minutes to zero, started_at_minute to the current elapsed minute, and remaining_minutes to drying_duration. Configuration remains fixed until completion, including while paused. Invalid arguments or failed preconditions leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "program": {
+                "type": "string",
+                "enum": [
+                  "dry_only"
+                ],
+                "default": "dry_only"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "drying_duration"
+          ],
+          "writes": [
+            "cycle_mode",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "program",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "disabled": [
+        "get_washing_program",
+        "set_washing_program",
+        "get_water_temperature",
+        "set_water_temperature",
+        "get_spin_speed",
+        "set_spin_speed"
+      ]
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While powered and running, calculate progress as elapsed minutes minus started_at_minute, clamped between zero and the declared drying_duration. Keep phase dry until the configured duration is reached. Update progress_minutes and remaining_minutes accordingly; at the final boundary set status and phase to completed and remaining_minutes to zero. Idle, paused, completed and unpowered cycles do not advance. Preserve all settings. While powered and running, contribute 48 dBA for normal drying or 43 dBA for gentle drying. Contribute zero whenever unpowered or not running. Apply the absolute noise contribution each time, including zero to clear previous output. Return this noise output solely as a set_contribution effect for the containing Home Space noise property, in dBA.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether the process advances and produces noise."
+            },
+            {
+              "name": "drying_duration",
+              "description": "Determines the total dry-only process duration."
+            },
+            {
+              "name": "drying_mode",
+              "description": "Determines normal or gentle drying noise."
+            },
+            {
+              "name": "status",
+              "description": "Gates advancement and becomes completed at the end."
+            },
+            {
+              "name": "phase",
+              "description": "Tracks the drying phase."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Running-time origin used to calculate progress."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Completed drying minutes, clamped to the configured duration."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Configured duration minus completed drying minutes."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "This hook has two separate action-dependent branches. After set_power switches power off while the process status is running, set status=paused and preserve phase, progress, remaining time and origin. Restoring power does not resume a paused process and does not rebase the origin. After start_cycle or resume_cycle transitions status from a non-running value to running while powered, set started_at_minute to the current elapsed world minute minus progress_minutes. pause_cycle preserves the origin and progress. These are conditional branches of the shared hook; there is no origin update caused by set_power. Emit no Space effects.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Power loss pauses operation."
+            },
+            {
+              "name": "status",
+              "description": "Identifies transitions into running and power-loss pauses."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Running-time origin established on start or resume."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Retained progress used to establish the running-time origin."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,255 @@
+{
+  "WaterDispenser": {
+    "meta": {
+      "name": "WaterDispenser",
+      "description": "Water dispenser. Users can query and set the keep-warm temperature and child-lock function.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the water dispenser is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "keep_warm_temperature": {
+          "type": "integer",
+          "description": "Configured temperature maintained for keeping water warm, in degrees Celsius.",
+          "mode": 3,
+          "value": {
+            "default": 85,
+            "unit": "degC",
+            "minimum": 40,
+            "maximum": 100,
+            "step": 5,
+            "step_origin": 0
+          }
+        },
+        "child_lock": {
+          "type": "boolean",
+          "description": "Whether the dispenser child-lock function is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_keep_warm_temperature": {
+          "description": "Get the configured keep-warm temperature. This function is available only while the dispenser is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "keep_warm_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "keep_warm_temperature",
+            "response_key": "keep_warm_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "keep_warm_temperature": {
+              "type": "integer",
+              "description": "The configured keep-warm temperature in degrees Celsius."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_keep_warm_temperature": {
+          "description": "Set the keep-warm temperature to an integer from 40 through 100 degrees Celsius in 5-degree increments. This function is available only while the dispenser is powered. Invalid values leave the setting unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "The desired keep-warm temperature in degrees Celsius.",
+                "minimum": 40,
+                "maximum": 100,
+                "multipleOf": 5,
+                "examples": [
+                  40,
+                  60,
+                  85,
+                  100
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "keep_warm_temperature"
+          ],
+          "writes": [
+            "keep_warm_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "keep_warm_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "keep_warm_temperature": {
+              "type": "integer",
+              "description": "The resulting keep-warm temperature in degrees Celsius."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_child_lock": {
+          "description": "Get whether the child-lock function is enabled. This function is available only while the dispenser is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "child_lock"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "child_lock",
+            "response_key": "child_lock",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "child_lock": {
+              "type": "boolean",
+              "description": "Whether the child-lock function is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_child_lock": {
+          "description": "Enable or disable the child-lock function. This function is available only while the dispenser is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether to enable the child-lock function."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "child_lock"
+          ],
+          "writes": [
+            "child_lock"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "child_lock",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "child_lock": {
+              "type": "boolean",
+              "description": "The resulting child-lock state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

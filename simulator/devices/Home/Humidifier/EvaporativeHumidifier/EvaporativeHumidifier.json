@@ -1,0 +1,22 @@
+{
+  "EvaporativeHumidifier": {
+    "meta": {
+      "name": "EvaporativeHumidifier",
+      "description": "A humidifier subclass that uses a fan to move air through a wet medium and increase humidity through natural evaporation. It inherits all functions and properties.",
+      "version": "1.0.0",
+      "from": "../Humidifier.json"
+    },
+    "properties": {
+      "update": {},
+      "disabled": []
+    },
+    "functions": {
+      "update": {},
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

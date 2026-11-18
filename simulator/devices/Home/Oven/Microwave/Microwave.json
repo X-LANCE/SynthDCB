@@ -1,0 +1,513 @@
+{
+  "Microwave": {
+    "meta": {
+      "name": "Microwave",
+      "description": "Microwave oven. Users can query and set microwave power. Defrost mode is added to the available modes. Heating temperature is not supported.",
+      "version": "1.0.0",
+      "from": "../Oven.json"
+    },
+    "process": {
+      "mode_property": "cooking_mode",
+      "start_function": "start_cooking",
+      "pause_function": "pause_cooking",
+      "resume_function": "resume_cooking",
+      "modes": {
+        "manual": [
+          {
+            "phase": "cooking",
+            "minutes": {
+              "property": "cooking_time"
+            }
+          }
+        ],
+        "bake": [
+          {
+            "phase": "cooking",
+            "minutes": 30
+          }
+        ],
+        "roast": [
+          {
+            "phase": "cooking",
+            "minutes": 60
+          }
+        ],
+        "broil": [
+          {
+            "phase": "cooking",
+            "minutes": 15
+          }
+        ],
+        "defrost": [
+          {
+            "phase": "cooking",
+            "minutes": {
+              "property": "cooking_time"
+            }
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "cooking_mode": {
+          "type": "string",
+          "description": "Selected microwave cooking mode. Manual and defrost modes preserve the configured cooking time when selected. Bake presets 30 minutes, roast presets 60 minutes, and broil presets 15 minutes. Microwave power remains independently configurable in every mode.",
+          "mode": 3,
+          "value": {
+            "default": "manual",
+            "choices": [
+              "manual",
+              "bake",
+              "roast",
+              "broil",
+              "defrost"
+            ]
+          }
+        },
+        "cooking_time": {
+          "type": "integer",
+          "description": "Configured microwave cooking duration. It can be directly changed in manual or defrost mode while no cooking process is running or paused.",
+          "mode": 3,
+          "value": {
+            "default": 30,
+            "unit": "min",
+            "minimum": 1,
+            "maximum": 240,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "microwave_power": {
+          "type": "integer",
+          "description": "Configured microwave output power. It can be changed while the microwave is powered and the cooking process is idle or completed, and it remains fixed while a process is running or paused.",
+          "mode": 3,
+          "value": {
+            "default": 800,
+            "unit": "W",
+            "minimum": 100,
+            "maximum": 1000,
+            "step": 100,
+            "step_origin": 100
+          }
+        }
+      },
+      "disabled": [
+        "heating_temperature"
+      ]
+    },
+    "functions": {
+      "update": {
+        "get_cooking_mode": {
+          "description": "Get the selected microwave cooking mode. The operation fails without changing state while the microwave is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "cooking_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cooking_mode",
+            "response_key": "cooking_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "cooking_mode": {
+              "type": "string",
+              "description": "Selected cooking mode: manual, bake, roast, broil, or defrost."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Cooking mode is inaccessible while the microwave is powered off."
+          }
+        },
+        "set_cooking_mode": {
+          "description": "Set the cooking mode while powered and while the process is idle or completed. Selecting manual or defrost preserves the current cooking time. Bake sets 30 minutes, roast sets 60 minutes, and broil sets 15 minutes. Every mode preserves the configured microwave power. Invalid input or an unavailable process state leaves all properties unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "description": "Microwave cooking mode to select.",
+                "enum": [
+                  "manual",
+                  "bake",
+                  "roast",
+                  "broil",
+                  "defrost"
+                ],
+                "examples": [
+                  "manual",
+                  "defrost"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "cooking_mode",
+            "cooking_time"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Bake, roast, and broil apply mode-specific duration presets, while manual and defrost change only the mode and preserve the existing duration.",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Cooking mode cannot be changed while the microwave is powered off.",
+            "PROCESS_ACTIVE": "Cooking mode cannot be changed while cooking is running or paused.",
+            "INVALID_MODE": "Cooking mode must be manual, bake, roast, broil, or defrost."
+          }
+        },
+        "set_cooking_time": {
+          "description": "Set the cooking time from 1 through 240 minutes. This operation is available only while powered, in manual or defrost mode, and while the process is idle or completed. Invalid input or a failed precondition leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Desired cooking duration in whole minutes.",
+                "minimum": 1,
+                "maximum": 240,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "cooking_mode",
+            "status"
+          ],
+          "writes": [
+            "cooking_time"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "cooking_time",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "cooking_mode": {
+                "one_of": [
+                  "manual",
+                  "defrost"
+                ]
+              },
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Cooking time cannot be changed while the microwave is powered off.",
+            "INVALID_MODE": "Cooking time can be directly changed only in manual or defrost mode.",
+            "PROCESS_ACTIVE": "Cooking time cannot be changed while cooking is running or paused.",
+            "INVALID_TIME": "Cooking time must be an integer from 1 through 240 minutes."
+          }
+        },
+        "get_microwave_power": {
+          "description": "Get the configured microwave output power. The operation fails without changing state while the microwave is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "microwave_power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "microwave_power",
+            "response_key": "microwave_power",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "microwave_power": {
+              "type": "integer",
+              "description": "Configured microwave output power in watts, from 100 through 1000 in 100-watt increments."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Microwave power is inaccessible while the microwave is powered off."
+          }
+        },
+        "set_microwave_power": {
+          "description": "Set microwave output power from 100 through 1000 watts in 100-watt increments. This operation is available only while powered and while the cooking process is idle or completed. Invalid input or a failed precondition leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Desired microwave output power in watts.",
+                "minimum": 100,
+                "maximum": 1000,
+                "multipleOf": 100
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "microwave_power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "microwave_power",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Microwave power cannot be changed while the microwave is powered off.",
+            "PROCESS_ACTIVE": "Microwave power cannot be changed while cooking is running or paused.",
+            "INVALID_POWER": "Microwave power must be from 100 through 1000 watts in 100-watt increments."
+          }
+        },
+        "start_cooking": {
+          "description": "Start a new microwave cooking process in the requested mode while powered and while the previous process is idle or completed. Manual and defrost use the current cooking time. Bake applies 30 minutes, roast applies 60 minutes, and broil applies 15 minutes before initializing the process. The configured microwave power is preserved and cannot be changed through its setter while cooking is running or paused. Starting resets progress to zero, selects the cooking phase, and freezes the resulting duration until completion or an explicit stop.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "description": "Microwave cooking mode to start.",
+                "enum": [
+                  "manual",
+                  "bake",
+                  "roast",
+                  "broil",
+                  "defrost"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "cooking_time",
+            "progress_minutes"
+          ],
+          "writes": [
+            "cooking_mode",
+            "cooking_time",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "mode",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Cooking cannot start while the microwave is powered off.",
+            "PROCESS_ACTIVE": "A new cooking process can start only while the previous process is idle or completed.",
+            "INVALID_MODE": "Cooking mode must be manual, bake, roast, broil, or defrost."
+          }
+        },
+        "pause_cooking": {
+          "description": "Pause a running microwave cooking process while powered. Progress and remaining time are synchronized to the current elapsed minute before status becomes paused. The selected mode, cooking duration, microwave-power setting, phase, and running-time origin remain unchanged. The operation fails without changing state unless the process is running.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "cooking_time",
+            "started_at_minute"
+          ],
+          "writes": [
+            "status",
+            "remaining_minutes",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "process_pause",
+            "preconditions": {
+              "power": true,
+              "status": "running"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Cooking cannot be paused while the microwave is powered off.",
+            "NOT_RUNNING": "Only a running microwave cooking process can be paused."
+          }
+        },
+        "stop_cooking": {
+          "description": "Stop and abandon a running or paused microwave cooking process while powered. The operation resets status and phase to idle and resets remaining time, elapsed progress, and the running-time origin to zero. The configured cooking mode, cooking time, and microwave-power setting remain unchanged so they may be changed or used for a new process. A failed precondition leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "status": {
+                "value": "idle"
+              },
+              "phase": {
+                "value": "idle"
+              },
+              "remaining_minutes": {
+                "value": 0
+              },
+              "started_at_minute": {
+                "value": 0
+              },
+              "progress_minutes": {
+                "value": 0
+              }
+            },
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "running",
+                  "paused"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Cooking cannot be stopped while the microwave is powered off.",
+            "NOT_ACTIVE": "Only a running or paused microwave cooking process can be stopped."
+          }
+        }
+      },
+      "disabled": [
+        "get_heating_temperature",
+        "set_heating_temperature"
+      ]
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "Each minute, advance a powered and running microwave cooking process using elapsed time from started_at_minute. The single cooking phase lasts exactly the frozen cooking_time. Clamp progress to the configured duration and remaining time to zero; at the exact duration boundary set both status and phase to completed. Paused, idle, completed, or unpowered processes do not advance. The microwave emits no direct Space effect.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether the cooking process may advance."
+            },
+            {
+              "name": "cooking_time",
+              "description": "Provides the exact duration of the cooking phase."
+            },
+            {
+              "name": "status",
+              "description": "Determines whether the cooking process advances."
+            },
+            {
+              "name": "phase",
+              "description": "Tracks the active cooking phase and is set to completed when the configured duration elapses."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Stores the internally updated number of whole minutes remaining in the cooking process."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Provides the elapsed-minute origin used to calculate process progress."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Stores the internally updated number of completed cooking minutes."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

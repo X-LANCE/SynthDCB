@@ -1,0 +1,27 @@
+{
+  "domain_type": "Phone",
+  "space_types": {
+    "Setting": [],
+    "Application": []
+  },
+  "space_properties": {},
+  "runtime_properties": {
+    "elapsed_minutes": {
+      "type": "integer",
+      "unit": "minute",
+      "minimum": 0,
+      "maximum": null,
+      "precision": 0,
+      "allowed_effect_functions": [],
+      "allowed_operators": [
+        "eq",
+        "range",
+        "gte",
+        "lte",
+        "delta_at_least",
+        "closer_to",
+        "unchanged"
+      ]
+    }
+  }
+}

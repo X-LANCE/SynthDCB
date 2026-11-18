@@ -1,0 +1,583 @@
+{
+  "Window": {
+    "domain": "Car",
+    "class": "Window",
+    "description": "Vehicle window. Supports querying and setting the opening percentage. The degree of opening affects illuminance and ambient sound level in the vehicle interior according to conditions outside the vehicle.",
+    "inherited_list": [
+      {
+        "class": "Sunroof",
+        "description": "Sunroof that inherits the opening controls of Window. Adds an independent sunshade opening property; adjusting the sunshade does not change the sunroof opening.",
+        "placement": {
+          "allowed_space_types": [
+            "cabin"
+          ],
+          "min_items_per_world": 1,
+          "max_items_per_world": 1,
+          "min_items_per_space": 1,
+          "max_items_per_space": 1
+        }
+      }
+    ],
+    "placement": {
+      "allowed_space_types": [
+        "cabin",
+        "driver_seat",
+        "front_passenger_seat",
+        "passenger_seat"
+      ],
+      "min_items_per_world": 5,
+      "max_items_per_world": 5,
+      "min_items_per_space": 0,
+      "max_items_per_space": 1
+    }
+  },
+  "ClimateControl": {
+    "domain": "Car",
+    "class": "ClimateControl",
+    "description": "Cabin climate control. Supports switching on and off, target temperature, fan speed, automatic/cooling/heating/fan-only modes, and fresh-air/recirculation settings, with front and rear windshield defogging modes. While running, the device adjusts cabin temperature according to its current operating mode; fan-only operation does not directly change temperature.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "cabin"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "SeatHeater": {
+    "domain": "Car",
+    "class": "SeatHeater",
+    "description": "Seat heating function. Supports switching on and off and adjusting seat temperature. When enabled, the temperature of the seat Space gradually rises toward the target; the device cannot actively cool. When disabled, the temperature gradually approaches cabin temperature.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "driver_seat",
+        "front_passenger_seat",
+        "passenger_seat"
+      ],
+      "min_items_per_world": 5,
+      "max_items_per_world": 7,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "CabinLight": {
+    "domain": "Car",
+    "class": "CabinLight",
+    "description": "Cabin light. Supports switching on and off and adjusting brightness. When on, it changes the illuminance of its Space according to its brightness.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "cabin"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Infotainment": {
+    "domain": "Car",
+    "class": "Infotainment",
+    "description": "Vehicle multimedia system. Supports volume, mute, audio source selection, play, pause, and stop. Supports radio, MP3, and Bluetooth modes. Radio mode supports switching between FM and AM, tuning frequencies, and saving or recalling stations. MP3 mode supports repeat modes, previous/next track selection, and querying information such as the current artist, track title, and album. Bluetooth mode supports querying connectable and connected Bluetooth devices, saving devices, and connecting or disconnecting them. Whether playback is active affects the cabin sound level.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "multimedia"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Charging": {
+    "domain": "Car",
+    "class": "Charging",
+    "description": "Charging control module. Supports opening and closing the charging-port cover, starting and ending charging, and setting the charge limit and charging speed level. Once charging starts, the vehicle battery level changes over time.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "electric_energy",
+        "hybrid_energy"
+      ],
+      "min_items_per_world": 0,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Door": {
+    "domain": "Car",
+    "class": "Door",
+    "description": "Vehicle door lock and door state module, instantiated for each actual side door or tailgate. Supports locking, unlocking, and querying lock state, door opening/closing state, and closure feedback; a locked door is not necessarily closed. The base class does not provide powered opening or closing; manual operation is updated through local environment actions. Door opening and closing contribute to exchange between the corresponding Space and the outside.",
+    "inherited_list": [
+      {
+        "class": "TrunkDoor",
+        "description": "Trunk door that inherits Door locking, unlocking, and door-state queries. Represents the door connection between trunk and exterior; opening and closing affect exchange between the trunk Space and the outside.",
+        "placement": {
+          "allowed_space_types": [
+            "trunk"
+          ],
+          "min_items_per_world": 1,
+          "max_items_per_world": 1,
+          "min_items_per_space": 1,
+          "max_items_per_space": 1
+        }
+      },
+      {
+        "class": "Tailgate",
+        "description": "Pickup cargo-bed tailgate that inherits Door locking, unlocking, and door-state queries. Represents the door connection between cargo_bed and exterior; opening and closing affect exchange between the cargo-bed Space and the outside. Instantiate only for vehicle models with a cargo bed.",
+        "placement": {
+          "allowed_space_types": [
+            "cargo_bed"
+          ],
+          "min_items_per_world": 0,
+          "max_items_per_world": 1,
+          "min_items_per_space": 1,
+          "max_items_per_space": 1
+        }
+      }
+    ],
+    "placement": {
+      "allowed_space_types": [
+        "driver_seat",
+        "front_passenger_seat",
+        "passenger_seat",
+        "trunk",
+        "cargo_bed"
+      ],
+      "min_items_per_world": 5,
+      "max_items_per_world": 6,
+      "min_items_per_space": 0,
+      "max_items_per_space": 1
+    }
+  },
+  "Sunshade": {
+    "domain": "Car",
+    "class": "Sunshade",
+    "description": "Independent powered sunshade. Supports querying and setting the shade opening, stopping motion, and querying motion feedback. The degree of shading affects light and solar heat load in the corresponding area without changing the glass opening. Instantiate only for an independent shading mechanism not already owned by an existing Sunroof module, avoiding two sets of state for the same shade. Candidate selection and spatial/environmental constraints apply; action contracts are simulation designs.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "cabin"
+      ],
+      "min_items_per_world": 0,
+      "max_items_per_world": 5,
+      "min_items_per_space": 0,
+      "max_items_per_space": 5
+    }
+  },
+  "Wiper": {
+    "domain": "Car",
+    "class": "Wiper",
+    "description": "Vehicle wiper, instantiated for each actual front or rear glass mechanism. Supports off, single wipe, continuous wiping, intermittent wiping, and the speed or interval levels available on that mechanism, as well as triggering the corresponding washer action. Supports querying current operating state. A single action ends on completion; a requested level is not equivalent to a cleaning result. Available levels and washer behavior are simulation designs specific to the vehicle model.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "exterior"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 2,
+      "min_items_per_space": 1,
+      "max_items_per_space": 2
+    }
+  },
+  "SeatComfort": {
+    "domain": "Car",
+    "class": "SeatComfort",
+    "description": "Powered seat position adjustment module, instantiated for each actual seat. Supports querying and adjusting the powered position axes of that seat and stopping adjustment. Available axes and travel ranges are fixed capabilities; axes that are not installed offer no control. Target and actual positions are separate, with progress and obstruction state available during motion.",
+    "inherited_list": [
+      {
+        "class": "MemorySeatComfort",
+        "description": "Powered seat with memory. Adds saving the current actual position to a local memory slot, recalling a saved position, and canceling recall. Recall uses the existing adjustment process.",
+        "placement": {
+          "allowed_space_types": [
+            "driver_seat",
+            "front_passenger_seat"
+          ],
+          "min_items_per_world": 0,
+          "max_items_per_world": 2,
+          "min_items_per_space": 0,
+          "max_items_per_space": 1
+        }
+      }
+    ],
+    "placement": {
+      "allowed_space_types": [
+        "driver_seat",
+        "front_passenger_seat",
+        "passenger_seat"
+      ],
+      "min_items_per_world": 5,
+      "max_items_per_world": 7,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "SeatVentilator": {
+    "domain": "Car",
+    "class": "SeatVentilator",
+    "description": "Seat ventilation module, instantiated for seats equipped with ventilation mechanisms. Supports switching on and off, ventilation levels, and operating-state queries. It provides local heat dissipation at the seat, is not a separate cooling air conditioner, and does not directly set seat air temperature. Seat surface temperature belongs to the seat Space.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "driver_seat",
+        "front_passenger_seat",
+        "passenger_seat"
+      ],
+      "min_items_per_world": 0,
+      "max_items_per_world": 7,
+      "min_items_per_space": 0,
+      "max_items_per_space": 1
+    }
+  },
+  "SteeringWheel": {
+    "domain": "Car",
+    "class": "SteeringWheel",
+    "description": "Steering wheel module. Supports turning heating on and off and querying its operating state. Heating affects the steering wheel contact surface without directly changing the shared cabin temperature.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "driver_seat"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Mirror": {
+    "domain": "Car",
+    "class": "Mirror",
+    "description": "Powered exterior mirror, instantiated separately for the left and right sides. Supports querying and adjusting horizontal and vertical mirror positions, and controlling folding and unfolding.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "exterior"
+      ],
+      "min_items_per_world": 2,
+      "max_items_per_world": 2,
+      "min_items_per_space": 2,
+      "max_items_per_space": 2
+    }
+  },
+  "CarRefrigerator": {
+    "domain": "Car",
+    "class": "CarRefrigerator",
+    "description": "Vehicle refrigerator. Supports switching on and off, target temperature, and queries of internal temperature and operating state. Internal temperature changes through the cooling process and is separate from the shared cabin temperature. The base class cannot actively heat.",
+    "inherited_list": [
+      {
+        "class": "CoolingHeatingCarRefrigerator",
+        "description": "Vehicle refrigerator with cooling and heating. Adds a heating mode and target temperature ranges specific to each mode.",
+        "placement": {
+          "allowed_space_types": [
+            "cabin",
+            "trunk"
+          ],
+          "min_items_per_world": 0,
+          "max_items_per_world": 1,
+          "min_items_per_space": 0,
+          "max_items_per_space": 1
+        }
+      }
+    ],
+    "placement": {
+      "allowed_space_types": [
+        "cabin",
+        "trunk"
+      ],
+      "min_items_per_world": 0,
+      "max_items_per_world": 1,
+      "min_items_per_space": 0,
+      "max_items_per_space": 1
+    }
+  },
+  "Fragrance": {
+    "domain": "Car",
+    "class": "Fragrance",
+    "description": "Vehicle fragrance module. Supports switching on and off, release intensity, selecting an installed fragrance slot, and querying consumable availability. Slot count and contents are determined by the equipment configuration; normal release must not be reported when no usable consumable is available. Fragrance release is not air purification and does not automatically overwrite air-quality sensor readings.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "cabin"
+      ],
+      "min_items_per_world": 0,
+      "max_items_per_world": 1,
+      "min_items_per_space": 0,
+      "max_items_per_space": 1
+    }
+  },
+  "AmbientLight": {
+    "domain": "Car",
+    "class": "AmbientLight",
+    "description": "Interior ambient light with adjustable color, instantiated for each independently controlled area. Supports switching on and off, brightness, and color settings. The available colors or color space are fixed capabilities. A brightness setting is distinct from seat illuminance; the environment model calculates the actual lighting contribution. It does not replace existing reading lights.",
+    "inherited_list": [
+      {
+        "class": "DynamicAmbientLight",
+        "description": "Dynamic ambient light. Adds selecting, starting, and stopping local dynamic lighting effects and querying the current effect state. Dynamic effects and static color mode are mutually exclusive.",
+        "placement": {
+          "allowed_space_types": [
+            "cabin"
+          ],
+          "min_items_per_world": 0,
+          "max_items_per_world": 1,
+          "min_items_per_space": 0,
+          "max_items_per_space": 1
+        }
+      }
+    ],
+    "placement": {
+      "allowed_space_types": [
+        "cabin"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "ExteriorLight": {
+    "domain": "Car",
+    "class": "ExteriorLight",
+    "description": "Vehicle exterior lighting and signaling module. Supports driver selection of lighting mode, low/high-beam requests, turn signals, and hazard lights, with queries of actual illumination feedback. Automatic lighting uses local environment inputs.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "exterior"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "CarDisplay": {
+    "domain": "Car",
+    "class": "CarDisplay",
+    "description": "In-vehicle display, instantiated for each actual independent center, instrument, front-passenger, or rear-seat screen. Supports brightness, light/dark theme, and display layout settings.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "multimedia"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 7,
+      "min_items_per_space": 1,
+      "max_items_per_space": 7
+    }
+  },
+  "HeadUpDisplay": {
+    "domain": "Car",
+    "class": "HeadUpDisplay",
+    "description": "Head-up display module, instantiated only for vehicle models equipped with the corresponding hardware. Supports enabling/disabling the display, brightness, and projection position adjustment. Displays information supplied by vehicle and navigation modules without holding a second set of speed or route state. Projection range and supported display content are fixed capabilities; augmented reality and automated driving are not implicit base capabilities.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "multimedia"
+      ],
+      "min_items_per_world": 0,
+      "max_items_per_world": 1,
+      "min_items_per_space": 0,
+      "max_items_per_space": 1
+    }
+  },
+  "RearEntertainmentDisplay": {
+    "domain": "Car",
+    "class": "RearEntertainmentDisplay",
+    "description": "Rear entertainment display module. A projection entertainment screen at the rear of the cabin, supporting raising and lowering the projection screen, switching the projector on and off, and adjusting brightness.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "multimedia"
+      ],
+      "min_items_per_world": 0,
+      "max_items_per_world": 1,
+      "min_items_per_space": 0,
+      "max_items_per_space": 1
+    }
+  },
+  "Navigation": {
+    "domain": "Car",
+    "class": "Navigation",
+    "description": "Local vehicle navigation module. Supports setting a destination, selecting a local simulated route, starting or canceling guidance, setting route preferences, and querying route state, remaining distance, and estimated time. Route calculation, position updates, and arrival events use an explicit local execution model without accessing real map services. Starting guidance does not mean the vehicle has moved or arrived. Navigation prompts affect the shared cabin sound field through the media output chain.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "multimedia"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "DriveSettings": {
+    "domain": "Car",
+    "class": "DriveSettings",
+    "description": "Vehicle driving preference module. Supports selecting a driving mode configured for the vehicle model and querying the requested and effective modes. Available modes, applicable powertrain types, and switching conditions are fixed configuration. Driving modes change powertrain response strategies without directly setting speed or gear or completing a driving task.",
+    "inherited_list": [
+      {
+        "class": "ElectrifiedDriveSettings",
+        "description": "Electrified vehicle driving settings. Adds selection of regenerative braking intensity or mode and feedback on the effective setting, without directly writing battery charge level. Applies only to battery-electric, hybrid, or range-extended configurations with configurable energy recovery strategies.",
+        "placement": {
+          "allowed_space_types": [
+            "electric_energy"
+          ],
+          "min_items_per_world": 0,
+          "max_items_per_world": 1,
+          "min_items_per_space": 1,
+          "max_items_per_space": 1
+        }
+      },
+      {
+        "class": "HybridDriveSettings",
+        "description": "Hybrid or range-extended vehicle driving settings. Adds energy-use strategy selection and queries of actual engine and electric-drive operating states, distinguishing user requests from the actual strategy under protection conditions. Instantiate only for vehicle models equipped with both fuel and electric energy systems. Range-extender generation does not imply that the engine directly drives the wheels.",
+        "placement": {
+          "allowed_space_types": [
+            "hybrid_energy"
+          ],
+          "min_items_per_world": 0,
+          "max_items_per_world": 1,
+          "min_items_per_space": 1,
+          "max_items_per_space": 1
+        }
+      }
+    ],
+    "placement": {
+      "allowed_space_types": [
+        "fuel_energy",
+        "electric_energy",
+        "hybrid_energy"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "AirSuspension": {
+    "domain": "Car",
+    "class": "AirSuspension",
+    "description": "Air suspension module with user-adjustable height. Supports selecting a target height from the fixed capability set and querying actual height, adjustment progress, and failure feedback.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "propulsion"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "AdaptiveDamping": {
+    "domain": "Car",
+    "class": "AdaptiveDamping",
+    "description": "Variable damping module with user-selectable modes. Supports selecting a damping mode from a fixed set and querying the effective state. Its configuration is independent of air-suspension height control, so inheritance from AirSuspension is not required.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "propulsion"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "ExternalPowerSupply": {
+    "domain": "Car",
+    "class": "ExternalPowerSupply",
+    "description": "Vehicle external power supply module. Supports starting and stopping output, setting a reserve battery threshold, and querying actual output power, connection state, and protection reasons. Starting requires a connected external load and sufficient energy conditions. Output stops when the reserve threshold or a protection condition is reached.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "electric_energy",
+        "hybrid_energy"
+      ],
+      "min_items_per_world": 0,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "FuelSystem": {
+    "domain": "Car",
+    "class": "FuelSystem",
+    "description": "Fuel system module. Supports querying remaining fuel and the fuel filler flap state, and requesting the filler flap to unlock.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "fuel_energy",
+        "hybrid_energy"
+      ],
+      "min_items_per_world": 0,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "DriverAssistance": {
+    "domain": "Car",
+    "class": "DriverAssistance",
+    "description": "Driver assistance settings and state module. Supports switching cruise control on and off, setting target speed, and enabling assistance functions such as lane keeping and automatic following.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "propulsion"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "ParkingCamera": {
+    "domain": "Car",
+    "class": "ParkingCamera",
+    "description": "Parking camera module. Supports turning the image display on or off, selecting views provided by installed cameras, and querying image availability. Camera count and selectable views are fixed capabilities.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "multimedia"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "Dashcam": {
+    "domain": "Car",
+    "class": "Dashcam",
+    "description": "Dashcam module. Supports starting and stopping recording, saving the current segment, querying recording state and local storage availability, and managing retention or deletion of simulated clips.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "multimedia"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  },
+  "VehicleSecurity": {
+    "domain": "Car",
+    "class": "VehicleSecurity",
+    "description": "Vehicle anti-theft and parked security module. Supports arming, disarming, and querying security state and the current trigger reason. Triggers arise from configured local sensor events. Dismissing an alarm requires authorization; door lock state is still read from Door, and arming does not mean the doors are locked. Recording requests are delegated to Dashcam; an alarm trigger does not mean a recording has been saved.",
+    "inherited_list": [],
+    "placement": {
+      "allowed_space_types": [
+        "cabin"
+      ],
+      "min_items_per_world": 1,
+      "max_items_per_world": 1,
+      "min_items_per_space": 1,
+      "max_items_per_space": 1
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "duplex_townhouse",
+  "spaces": [
+    {"id": "entryway", "type": "entryway", "floor": 1},
+    {"id": "living_room", "type": "living_room", "floor": 1},
+    {"id": "bedroom", "type": "bedroom", "floor": 2},
+    {"id": "bedroom_2", "type": "bedroom", "floor": 2},
+    {"id": "bathroom", "type": "bathroom", "floor": 2},
+    {"id": "bathroom_2", "type": "bathroom", "floor": 2},
+    {"id": "kitchen", "type": "kitchen", "floor": 1},
+    {"id": "dining_room", "type": "dining_room", "floor": 1},
+    {"id": "hallway", "type": "hallway", "floor": 1},
+    {"id": "laundry_room", "type": "laundry_room", "floor": 1},
+    {"id": "storage_room", "type": "storage_room", "floor": 2},
+    {"id": "stairs", "type": "stairs"},
+    {"id": "basement", "type": "basement", "floor": -1},
+    {"id": "garden", "type": "garden", "floor": 1}
+  ],
+  "connections": [
+    {"space_1": "entryway", "space_2": "hallway", "type": "passage", "current_state": "open"},
+    {"space_1": "hallway", "space_2": "living_room", "type": "passage", "current_state": "open"},
+    {"space_1": "hallway", "space_2": "bedroom", "type": "door", "current_state": "closed"},
+    {"space_1": "hallway", "space_2": "bedroom_2", "type": "door", "current_state": "closed"},
+    {"space_1": "hallway", "space_2": "bathroom", "type": "door", "current_state": "closed"},
+    {"space_1": "hallway", "space_2": "bathroom_2", "type": "door", "current_state": "closed"},
+    {"space_1": "hallway", "space_2": "storage_room", "type": "door", "current_state": "closed"},
+    {"space_1": "hallway", "space_2": "stairs", "type": "passage", "current_state": "open"},
+    {"space_1": "living_room", "space_2": "dining_room", "type": "passage", "current_state": "open"},
+    {"space_1": "living_room", "space_2": "garden", "type": "door", "current_state": "closed"},
+    {"space_1": "dining_room", "space_2": "kitchen", "type": "passage", "current_state": "open"},
+    {"space_1": "kitchen", "space_2": "laundry_room", "type": "door", "current_state": "closed"},
+    {"space_1": "stairs", "space_2": "basement", "type": "passage", "current_state": "open"}
+  ]
+}

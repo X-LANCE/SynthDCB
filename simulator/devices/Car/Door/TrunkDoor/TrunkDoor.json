@@ -1,0 +1,22 @@
+{
+  "TrunkDoor": {
+    "meta": {
+      "name": "TrunkDoor",
+      "description": "Trunk door that inherits Door locking, unlocking, and door-state queries. Represents the door connection between trunk and exterior; opening and closing affect exchange between the trunk Space and the outside.",
+      "version": "1.0.0",
+      "from": "../Door.json"
+    },
+    "properties": {
+      "update": {},
+      "disabled": []
+    },
+    "functions": {
+      "update": {},
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

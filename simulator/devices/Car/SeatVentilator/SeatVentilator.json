@@ -1,0 +1,197 @@
+{
+  "SeatVentilator": {
+    "meta": {
+      "name": "SeatVentilator",
+      "description": "Seat ventilation module, instantiated for seats equipped with ventilation mechanisms. Supports switching on and off, ventilation levels, and operating-state queries. It provides local heat dissipation at the seat, is not a separate cooling air conditioner, and does not directly set seat air temperature. Seat surface temperature belongs to the seat Space.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the seat ventilation mechanism is operating.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "ventilation_level": {
+          "type": "integer",
+          "description": "Selected ventilation intensity level, retained when the module is powered off.",
+          "mode": 3,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "dissipation_reference_temperature": {
+          "type": "float",
+          "description": "Fixed internal seat-surface thermal reference used by the deterministic ventilation model. It is not a user temperature setting or a cabin temperature measurement.",
+          "mode": 0,
+          "value": {
+            "default": 22.0,
+            "unit": "degC",
+            "precision": 1
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_ventilation_level": {
+          "description": "Return the selected ventilation intensity level from 1 through 3. The module must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "ventilation_level"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "ventilation_level",
+            "response_key": "ventilation_level",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "ventilation_level": {
+              "type": "integer",
+              "description": "Selected ventilation intensity level from 1 through 3."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The seat ventilation module must be powered on."
+          }
+        },
+        "set_ventilation_level": {
+          "description": "Set the ventilation intensity to an integer level from 1 through 3. The module must be powered on. Invalid input or a failed power precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "ventilation_level"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "ventilation_level",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The seat ventilation module must be powered on.",
+            "INVALID_INPUT_ERROR": "Ventilation level must be an integer from 1 through 3."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While powered and the containing seat Space seat_temperature is above dissipation_reference_temperature, approach seat_temperature downward toward that reference by at most ventilation_level degrees Celsius per minute. Emit no effect while powered off, when the seat is at or below the reference, or once the reference is reached. Ventilation never heats the seat or reduces its temperature below the internal reference.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether seat ventilation produces heat dissipation."
+            },
+            {
+              "name": "ventilation_level",
+              "description": "Determines the maximum seat-temperature reduction per minute."
+            },
+            {
+              "name": "dissipation_reference_temperature",
+              "description": "Provides the local device-state target for seat-surface heat dissipation."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

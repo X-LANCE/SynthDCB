@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:scenario-generation-plan",
+  "title": "DCB v2 production world and task generation plan",
+  "type": "object",
+  "required": [
+    "generation_run_id",
+    "domain",
+    "domain_path",
+    "world_output_root",
+    "task_output_root",
+    "run_output_root",
+    "random_seed",
+    "worlds",
+    "tasks"
+  ],
+  "properties": {
+    "generation_run_id": {
+      "$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"
+    },
+    "domain": {
+      "$ref": "urn:dcb:v2:schema:common#/$defs/identifier"
+    },
+    "domain_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "world_output_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_world_output_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_output_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_output_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "random_seed": {
+      "type": "integer"
+    },
+    "worlds": {
+      "type": "object",
+      "required": [
+        "count",
+        "min_devices_per_space",
+        "max_devices_per_space"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "id_prefix": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,47}$"
+        },
+        "min_devices_per_space": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_devices_per_space": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_workers": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "template_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "tasks": {
+      "type": "object",
+      "required": [
+        "sampling_profile",
+        "samples_per_world"
+      ],
+      "properties": {
+        "sampling_profile": {
+          "type": "string",
+          "minLength": 1
+        },
+        "world_samples": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 10
+        },
+        "samples_per_world": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_initial_tweaks": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_task_attempts": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_workers": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "source_world_list": {
+          "type": "string",
+          "minLength": 1
+        },
+        "world_sample_ordinals": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,468 @@
+{
+  "Monitor": {
+    "meta": {
+      "name": "Monitor",
+      "description": "Display device. Users can query and set display power, input source, volume, mute, picture mode, and brightness. When the display device is on, it presents content from the current input source; switching the input source changes the displayed content.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the display device is powered on.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "input_source": {
+          "type": "string",
+          "description": "The currently selected display input source.",
+          "mode": 3,
+          "value": {
+            "default": "hdmi_1",
+            "choices": [
+              "hdmi_1",
+              "hdmi_2",
+              "displayport",
+              "usb_c"
+            ]
+          }
+        },
+        "volume": {
+          "type": "integer",
+          "description": "The display device volume level.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "mute": {
+          "type": "boolean",
+          "description": "Whether audio output from the display device is muted.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "picture_mode": {
+          "type": "string",
+          "description": "The active picture preset.",
+          "mode": 3,
+          "value": {
+            "default": "standard",
+            "choices": [
+              "standard",
+              "cinema",
+              "game",
+              "vivid"
+            ]
+          }
+        },
+        "brightness": {
+          "type": "integer",
+          "description": "The display brightness level.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_input_source": {
+          "description": "Return the currently selected input source. This function is available only while the display device is powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "input_source"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "input_source",
+            "response_key": "input_source",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "input_source": {
+              "type": "string",
+              "description": "The selected input source."
+            }
+          }
+        },
+        "set_input_source": {
+          "description": "Select the input source presented by the display. This changes displayed content selection without changing the external source's playback state. Available only while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "hdmi_1",
+                  "hdmi_2",
+                  "displayport",
+                  "usb_c"
+                ],
+                "description": "The input source to select."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "input_source"
+          ],
+          "writes": [
+            "input_source"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "input_source",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_volume": {
+          "description": "Return the display device volume level. Available only while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "volume"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "volume",
+            "response_key": "volume",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "volume": {
+              "type": "integer",
+              "description": "The volume level from 0 to 100."
+            }
+          }
+        },
+        "set_volume": {
+          "description": "Set the display device volume from 0 through 100. Available only while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "The desired volume level."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "volume"
+          ],
+          "writes": [
+            "volume"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "volume",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_mute": {
+          "description": "Return whether display audio is muted. Available only while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "mute"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "mute",
+            "response_key": "mute",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "mute": {
+              "type": "boolean",
+              "description": "Whether audio is muted."
+            }
+          }
+        },
+        "set_mute": {
+          "description": "Set whether display audio is muted. Available only while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether to mute audio."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "mute"
+          ],
+          "writes": [
+            "mute"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "mute",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_picture_mode": {
+          "description": "Return the active picture preset. Available only while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "picture_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "picture_mode",
+            "response_key": "picture_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "picture_mode": {
+              "type": "string",
+              "description": "The active picture preset."
+            }
+          }
+        },
+        "set_picture_mode": {
+          "description": "Set the active picture preset. Available only while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "standard",
+                  "cinema",
+                  "game",
+                  "vivid"
+                ],
+                "description": "The picture preset to use."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "picture_mode"
+          ],
+          "writes": [
+            "picture_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "picture_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_brightness": {
+          "description": "Return the display brightness level. Available only while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "brightness",
+            "response_key": "brightness",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "brightness": {
+              "type": "integer",
+              "description": "The brightness level from 0 to 100."
+            }
+          }
+        },
+        "set_brightness": {
+          "description": "Set the display brightness from 0 through 100. Available only while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "The desired brightness level."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "brightness",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

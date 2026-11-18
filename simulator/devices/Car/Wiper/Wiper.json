@@ -1,0 +1,255 @@
+{
+  "Wiper": {
+    "meta": {
+      "name": "Wiper",
+      "description": "Vehicle wiper, instantiated for each actual front or rear glass mechanism. Supports off, single wipe, continuous wiping, intermittent wiping, and the speed or interval levels available on that mechanism, as well as triggering the corresponding washer action. Supports querying current operating state. A single action ends on completion; a requested level is not equivalent to a cleaning result. Available levels and washer behavior are simulation designs specific to the vehicle model.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "operating_state": {
+          "type": "string",
+          "description": "Current sustained wiper operating state.",
+          "mode": 2,
+          "value": {
+            "default": "off",
+            "choices": [
+              "off",
+              "continuous",
+              "intermittent"
+            ]
+          }
+        },
+        "level": {
+          "type": "integer",
+          "description": "Mechanism-specific wiping level. It represents speed during continuous wiping and interval selection during intermittent wiping.",
+          "mode": 3,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 1
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_operating_state": {
+          "description": "Return the current sustained operating state without changing it. Single-wipe and washer actions complete synchronously and therefore do not remain as queryable sustained states.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "operating_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "operating_state",
+            "response_key": "operating_state"
+          },
+          "response": {
+            "operating_state": {
+              "type": "string",
+              "description": "Current sustained state: off, continuous, or intermittent."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_level": {
+          "description": "Return the configured mechanism-specific level without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "level"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "level",
+            "response_key": "level"
+          },
+          "response": {
+            "level": {
+              "type": "integer",
+              "description": "Configured wiping level from 1 through 3."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_level": {
+          "description": "Set the mechanism-specific wiping level to an integer from 1 through 3. The new level applies immediately to sustained operation and to subsequent single-wipe or washer actions. Invalid input is rejected and leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "level"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "level",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Level must be an integer from 1 through 3."
+          }
+        },
+        "start_continuous": {
+          "description": "Start continuous wiping at the configured level. This replaces any previous sustained operating state and succeeds idempotently if continuous wiping is already selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "operating_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "operating_state": {
+                "value": "continuous"
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "start_intermittent": {
+          "description": "Start intermittent wiping using the configured interval level. This replaces any previous sustained operating state and succeeds idempotently if intermittent wiping is already selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "operating_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "operating_state": {
+                "value": "intermittent"
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "stop": {
+          "description": "Stop sustained wiping. The configured level is preserved, and calling this action while already off succeeds without further change.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "operating_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "operating_state": {
+                "value": "off"
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "wipe_once": {
+          "description": "Perform one wipe at the configured level and complete before returning. The action preserves the current sustained operating state and reports command completion; it does not claim that the glass was cleaned.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "level"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "custom",
+            "reason": "A synchronous one-shot mechanical command completes without changing persistent device state, which is not expressible by the standard state-mapping semantics."
+          },
+          "response": {
+            "completed": {
+              "type": "boolean",
+              "description": "True when the simulated single-wipe command has completed."
+            }
+          },
+          "errorcodes": {}
+        },
+        "trigger_washer": {
+          "description": "Trigger the washer for this wiper mechanism, spray the corresponding glass, and perform one wipe at the configured level before returning. The action preserves the current sustained operating state, does not track washer-fluid quantity, and does not claim a cleaning result.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "level"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The synchronous washer-and-wipe command has no corresponding mutable Car Space property or persistent device-state mapping."
+          },
+          "response": {
+            "completed": {
+              "type": "boolean",
+              "description": "True when the simulated washer-and-wipe command has completed."
+            }
+          },
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:task-authoring-request",
+  "title": "DCB v2 private task authoring request",
+  "type": "object",
+  "required": [
+    "authoring_run_id",
+    "scenario_id",
+    "domain",
+    "domain_path",
+    "source_world_root",
+    "task_output_root",
+    "run_output_root",
+    "task_constraints",
+    "random_seed",
+    "initial_tweak_count"
+  ],
+  "properties": {
+    "authoring_run_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "scenario_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "domain": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+    "domain_path": {"type": "string", "minLength": 1},
+    "source_world_root": {"type": "string", "minLength": 1},
+    "task_output_root": {"type": "string", "minLength": 1},
+    "run_output_root": {"type": "string", "minLength": 1},
+    "task_constraints": {
+      "type": "object",
+      "required": ["task_family", "task_subtype", "requirements", "sampling"],
+      "properties": {
+        "task_family": {"$ref": "urn:dcb:v2:schema:task#/$defs/taskFamily"},
+        "task_subtype": {"$ref": "urn:dcb:v2:schema:task#/$defs/taskSubtype"},
+        "requirements": {
+          "type": "object",
+          "additionalProperties": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+        },
+        "sampling": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "random_seed": {"type": "integer"},
+    "initial_tweak_count": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}

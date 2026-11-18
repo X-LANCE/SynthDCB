@@ -1,0 +1,505 @@
+{
+  "Accessibility": {
+    "meta": {
+      "name": "Accessibility",
+      "description": "Accessibility and readability settings, placed in Setting and contained by System. Supports adjusting font scaling, enabling/disabling captions and reduced-motion preferences, querying installed and enabled assistive services, and requesting activation or deactivation of a specified service through simulated authorization. Font levels and assistive-service capabilities are read-only configuration. Normalized scales must state their mapping to platform levels; synthetic increments are not native cross-platform constraints. Denied authorization leaves service activation unchanged. Screen-reading capability depends on the services actually enabled; setting a preference alone must not imply that all content can be read aloud. Uses system-settings simulation; querying service state does not mean an ordinary application has permission to enable it.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "font_scale_level": {
+          "type": "string",
+          "description": "Selected normalized font scale level. Each value refers to an entry in font_levels rather than to a native cross-platform platform constant.",
+          "mode": 3,
+          "value": {
+            "default": "default",
+            "choices": [
+              "small",
+              "default",
+              "large",
+              "extra_large"
+            ]
+          }
+        },
+        "font_levels": {
+          "type": "dict",
+          "description": "Read-only font-level configuration keyed by level ID. Normalized percentages are synthetic simulation values: small is 85%, default is 100%, large is 115%, and extra_large is 130%. Platform adapters map these values to the nearest supported Android, HarmonyOS, or OpenHarmony level; the increments are not native cross-platform constraints.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "small": {
+                "normalized_percent": 85,
+                "platform_mapping": "nearest_supported_level"
+              },
+              "default": {
+                "normalized_percent": 100,
+                "platform_mapping": "nearest_supported_level"
+              },
+              "large": {
+                "normalized_percent": 115,
+                "platform_mapping": "nearest_supported_level"
+              },
+              "extra_large": {
+                "normalized_percent": 130,
+                "platform_mapping": "nearest_supported_level"
+              }
+            }
+          }
+        },
+        "captions_enabled": {
+          "type": "boolean",
+          "description": "Whether the system caption preference is enabled. Availability and coverage of captions still depend on the content and application.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "reduced_motion": {
+          "type": "boolean",
+          "description": "Whether reduced motion is preferred. Applications may interpret this preference according to their own supported behavior.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "installed_services": {
+          "type": "dict",
+          "description": "Read-only synthetic assistive-service catalog keyed by stable service ID. Each record contains a display name and immutable capability list.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "screen_reader": {
+                "name": "Synthetic Screen Reader",
+                "capabilities": [
+                  "screen_reading",
+                  "spoken_feedback"
+                ]
+              },
+              "switch_access": {
+                "name": "Synthetic Switch Access",
+                "capabilities": [
+                  "switch_navigation"
+                ]
+              }
+            }
+          }
+        },
+        "enabled_services": {
+          "type": "dict",
+          "description": "Currently enabled assistive services keyed by installed service ID. Every value has the exact fixed record structure {\"enabled\": true}, with no copied name, capabilities, or additional fields. Authorized activation inserts that exact record under the selected service ID, and authorized deactivation removes the selected key. Installed service metadata and capabilities remain owned by installed_services.",
+          "mode": 2,
+          "value": {
+            "default": {}
+          }
+        },
+        "screen_reading_available": {
+          "type": "boolean",
+          "description": "Whether at least one key in enabled_services identifies an installed service whose immutable capabilities include screen_reading. This does not guarantee that every application or item of content can be read aloud.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_font_scale_level": {
+          "description": "Return the selected normalized font scale level without changing any accessibility setting.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "font_scale_level"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "font_scale_level",
+            "response_key": "font_scale_level",
+            "preconditions": {}
+          },
+          "response": {
+            "font_scale_level": {
+              "type": "string",
+              "description": "The selected normalized font scale level ID."
+            }
+          }
+        },
+        "set_font_scale_level": {
+          "description": "Select an existing normalized font level. The level must be a key in the read-only font_levels catalog. Its synthetic normalized percentage is mapped to the nearest level supported by the simulated platform and is not treated as a native cross-platform increment. Invalid level IDs leave the selection unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "type": "string",
+                "enum": [
+                  "small",
+                  "default",
+                  "large",
+                  "extra_large"
+                ],
+                "examples": [
+                  "default",
+                  "large"
+                ]
+              }
+            },
+            "required": [
+              "level"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "font_levels"
+          ],
+          "writes": [
+            "font_scale_level"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "font_scale_level",
+            "parameter": "level",
+            "preconditions": {
+              "font_levels": {
+                "contains_key": {
+                  "parameter": "level"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "level": {
+              "property": "font_levels",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The requested font level does not exist in the read-only font_levels catalog."
+          }
+        },
+        "get_font_levels": {
+          "description": "Return the read-only normalized font-level catalog and its nearest-supported-platform mapping policy.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "font_levels"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "font_levels",
+            "response_key": "font_levels",
+            "preconditions": {}
+          },
+          "response": {
+            "font_levels": {
+              "type": "object",
+              "description": "Read-only font levels keyed by level ID, including synthetic normalized percentages and platform mapping information."
+            }
+          }
+        },
+        "get_captions_enabled": {
+          "description": "Return whether the system caption preference is enabled. This reports the preference, not whether particular content supplies captions.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "captions_enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "captions_enabled",
+            "response_key": "captions_enabled",
+            "preconditions": {}
+          },
+          "response": {
+            "captions_enabled": {
+              "type": "boolean",
+              "description": "Whether the system caption preference is enabled."
+            }
+          }
+        },
+        "set_captions_enabled": {
+          "description": "Enable or disable the system caption preference. This does not create captions for content that does not provide them.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "captions_enabled"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "captions_enabled",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_reduced_motion": {
+          "description": "Return whether reduced motion is preferred without changing the preference.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "reduced_motion"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "reduced_motion",
+            "response_key": "reduced_motion",
+            "preconditions": {}
+          },
+          "response": {
+            "reduced_motion": {
+              "type": "boolean",
+              "description": "Whether reduced motion is preferred."
+            }
+          }
+        },
+        "set_reduced_motion": {
+          "description": "Enable or disable the reduced-motion preference. The setting expresses a preference and does not guarantee that every application suppresses all animation.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "reduced_motion"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "reduced_motion",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_installed_services": {
+          "description": "Return all installed synthetic assistive services and their read-only capabilities. Reading this catalog does not grant an ordinary application permission to enable a service.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "installed_services"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "installed_services",
+            "response_key": "installed_services",
+            "preconditions": {}
+          },
+          "response": {
+            "installed_services": {
+              "type": "object",
+              "description": "Installed assistive services keyed by stable service ID with names and immutable capability lists."
+            }
+          }
+        },
+        "get_enabled_services": {
+          "description": "Return all currently enabled assistive services. Each returned dictionary value is exactly {\"enabled\": true}; service names and capabilities are available separately from installed_services. This is a system-settings simulation query and does not imply that an ordinary application can change the returned state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "enabled_services"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "enabled_services",
+            "response_key": "enabled_services",
+            "preconditions": {}
+          },
+          "response": {
+            "enabled_services": {
+              "type": "object",
+              "description": "Enabled assistive services keyed by installed service ID, with every value exactly equal to {\"enabled\": true}."
+            }
+          }
+        },
+        "get_screen_reading_available": {
+          "description": "Return whether an enabled assistive service currently declares screen-reading capability. A true result does not guarantee that every application or item of content is readable.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "screen_reading_available"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "screen_reading_available",
+            "response_key": "screen_reading_available",
+            "preconditions": {}
+          },
+          "response": {
+            "screen_reading_available": {
+              "type": "boolean",
+              "description": "Whether at least one enabled service declares screen_reading capability."
+            }
+          }
+        },
+        "request_service_state": {
+          "description": "Request activation or deactivation of an installed assistive service through a resolved simulated authorization decision. The service ID must be a key in installed_services. If authorization_granted is false, enabled_services and screen_reading_available remain unchanged. If authorization is granted and activate is true, the operation inserts or retains enabled_services[service_id] with the exact value {\"enabled\": true}; no installed-service fields are copied into that record. If authorization is granted and activate is false, the operation removes service_id from enabled_services. Activation and deactivation are idempotent when the service is already in the requested state. After an authorized request, screen_reading_available is recomputed as true exactly when at least one remaining enabled-service key identifies an installed service whose capabilities list contains screen_reading; otherwise it is false. Invalid input or an unknown service ID causes no mutation. This unified system-settings simulation does not represent a generally available ordinary-application API.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "service_id": {
+                "type": "string",
+                "description": "Stable ID of an installed assistive service.",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "maxLength": 128,
+                "examples": [
+                  "screen_reader",
+                  "switch_access"
+                ]
+              },
+              "activate": {
+                "type": "boolean",
+                "description": "True to request activation or false to request deactivation.",
+                "examples": [
+                  true,
+                  false
+                ]
+              },
+              "authorization_granted": {
+                "type": "boolean",
+                "description": "Resolved simulated authorization result. False represents denial and guarantees that service activation state remains unchanged.",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "service_id",
+              "activate",
+              "authorization_granted"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "installed_services",
+            "enabled_services",
+            "screen_reading_available"
+          ],
+          "writes": [
+            "enabled_services",
+            "screen_reading_available"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "preconditions": {
+              "installed_services": {
+                "contains_key": {
+                  "parameter": "service_id"
+                }
+              }
+            },
+            "reason": "The operation conditionally performs no mutation when simulated authorization is denied; when approved, it either inserts the exact fixed record {\"enabled\": true} under a keyed enabled-service entry or removes that entry, then recomputes a derived capability across all enabled service IDs."
+          },
+          "argument_sources": {
+            "service_id": {
+              "property": "installed_services",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "authorization_granted": {
+              "type": "boolean",
+              "description": "The resolved simulated authorization result supplied for the request."
+            },
+            "service_id": {
+              "type": "string",
+              "description": "The installed service ID addressed by the request."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether the specified service is enabled after resolving the request."
+            },
+            "changed": {
+              "type": "boolean",
+              "description": "Whether the authorized request changed the specified service's enabled state."
+            },
+            "screen_reading_available": {
+              "type": "boolean",
+              "description": "Whether any enabled service declares screen-reading capability after resolving the request."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The specified service ID does not exist in installed_services.",
+            "AUTHORIZATION_DENIED": "Simulated authorization was denied; enabled_services and screen_reading_available remain unchanged."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

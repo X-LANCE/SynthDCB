@@ -1,0 +1,12 @@
+.env
+.env.*
+.venv/
+__pycache__/
+*.py[cod]
+/.cache/
+/data/
+/results/
+/run/
+/knowledge/
+/experiments/
+/tmp/

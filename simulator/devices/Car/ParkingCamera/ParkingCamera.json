@@ -1,0 +1,398 @@
+{
+  "ParkingCamera": {
+    "meta": {
+      "name": "ParkingCamera",
+      "description": "Parking camera module. Supports turning the image display on or off, selecting views provided by installed cameras, and querying image availability. Camera count and selectable views are fixed capabilities.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the parking camera module is powered on.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "display_active": {
+          "type": "boolean",
+          "description": "Whether the image for the selected parking-camera view is currently displayed. As an auto-reset property, this resets to false when device power is turned on.",
+          "mode": 3,
+          "auto_reset": true,
+          "value": {
+            "default": false
+          }
+        },
+        "selected_view": {
+          "type": "string",
+          "description": "Identifier of the selected view from the fixed available_views collection.",
+          "mode": 3,
+          "value": {
+            "default": "rear",
+            "pattern": "^[A-Za-z0-9_-]{1,32}$",
+            "max_length": 32
+          }
+        },
+        "camera_count": {
+          "type": "integer",
+          "description": "Fixed number of installed physical cameras belonging to this parking-camera module. Composite views do not necessarily correspond one-to-one with physical cameras.",
+          "mode": 2,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 12,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "available_views": {
+          "type": "dict",
+          "description": "Read-only collection of fixed selectable views keyed by view identifier. Each record contains a display name and reports whether an image for that view is currently available.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "rear": {
+                "display_name": "Rear",
+                "image_available": true
+              }
+            },
+            "schema": {
+              "type": "object",
+              "minProperties": 1,
+              "propertyNames": {
+                "pattern": "^[A-Za-z0-9_-]{1,32}$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "display_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "image_available": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "display_name",
+                  "image_available"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_display_active": {
+          "description": "Return whether a parking-camera image is currently displayed without changing state. The module must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "display_active"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "display_active",
+            "response_key": "display_active",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "display_active": {
+              "type": "boolean",
+              "description": "Whether the selected parking-camera view is currently displayed."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The parking camera module must be powered on."
+          }
+        },
+        "set_display_active": {
+          "description": "Turn the parking-camera image display on or off while the module is powered on. Turning the display off always succeeds while powered. Turning it on succeeds only when the selected view exists and its image_available field is true; otherwise the request is rejected and state remains unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "selected_view",
+            "available_views"
+          ],
+          "writes": [
+            "display_active"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "display_active",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The parking camera module must be powered on.",
+            "IMAGE_UNAVAILABLE": "The display cannot be activated because the selected view has no available image."
+          }
+        },
+        "get_selected_view": {
+          "description": "Return the identifier of the currently selected parking-camera view without changing state. The module must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "selected_view"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "selected_view",
+            "response_key": "selected_view",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "selected_view": {
+              "type": "string",
+              "description": "Identifier of the selected fixed view."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The parking camera module must be powered on."
+          }
+        },
+        "set_selected_view": {
+          "description": "Select a view from the fixed available_views collection while the module is powered on. An unknown view is rejected. An unavailable view may be selected while the image display is inactive, but switching an active display to an unavailable view is rejected. Rejected requests leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "view_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,32}$",
+                "maxLength": 32,
+                "examples": [
+                  "rear"
+                ]
+              }
+            },
+            "required": [
+              "view_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "display_active",
+            "available_views"
+          ],
+          "writes": [
+            "selected_view"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "selected_view",
+            "parameter": "view_id",
+            "preconditions": {
+              "power": true,
+              "available_views": {
+                "contains_key": {
+                  "parameter": "view_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "view_id": {
+              "property": "available_views",
+              "field": "$key"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The parking camera module must be powered on and the requested view must be provided by this module.",
+            "IMAGE_UNAVAILABLE": "An unavailable view cannot be selected while the image display is active."
+          }
+        },
+        "get_camera_count": {
+          "description": "Return the fixed number of installed physical cameras assigned to this module without changing state. The module must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "camera_count"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "camera_count",
+            "response_key": "camera_count",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "camera_count": {
+              "type": "integer",
+              "description": "Number of installed physical parking cameras."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The parking camera module must be powered on."
+          }
+        },
+        "get_available_view": {
+          "description": "Return the fixed display name and current image availability for one selectable view while the module is powered on. An unknown view identifier is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "view_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,32}$",
+                "maxLength": 32,
+                "examples": [
+                  "rear"
+                ]
+              }
+            },
+            "required": [
+              "view_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "available_views"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "available_views",
+            "id_parameter": "view_id",
+            "response_key": "view",
+            "preconditions": {
+              "power": true,
+              "available_views": {
+                "contains_key": {
+                  "parameter": "view_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "view_id": {
+              "property": "available_views",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "view": {
+              "type": "object",
+              "description": "View record containing display_name and image_available fields."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The parking camera module must be powered on and the requested view must be provided by this module."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "display_active",
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

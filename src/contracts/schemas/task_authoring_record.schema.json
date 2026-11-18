@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:task-authoring-record",
+  "title": "DCB v2 consolidated task model-call audit record",
+  "type": "object",
+  "required": [
+    "record_id",
+    "authoring_run_id",
+    "scenario_id",
+    "contract_version",
+    "stage",
+    "attempt",
+    "model",
+    "usage",
+    "evidence"
+  ],
+  "properties": {
+    "record_id": {"type": "string", "pattern": "^call_[0-9]{4,}$"},
+    "authoring_run_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "scenario_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "contract_version": {"const": "2.8.0"},
+    "stage": {
+      "type": "string",
+      "enum": ["reasonableness_review", "instruction_rewrite", "memory_rewrite"]
+    },
+    "attempt": {"type": "integer", "minimum": 1},
+    "model": {
+      "type": "object",
+      "required": ["model_scenario", "requested_model", "response_model"],
+      "properties": {
+        "model_scenario": {"type": ["string", "null"]},
+        "requested_model": {"type": ["string", "null"]},
+        "response_model": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["system", "user", "response_code", "response"],
+      "properties": {
+        "system": {"type": "string"},
+        "user": {"type": "string"},
+        "response_code": {"type": "string"},
+        "response": {"$ref": "urn:dcb:v2:schema:common#/$defs/jsonValue"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

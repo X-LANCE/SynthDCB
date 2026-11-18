@@ -1,0 +1,328 @@
+{
+  "Battery": {
+    "meta": {
+      "name": "Battery",
+      "description": "Battery and power-saving settings, placed in Setting and contained by System. Supports querying battery percentage, charging state, external power connection, and battery temperature, enabling/disabling power-saving mode, and querying its effective state. Battery level, temperature, and charging state are read-only feedback that changes with simulation time and power conditions; setters cannot specify target measured values. Switching power-saving mode does not instantly change battery level. Charging is determined by external power and system protection conditions. Power-supply restrictions on power-saving mode are defined by a fixed simulation policy.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "battery_percent": {
+          "type": "float",
+          "description": "Read-only remaining battery charge as a percentage. Simulation ticks increase it while charging and decrease it while discharging.",
+          "mode": 2,
+          "value": {
+            "default": 80.0,
+            "unit": "percent",
+            "minimum": 0.0,
+            "maximum": 100.0,
+            "step": 0.1,
+            "step_origin": 0.0,
+            "precision": 1
+          }
+        },
+        "charging_state": {
+          "type": "string",
+          "description": "Read-only charging result. Discharging means external power is absent; charging means external power is present and charging is permitted; full means the externally powered battery is at 100 percent; not_charging means external power is present but temperature protection prevents charging.",
+          "mode": 2,
+          "value": {
+            "default": "discharging",
+            "choices": [
+              "discharging",
+              "charging",
+              "full",
+              "not_charging"
+            ]
+          }
+        },
+        "external_power_connected": {
+          "type": "boolean",
+          "description": "Read-only feedback indicating whether an external power supply is connected. This condition may be configured by the simulation world but cannot be changed through Battery tools.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        },
+        "battery_temperature_celsius": {
+          "type": "float",
+          "description": "Read-only simulated battery temperature in degrees Celsius. Temperature moves toward 35 degrees while charging and toward 25 degrees otherwise.",
+          "mode": 2,
+          "value": {
+            "default": 25.0,
+            "unit": "celsius",
+            "minimum": -20.0,
+            "maximum": 60.0,
+            "step": 0.1,
+            "step_origin": -20.0,
+            "precision": 1
+          }
+        },
+        "power_saving_mode": {
+          "type": "boolean",
+          "description": "User-requested power-saving mode. The request persists while external power is connected, but the fixed simulation policy prevents it from becoming effective on external power.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "power_saving_effective": {
+          "type": "boolean",
+          "description": "Read-only effective power-saving state. It is true exactly when power-saving mode is requested and external power is not connected.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_battery_percent": {
+          "description": "Return the current read-only battery percentage without changing battery feedback or settings.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "battery_percent"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "battery_percent",
+            "response_key": "battery_percent",
+            "preconditions": {}
+          },
+          "response": {
+            "battery_percent": {
+              "type": "number",
+              "description": "Current battery charge from 0.0 through 100.0 percent."
+            }
+          }
+        },
+        "get_charging_state": {
+          "description": "Return the current read-only charging result without changing any battery state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "charging_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "charging_state",
+            "response_key": "charging_state",
+            "preconditions": {}
+          },
+          "response": {
+            "charging_state": {
+              "type": "string",
+              "description": "Current charging result: discharging, charging, full, or not_charging."
+            }
+          }
+        },
+        "get_external_power_connected": {
+          "description": "Return whether an external power supply is currently connected. This read-only feedback cannot be changed with Battery tools.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "external_power_connected"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "external_power_connected",
+            "response_key": "external_power_connected",
+            "preconditions": {}
+          },
+          "response": {
+            "external_power_connected": {
+              "type": "boolean",
+              "description": "Whether external power is connected."
+            }
+          }
+        },
+        "get_battery_temperature_celsius": {
+          "description": "Return the current read-only simulated battery temperature in degrees Celsius without changing it.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "battery_temperature_celsius"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "battery_temperature_celsius",
+            "response_key": "battery_temperature_celsius",
+            "preconditions": {}
+          },
+          "response": {
+            "battery_temperature_celsius": {
+              "type": "number",
+              "description": "Current simulated battery temperature in degrees Celsius."
+            }
+          }
+        },
+        "get_power_saving_mode": {
+          "description": "Return whether power-saving mode is requested. This may differ from its effective state while external power is connected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power_saving_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power_saving_mode",
+            "response_key": "power_saving_mode",
+            "preconditions": {}
+          },
+          "response": {
+            "power_saving_mode": {
+              "type": "boolean",
+              "description": "Whether power-saving mode is requested."
+            }
+          }
+        },
+        "set_power_saving_mode": {
+          "description": "Enable or disable the power-saving request. The request is accepted on or off external power, but it is effective only while external power is disconnected. After the request changes, the effective state is recomputed from the request and external power condition. This operation does not immediately change battery percentage, temperature, or charging state. Invalid input is rejected and leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Desired power-saving request.",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "external_power_connected",
+            "power_saving_mode"
+          ],
+          "writes": [
+            "power_saving_mode",
+            "power_saving_effective"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power_saving_mode",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_power_saving_effective": {
+          "description": "Return whether power-saving mode is currently effective under the fixed supply policy. It is effective exactly when requested and external power is disconnected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power_saving_effective"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power_saving_effective",
+            "response_key": "power_saving_effective",
+            "preconditions": {}
+          },
+          "response": {
+            "power_saving_effective": {
+              "type": "boolean",
+              "description": "Whether power-saving mode is currently effective."
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "For each elapsed simulation minute, first applies the fixed supply policy so power saving is effective only when requested without external power. When external power is absent, battery charge decreases by 0.1 percentage point per minute if power saving is effective and by 0.2 otherwise. When external power is present, the battery is below 100 percent, and temperature is from 0.0 through 45.0 degrees Celsius inclusive, charge increases by 0.5 percentage point per minute. External power supplies no charge outside that temperature range. Charge is clamped from 0.0 through 100.0 percent. Temperature moves by up to 0.2 degrees per minute toward 35.0 while charging and by up to 0.1 degrees per minute toward 25.0 otherwise. The final charging state is discharging without external power, full at 100 percent on external power, charging when connected and temperature permits charging, and not_charging when connected but temperature protection blocks charging.",
+          "effect_properties": [
+            {
+              "name": "battery_percent",
+              "description": "Current charge used as the starting value for deterministic charging or discharging."
+            },
+            {
+              "name": "charging_state",
+              "description": "Read-only charging result updated from the final supply, charge, and protection conditions."
+            },
+            {
+              "name": "external_power_connected",
+              "description": "External supply condition that determines whether charging or discharging is possible."
+            },
+            {
+              "name": "battery_temperature_celsius",
+              "description": "Battery temperature used by charging protection and updated toward the applicable thermal target."
+            },
+            {
+              "name": "power_saving_mode",
+              "description": "Requested power-saving setting used to determine effective power saving."
+            },
+            {
+              "name": "power_saving_effective",
+              "description": "Effective power-saving state used to select the disconnected discharge rate."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "After a successful power-saving setting change, immediately recomputes the effective state under the fixed policy: power saving is effective exactly when it is requested and external power is disconnected. This recalculation does not alter battery percentage, temperature, or charging state.",
+          "effect_properties": [
+            {
+              "name": "external_power_connected",
+              "description": "External supply condition that suppresses effective power saving while connected."
+            },
+            {
+              "name": "power_saving_mode",
+              "description": "Requested power-saving setting."
+            },
+            {
+              "name": "power_saving_effective",
+              "description": "Read-only effective state recalculated after the setting changes."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

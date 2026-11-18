@@ -1,0 +1,275 @@
+{
+  "Rotation": {
+    "meta": {
+      "name": "Rotation",
+      "description": "Screen orientation settings, placed in Setting and contained by System. Supports enabling/disabling automatic rotation, locking a supported orientation when automatic rotation is disabled, and querying actual current orientation. Lockable orientations are read-only capabilities. With automatic rotation enabled, actual orientation is jointly determined by simulated device pose and the foreground application orientation restrictions and cannot be written directly. A lock preference does not guarantee an immediate orientation change in an application with orientation restrictions. This module does not duplicate Display brightness or screen-off settings.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "auto_rotate": {
+          "type": "boolean",
+          "description": "Whether automatic screen rotation is enabled. When enabled and the foreground application does not impose an orientation restriction, actual orientation follows simulated device pose.",
+          "mode": 3,
+          "value": {
+            "default": true
+          }
+        },
+        "orientation_lock": {
+          "type": "string",
+          "description": "The preferred orientation used when automatic rotation is disabled and the foreground application does not impose an orientation restriction. The value must identify a key in lockable_orientations. This preference does not directly overwrite actual_orientation.",
+          "mode": 3,
+          "value": {
+            "default": "portrait",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "max_length": 32
+          }
+        },
+        "lockable_orientations": {
+          "type": "dict",
+          "description": "Read-only orientation-lock capabilities keyed by supported orientation ID. This baseline supports portrait and landscape locks.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "portrait": {
+                "label": "Portrait"
+              },
+              "landscape": {
+                "label": "Landscape"
+              }
+            }
+          }
+        },
+        "actual_orientation": {
+          "type": "string",
+          "description": "Read-only current screen orientation feedback. A portrait or landscape foreground-application restriction takes precedence. Otherwise, this value follows simulated device pose when automatic rotation is enabled and the selected orientation lock when automatic rotation is disabled.",
+          "mode": 2,
+          "value": {
+            "default": "portrait",
+            "choices": [
+              "portrait",
+              "landscape"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_auto_rotate": {
+          "description": "Return whether automatic screen rotation is enabled without changing any setting or feedback.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "auto_rotate"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "auto_rotate",
+            "response_key": "auto_rotate",
+            "preconditions": {}
+          },
+          "response": {
+            "auto_rotate": {
+              "type": "boolean",
+              "description": "Whether automatic screen rotation is enabled."
+            }
+          }
+        },
+        "set_auto_rotate": {
+          "description": "Enable or disable automatic screen rotation. The existing orientation lock preference is preserved. This operation does not directly write actual_orientation because foreground application restrictions and external orientation feedback determine when the displayed orientation is resolved.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "The desired automatic rotation state.",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "auto_rotate"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "auto_rotate",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_orientation_lock": {
+          "description": "Return the preferred orientation lock. The preference is retained while automatic rotation is enabled but is used only when automatic rotation is disabled and the foreground application does not impose an orientation restriction.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "orientation_lock"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "orientation_lock",
+            "response_key": "orientation_lock",
+            "preconditions": {}
+          },
+          "response": {
+            "orientation_lock": {
+              "type": "string",
+              "description": "The selected supported orientation-lock ID."
+            }
+          }
+        },
+        "set_orientation_lock": {
+          "description": "Select a supported orientation lock while automatic rotation is disabled. orientation must be an existing key in lockable_orientations. If automatic rotation is enabled or the orientation is unsupported, the operation fails and leaves all state unchanged. A successful preference change does not directly write actual_orientation because a foreground application restriction may prevent an immediate orientation change.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "orientation": {
+                "type": "string",
+                "description": "An orientation ID from lockable_orientations.",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "maxLength": 32,
+                "examples": [
+                  "portrait",
+                  "landscape"
+                ]
+              }
+            },
+            "required": [
+              "orientation"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "auto_rotate",
+            "lockable_orientations"
+          ],
+          "writes": [
+            "orientation_lock"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "orientation_lock",
+            "parameter": "orientation",
+            "preconditions": {
+              "auto_rotate": false,
+              "lockable_orientations": {
+                "contains_key": {
+                  "parameter": "orientation"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "orientation": {
+              "property": "lockable_orientations",
+              "field": "$key"
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The requested orientation is not a supported lockable orientation.",
+            "PRECONDITION_FAILED": "Automatic rotation must be disabled before selecting an orientation lock."
+          }
+        },
+        "get_lockable_orientations": {
+          "description": "Return the fixed read-only dictionary of supported orientation-lock capabilities and their IDs.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "lockable_orientations"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "lockable_orientations",
+            "response_key": "lockable_orientations",
+            "preconditions": {}
+          },
+          "response": {
+            "lockable_orientations": {
+              "type": "object",
+              "description": "Supported orientation locks keyed by orientation ID."
+            }
+          }
+        },
+        "get_actual_orientation": {
+          "description": "Return the read-only current screen orientation. A foreground application restriction to portrait or landscape takes precedence. Without such a restriction, the value follows simulated device pose when automatic rotation is enabled and the selected lock preference when automatic rotation is disabled. This query does not change feedback.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "actual_orientation"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "actual_orientation",
+            "response_key": "actual_orientation",
+            "preconditions": {}
+          },
+          "response": {
+            "actual_orientation": {
+              "type": "string",
+              "description": "The resolved current orientation, either portrait or landscape."
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "dependency_changed": {
+          "description": "When simulated device pose or foreground application orientation restrictions change, recompute actual orientation deterministically. A foreground restriction of portrait or landscape takes precedence. If the foreground application is unrestricted, use the simulated pose orientation when automatic rotation is enabled; otherwise use the selected orientation lock. Repeated updates with unchanged inputs leave the resolved orientation unchanged.",
+          "effect_properties": [
+            {
+              "name": "auto_rotate",
+              "description": "Determines whether unrestricted orientation follows simulated device pose or the selected lock preference."
+            },
+            {
+              "name": "orientation_lock",
+              "description": "Preferred orientation used when automatic rotation is disabled and the foreground application is unrestricted."
+            },
+            {
+              "name": "actual_orientation",
+              "description": "Read-only orientation feedback recomputed from the dependency values and local rotation preferences."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

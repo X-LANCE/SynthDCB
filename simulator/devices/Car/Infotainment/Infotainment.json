@@ -1,0 +1,1662 @@
+{
+  "Infotainment": {
+    "meta": {
+      "name": "Infotainment",
+      "description": "Vehicle multimedia system. Supports volume, mute, audio source selection, play, pause, and stop. Supports radio, MP3, and Bluetooth modes. Radio mode supports switching between FM and AM, tuning frequencies, and saving or recalling stations. MP3 mode supports repeat modes, previous/next track selection, and querying information such as the current artist, track title, and album. Bluetooth mode supports querying connectable and connected Bluetooth devices, saving devices, and connecting or disconnecting them. Whether playback is active affects the cabin sound level.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the infotainment system is powered on.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "volume": {
+          "type": "integer",
+          "description": "Configured media audio contribution level.",
+          "mode": 3,
+          "value": {
+            "default": 40,
+            "unit": "dBA",
+            "minimum": 0,
+            "maximum": 120,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "muted": {
+          "type": "boolean",
+          "description": "Whether media audio output is muted.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "source": {
+          "type": "string",
+          "description": "Selected multimedia source.",
+          "mode": 3,
+          "value": {
+            "default": "radio",
+            "choices": [
+              "radio",
+              "mp3",
+              "bluetooth"
+            ]
+          }
+        },
+        "playback_state": {
+          "type": "string",
+          "description": "Current playback state.",
+          "mode": 2,
+          "value": {
+            "default": "stopped",
+            "choices": [
+              "playing",
+              "paused",
+              "stopped"
+            ]
+          }
+        },
+        "radio_band": {
+          "type": "string",
+          "description": "Selected radio band.",
+          "mode": 3,
+          "value": {
+            "default": "fm",
+            "choices": [
+              "fm",
+              "am"
+            ]
+          }
+        },
+        "fm_frequency": {
+          "type": "float",
+          "description": "Currently tuned FM frequency.",
+          "mode": 3,
+          "value": {
+            "default": 99.5,
+            "unit": "MHz",
+            "minimum": 87.5,
+            "maximum": 108.0,
+            "step": 0.1,
+            "step_origin": 87.5,
+            "precision": 1
+          }
+        },
+        "am_frequency": {
+          "type": "integer",
+          "description": "Currently tuned AM frequency.",
+          "mode": 3,
+          "value": {
+            "default": 1000,
+            "unit": "kHz",
+            "minimum": 520,
+            "maximum": 1710,
+            "step": 10,
+            "step_origin": 520
+          }
+        },
+        "radio_presets": {
+          "type": "dict",
+          "description": "Saved radio stations keyed by generated preset ID.",
+          "mode": 2,
+          "value": {
+            "default": {},
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "band": {
+                    "type": "string",
+                    "enum": [
+                      "fm",
+                      "am"
+                    ]
+                  },
+                  "frequency": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "band",
+                  "frequency"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "repeat_mode": {
+          "type": "string",
+          "description": "MP3 repeat preference.",
+          "mode": 3,
+          "value": {
+            "default": "off",
+            "choices": [
+              "off",
+              "one",
+              "all"
+            ]
+          }
+        },
+        "mp3_tracks": {
+          "type": "dict",
+          "description": "Deterministic local MP3 library keyed by track ID.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "track_1": {
+                "artist": "Northbound",
+                "title": "Morning Drive",
+                "album": "Open Roads"
+              },
+              "track_2": {
+                "artist": "Signal Coast",
+                "title": "City Lights",
+                "album": "Night Routes"
+              },
+              "track_3": {
+                "artist": "Quiet Engine",
+                "title": "Homeward",
+                "album": "Open Roads"
+              }
+            },
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "artist": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "album": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "artist",
+                  "title",
+                  "album"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "current_track_id": {
+          "type": "string",
+          "description": "ID of the currently selected MP3 track.",
+          "mode": 2,
+          "value": {
+            "default": "track_1",
+            "choices": [
+              "track_1",
+              "track_2",
+              "track_3"
+            ]
+          }
+        },
+        "bluetooth_devices": {
+          "type": "dict",
+          "description": "Known Bluetooth devices keyed by device ID, including connectable, saved, and connected state.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "phone_1": {
+                "name": "Driver Phone",
+                "connectable": true,
+                "saved": true,
+                "connected": false
+              },
+              "phone_2": {
+                "name": "Passenger Phone",
+                "connectable": true,
+                "saved": false,
+                "connected": false
+              },
+              "player_1": {
+                "name": "Portable Player",
+                "connectable": true,
+                "saved": false,
+                "connected": false
+              }
+            },
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "connectable": {
+                    "type": "boolean"
+                  },
+                  "saved": {
+                    "type": "boolean"
+                  },
+                  "connected": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "name",
+                  "connectable",
+                  "saved",
+                  "connected"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_volume": {
+          "description": "Return the configured media audio level. The system must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "volume"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "volume",
+            "response_key": "volume",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "volume": {
+              "type": "integer",
+              "description": "Configured media audio level in dBA."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The infotainment system must be powered on."
+          }
+        },
+        "set_volume": {
+          "description": "Set the media audio level to an integer from 0 through 120. The system must be powered on. Invalid input or a failed precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "volume": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 120,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "volume"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "volume"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "volume",
+            "parameter": "volume",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Volume must be an integer from 0 through 120.",
+            "PRECONDITION_FAILED": "The infotainment system must be powered on."
+          }
+        },
+        "get_muted": {
+          "description": "Return whether multimedia audio is muted. The system must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "muted"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "muted",
+            "response_key": "muted",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "muted": {
+              "type": "boolean",
+              "description": "Whether multimedia audio is muted."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The infotainment system must be powered on."
+          }
+        },
+        "set_muted": {
+          "description": "Set the multimedia mute state without changing the saved volume. The system must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "muted": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "muted"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "muted"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "muted",
+            "parameter": "muted",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The infotainment system must be powered on."
+          }
+        },
+        "get_source": {
+          "description": "Return the selected multimedia source. The system must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "source"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "source",
+            "response_key": "source",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "source": {
+              "type": "string",
+              "description": "Selected source: radio, mp3, or bluetooth."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The infotainment system must be powered on."
+          }
+        },
+        "set_source": {
+          "description": "Select radio, MP3, or Bluetooth as the multimedia source. The system must be powered on. Invalid values leave state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "enum": [
+                  "radio",
+                  "mp3",
+                  "bluetooth"
+                ],
+                "examples": [
+                  "radio",
+                  "mp3",
+                  "bluetooth"
+                ]
+              }
+            },
+            "required": [
+              "source"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "source"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "source",
+            "parameter": "source",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Source must be radio, mp3, or bluetooth.",
+            "PRECONDITION_FAILED": "The infotainment system must be powered on."
+          }
+        },
+        "get_playback_state": {
+          "description": "Return the current multimedia playback state. The system must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "playback_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "playback_state",
+            "response_key": "playback_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "playback_state": {
+              "type": "string",
+              "description": "Current state: playing, paused, or stopped."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The infotainment system must be powered on."
+          }
+        },
+        "play": {
+          "description": "Start or resume playback while powered on. Playback must currently be paused or stopped; otherwise the action is rejected without mutation.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "playback_state"
+          ],
+          "writes": [
+            "playback_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "playback_state": {
+                "value": "playing"
+              }
+            },
+            "preconditions": {
+              "power": true,
+              "playback_state": {
+                "one_of": [
+                  "paused",
+                  "stopped"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on and playback must be paused or stopped."
+          }
+        },
+        "pause": {
+          "description": "Pause active playback while powered on. The action is rejected without mutation unless playback is currently playing.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "playback_state"
+          ],
+          "writes": [
+            "playback_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "playback_state": {
+                "value": "paused"
+              }
+            },
+            "preconditions": {
+              "power": true,
+              "playback_state": "playing"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on and playback must be playing."
+          }
+        },
+        "stop": {
+          "description": "Stop playback while powered on, preserving source, volume, mute, tuning, and device settings.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "playback_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "playback_state": {
+                "value": "stopped"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The infotainment system must be powered on."
+          }
+        },
+        "get_radio_band": {
+          "description": "Return the selected radio band. The system must be powered on with radio selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "source",
+            "radio_band"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "radio_band",
+            "response_key": "radio_band",
+            "preconditions": {
+              "power": true,
+              "source": "radio"
+            }
+          },
+          "response": {
+            "radio_band": {
+              "type": "string",
+              "description": "Selected radio band: fm or am."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on with radio selected."
+          }
+        },
+        "set_radio_band": {
+          "description": "Select the FM or AM radio band. The system must be powered on with radio selected. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "band": {
+                "type": "string",
+                "enum": [
+                  "fm",
+                  "am"
+                ],
+                "examples": [
+                  "fm",
+                  "am"
+                ]
+              }
+            },
+            "required": [
+              "band"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "source"
+          ],
+          "writes": [
+            "radio_band"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "radio_band",
+            "parameter": "band",
+            "preconditions": {
+              "power": true,
+              "source": "radio"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Band must be fm or am.",
+            "PRECONDITION_FAILED": "The system must be powered on with radio selected."
+          }
+        },
+        "get_fm_frequency": {
+          "description": "Return the current FM frequency. The system must be powered on with radio and the FM band selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "source",
+            "radio_band",
+            "fm_frequency"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fm_frequency",
+            "response_key": "fm_frequency",
+            "preconditions": {
+              "power": true,
+              "source": "radio",
+              "radio_band": "fm"
+            }
+          },
+          "response": {
+            "fm_frequency": {
+              "type": "float",
+              "description": "Current FM frequency in MHz."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on with radio and the FM band selected."
+          }
+        },
+        "set_fm_frequency": {
+          "description": "Tune FM from 87.5 through 108.0 MHz in 0.1 MHz increments. The system must be powered on with radio and FM selected. Failure leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "frequency": {
+                "type": "number",
+                "minimum": 87.5,
+                "maximum": 108.0,
+                "multipleOf": 0.1,
+                "examples": [
+                  88.1,
+                  99.5,
+                  107.9
+                ]
+              }
+            },
+            "required": [
+              "frequency"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "source",
+            "radio_band"
+          ],
+          "writes": [
+            "fm_frequency"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "fm_frequency",
+            "parameter": "frequency",
+            "preconditions": {
+              "power": true,
+              "source": "radio",
+              "radio_band": "fm"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "FM frequency must be from 87.5 through 108.0 MHz in 0.1 MHz increments.",
+            "PRECONDITION_FAILED": "The system must be powered on with radio and the FM band selected."
+          }
+        },
+        "get_am_frequency": {
+          "description": "Return the current AM frequency. The system must be powered on with radio and the AM band selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "source",
+            "radio_band",
+            "am_frequency"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "am_frequency",
+            "response_key": "am_frequency",
+            "preconditions": {
+              "power": true,
+              "source": "radio",
+              "radio_band": "am"
+            }
+          },
+          "response": {
+            "am_frequency": {
+              "type": "integer",
+              "description": "Current AM frequency in kHz."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on with radio and the AM band selected."
+          }
+        },
+        "set_am_frequency": {
+          "description": "Tune AM from 520 through 1710 kHz in 10 kHz increments. The system must be powered on with radio and AM selected. Failure leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "frequency": {
+                "type": "integer",
+                "minimum": 520,
+                "maximum": 1710,
+                "multipleOf": 10,
+                "examples": [
+                  520,
+                  1000,
+                  1710
+                ]
+              }
+            },
+            "required": [
+              "frequency"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "source",
+            "radio_band"
+          ],
+          "writes": [
+            "am_frequency"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "am_frequency",
+            "parameter": "frequency",
+            "preconditions": {
+              "power": true,
+              "source": "radio",
+              "radio_band": "am"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "AM frequency must be from 520 through 1710 kHz in 10 kHz increments.",
+            "PRECONDITION_FAILED": "The system must be powered on with radio and the AM band selected."
+          }
+        },
+        "save_fm_station": {
+          "description": "Save an FM frequency as a new preset and return its generated ID. The system must be powered on with radio selected. Existing presets are inspected to generate a deterministic noncolliding ID. Failure preserves all existing presets.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "frequency": {
+                "type": "number",
+                "minimum": 87.5,
+                "maximum": 108.0,
+                "multipleOf": 0.1,
+                "examples": [
+                  88.1,
+                  99.5
+                ]
+              }
+            },
+            "required": [
+              "frequency"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "source",
+            "radio_presets"
+          ],
+          "writes": [
+            "radio_presets"
+          ],
+          "semantics": {
+            "kind": "collection_add",
+            "property": "radio_presets",
+            "fields": {
+              "band": {
+                "value": "fm"
+              },
+              "frequency": {
+                "parameter": "frequency"
+              }
+            },
+            "preconditions": {
+              "power": true,
+              "source": "radio"
+            },
+            "response_key": "preset_id"
+          },
+          "response": {
+            "preset_id": {
+              "type": "string",
+              "description": "Generated ID of the saved FM preset."
+            }
+          },
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "FM frequency must be from 87.5 through 108.0 MHz in 0.1 MHz increments.",
+            "PRECONDITION_FAILED": "The system must be powered on with radio selected."
+          }
+        },
+        "save_am_station": {
+          "description": "Save an AM frequency as a new preset and return its generated ID. The system must be powered on with radio selected. Existing presets are inspected to generate a deterministic noncolliding ID. Failure preserves all existing presets.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "frequency": {
+                "type": "integer",
+                "minimum": 520,
+                "maximum": 1710,
+                "multipleOf": 10,
+                "examples": [
+                  520,
+                  1000
+                ]
+              }
+            },
+            "required": [
+              "frequency"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "source",
+            "radio_presets"
+          ],
+          "writes": [
+            "radio_presets"
+          ],
+          "semantics": {
+            "kind": "collection_add",
+            "property": "radio_presets",
+            "fields": {
+              "band": {
+                "value": "am"
+              },
+              "frequency": {
+                "parameter": "frequency"
+              }
+            },
+            "preconditions": {
+              "power": true,
+              "source": "radio"
+            },
+            "response_key": "preset_id"
+          },
+          "response": {
+            "preset_id": {
+              "type": "string",
+              "description": "Generated ID of the saved AM preset."
+            }
+          },
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "AM frequency must be from 520 through 1710 kHz in 10 kHz increments.",
+            "PRECONDITION_FAILED": "The system must be powered on with radio selected."
+          }
+        },
+        "get_radio_preset": {
+          "description": "Return one saved radio preset by ID. The system must be powered on with radio selected, and the preset must exist.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "preset_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "preset_1"
+                ]
+              }
+            },
+            "required": [
+              "preset_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "source",
+            "radio_presets"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "radio_presets",
+            "id_parameter": "preset_id",
+            "response_key": "preset",
+            "preconditions": {
+              "power": true,
+              "source": "radio",
+              "radio_presets": {
+                "contains_key": {
+                  "parameter": "preset_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "preset_id": {
+              "property": "radio_presets",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "preset": {
+              "type": "object",
+              "description": "Saved preset containing its band and frequency."
+            }
+          },
+          "errorcodes": {
+            "NOT_FOUND": "The requested radio preset does not exist.",
+            "PRECONDITION_FAILED": "The system must be powered on with radio selected."
+          }
+        },
+        "recall_radio_station": {
+          "description": "Recall an existing preset by selecting its stored band and tuning the matching FM or AM frequency. The system must be powered on with radio selected. Failure leaves tuning unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "preset_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "preset_1"
+                ]
+              }
+            },
+            "required": [
+              "preset_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "source",
+            "radio_presets"
+          ],
+          "writes": [
+            "radio_band",
+            "fm_frequency",
+            "am_frequency"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Recalling a preset conditionally writes either the FM or AM tuning property according to the stored band.",
+            "preconditions": {
+              "power": true,
+              "source": "radio",
+              "radio_presets": {
+                "contains_key": {
+                  "parameter": "preset_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "preset_id": {
+              "property": "radio_presets",
+              "field": "$key"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "NOT_FOUND": "The requested radio preset does not exist.",
+            "PRECONDITION_FAILED": "The system must be powered on with radio selected."
+          }
+        },
+        "get_repeat_mode": {
+          "description": "Return the MP3 repeat preference. The system must be powered on with MP3 selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "source",
+            "repeat_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "repeat_mode",
+            "response_key": "repeat_mode",
+            "preconditions": {
+              "power": true,
+              "source": "mp3"
+            }
+          },
+          "response": {
+            "repeat_mode": {
+              "type": "string",
+              "description": "Repeat preference: off, one, or all."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on with MP3 selected."
+          }
+        },
+        "set_repeat_mode": {
+          "description": "Set the MP3 repeat preference to off, one, or all. The system must be powered on with MP3 selected. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "off",
+                  "one",
+                  "all"
+                ],
+                "examples": [
+                  "off",
+                  "one",
+                  "all"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "source"
+          ],
+          "writes": [
+            "repeat_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "repeat_mode",
+            "parameter": "mode",
+            "preconditions": {
+              "power": true,
+              "source": "mp3"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Repeat mode must be off, one, or all.",
+            "PRECONDITION_FAILED": "The system must be powered on with MP3 selected."
+          }
+        },
+        "get_current_track_id": {
+          "description": "Return the selected MP3 track ID. The system must be powered on with MP3 selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "source",
+            "current_track_id"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "current_track_id",
+            "response_key": "current_track_id",
+            "preconditions": {
+              "power": true,
+              "source": "mp3"
+            }
+          },
+          "response": {
+            "current_track_id": {
+              "type": "string",
+              "description": "ID of the selected MP3 track."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on with MP3 selected."
+          }
+        },
+        "get_current_track_info": {
+          "description": "Return the artist, title, and album of the selected MP3 track. The system must be powered on with MP3 selected. This query does not change state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "source",
+            "current_track_id",
+            "mp3_tracks"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The response projects metadata from the MP3 collection record identified by the current track ID.",
+            "preconditions": {
+              "power": true,
+              "source": "mp3"
+            }
+          },
+          "response": {
+            "artist": {
+              "type": "string",
+              "description": "Artist of the selected track."
+            },
+            "title": {
+              "type": "string",
+              "description": "Title of the selected track."
+            },
+            "album": {
+              "type": "string",
+              "description": "Album of the selected track."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on with MP3 selected."
+          }
+        },
+        "previous_track": {
+          "description": "Select the previous MP3 track in deterministic library order, wrapping from the first track to the last. The system must be powered on with MP3 selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "source",
+            "mp3_tracks",
+            "current_track_id"
+          ],
+          "writes": [
+            "current_track_id"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Selecting the preceding collection key with wraparound cannot be represented by a direct set or update binding.",
+            "preconditions": {
+              "power": true,
+              "source": "mp3"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on with MP3 selected."
+          }
+        },
+        "next_track": {
+          "description": "Select the next MP3 track in deterministic library order, wrapping from the last track to the first. The system must be powered on with MP3 selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "source",
+            "mp3_tracks",
+            "current_track_id"
+          ],
+          "writes": [
+            "current_track_id"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Selecting the following collection key with wraparound cannot be represented by a direct set or update binding.",
+            "preconditions": {
+              "power": true,
+              "source": "mp3"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on with MP3 selected."
+          }
+        },
+        "list_connectable_bluetooth_devices": {
+          "description": "Return known Bluetooth records whose connectable field is true. The system must be powered on with Bluetooth selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "source",
+            "bluetooth_devices"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The response filters the Bluetooth device collection by the connectable record field.",
+            "preconditions": {
+              "power": true,
+              "source": "bluetooth"
+            }
+          },
+          "response": {
+            "devices": {
+              "type": "object",
+              "description": "Connectable Bluetooth devices keyed by device ID."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on with Bluetooth selected."
+          }
+        },
+        "list_connected_bluetooth_devices": {
+          "description": "Return known Bluetooth records whose connected field is true. The system must be powered on with Bluetooth selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "source",
+            "bluetooth_devices"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The response filters the Bluetooth device collection by the connected record field.",
+            "preconditions": {
+              "power": true,
+              "source": "bluetooth"
+            }
+          },
+          "response": {
+            "devices": {
+              "type": "object",
+              "description": "Connected Bluetooth devices keyed by device ID."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on with Bluetooth selected."
+          }
+        },
+        "list_saved_bluetooth_devices": {
+          "description": "Return known Bluetooth records whose saved field is true. The system must be powered on with Bluetooth selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "source",
+            "bluetooth_devices"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The response filters the Bluetooth device collection by the saved record field.",
+            "preconditions": {
+              "power": true,
+              "source": "bluetooth"
+            }
+          },
+          "response": {
+            "devices": {
+              "type": "object",
+              "description": "Saved Bluetooth devices keyed by device ID."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The system must be powered on with Bluetooth selected."
+          }
+        },
+        "save_bluetooth_device": {
+          "description": "Mark an existing known Bluetooth device as saved. The system must be powered on with Bluetooth selected, and the device ID must exist. Failure leaves every record unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "device_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "phone_1",
+                  "phone_2"
+                ]
+              }
+            },
+            "required": [
+              "device_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "source",
+            "bluetooth_devices"
+          ],
+          "writes": [
+            "bluetooth_devices"
+          ],
+          "semantics": {
+            "kind": "collection_update",
+            "property": "bluetooth_devices",
+            "id_parameter": "device_id",
+            "fields": {
+              "saved": {
+                "value": true
+              }
+            },
+            "preconditions": {
+              "power": true,
+              "source": "bluetooth",
+              "bluetooth_devices": {
+                "contains_key": {
+                  "parameter": "device_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "device_id": {
+              "property": "bluetooth_devices",
+              "field": "$key"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "NOT_FOUND": "The requested Bluetooth device does not exist.",
+            "PRECONDITION_FAILED": "The system must be powered on with Bluetooth selected."
+          }
+        },
+        "connect_bluetooth_device": {
+          "description": "Connect an existing known Bluetooth device. The system must be powered on with Bluetooth selected, the device must exist, and its connectable field must be true. Invalid requests leave every device record unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "device_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "phone_1",
+                  "phone_2"
+                ]
+              }
+            },
+            "required": [
+              "device_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "source",
+            "bluetooth_devices"
+          ],
+          "writes": [
+            "bluetooth_devices"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Connecting conditionally checks the selected collection record's connectable field before setting only its connected field to true.",
+            "preconditions": {
+              "power": true,
+              "source": "bluetooth",
+              "bluetooth_devices": {
+                "contains_key": {
+                  "parameter": "device_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "device_id": {
+              "property": "bluetooth_devices",
+              "field": "$key"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "NOT_FOUND": "The requested Bluetooth device does not exist.",
+            "DEVICE_UNAVAILABLE": "The requested Bluetooth device is not connectable.",
+            "PRECONDITION_FAILED": "The system must be powered on with Bluetooth selected."
+          }
+        },
+        "disconnect_bluetooth_device": {
+          "description": "Disconnect an existing known Bluetooth device by setting only that record's connected field to false. The system must be powered on with Bluetooth selected, and the device must exist.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "device_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "phone_1",
+                  "phone_2"
+                ]
+              }
+            },
+            "required": [
+              "device_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "source",
+            "bluetooth_devices"
+          ],
+          "writes": [
+            "bluetooth_devices"
+          ],
+          "semantics": {
+            "kind": "collection_update",
+            "property": "bluetooth_devices",
+            "id_parameter": "device_id",
+            "fields": {
+              "connected": {
+                "value": false
+              }
+            },
+            "preconditions": {
+              "power": true,
+              "source": "bluetooth",
+              "bluetooth_devices": {
+                "contains_key": {
+                  "parameter": "device_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "device_id": {
+              "property": "bluetooth_devices",
+              "field": "$key"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "NOT_FOUND": "The requested Bluetooth device does not exist.",
+            "PRECONDITION_FAILED": "The system must be powered on with Bluetooth selected."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While power is on, playback is playing, and audio is not muted, contribute the configured volume to cabin audio_level. While power is off, playback is paused or stopped, or audio is muted, contribute zero.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether the infotainment system may produce an audio contribution."
+            },
+            {
+              "name": "volume",
+              "description": "Audio level contributed during powered, active, unmuted playback."
+            },
+            {
+              "name": "muted",
+              "description": "Determines whether the audio contribution is cleared."
+            },
+            {
+              "name": "playback_state",
+              "description": "Determines whether playback is active."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

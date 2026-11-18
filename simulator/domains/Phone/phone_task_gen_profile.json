@@ -1,0 +1,187 @@
+{
+  "profile_id": "phone_tasks",
+  "task_type_weights": {
+    "query.property.device": 20,
+    "query.property.space": 0,
+    "query.space.person_location": 0,
+    "query.space.occupants": 0,
+    "query.target.quantity": 0,
+    "query.target.enum": 0,
+    "query.target.comparison.top1": 0,
+    "query.target.comparison.topk": 0,
+    "control.single": 20,
+    "control.multi_property": 10,
+    "control.multi_target": 10,
+    "control.complex": 10,
+    "goal.single": 0,
+    "goal.multi_property": 0,
+    "goal.multi_target": 0,
+    "goal.complex": 0
+  },
+  "target_selection": {
+    "query": {
+      "outcome_weights": {
+        "valid": 8,
+        "DEVICE_TARGET_NOT_FOUND": 0.5,
+        "SPACE_TARGET_NOT_FOUND": 0.5,
+        "DEVICE_PROPERTY_NOT_SUPPORTED": 0.5,
+        "SPACE_PROPERTY_NOT_SUPPORTED": 0.5
+      }
+    },
+    "control": {
+      "outcome_weights": {
+        "valid": 8,
+        "DEVICE_TARGET_NOT_FOUND": 0.5,
+        "SPACE_TARGET_NOT_FOUND": 0.5,
+        "DEVICE_PROPERTY_NOT_SUPPORTED": 0.5,
+        "INVALID_VALUE": 0.5
+      },
+      "single_method_weights": {
+        "random": 1,
+        "person_location": 0,
+        "query.target.comparison.top1": 0
+      },
+      "multi_method_weights": {
+        "all": 1,
+        "except": 1,
+        "within": 1,
+        "random": 1,
+        "occupied_spaces": 0,
+        "unoccupied_spaces": 0,
+        "query.target.enum": 0,
+        "query.target.comparison.topk": 0
+      }
+    },
+    "goal": {
+      "outcome_weights": {
+        "valid": 8,
+        "SPACE_TARGET_NOT_FOUND": 1,
+        "SPACE_PROPERTY_NOT_SUPPORTED": 1,
+        "UNREACHABLE_GOAL": 0
+      },
+      "single_method_weights": {
+        "random": 1,
+        "person_location": 0,
+        "query.target.comparison.top1": 0
+      },
+      "multi_method_weights": {
+        "all": 1,
+        "except": 1,
+        "within": 1,
+        "random": 1,
+        "occupied_spaces": 0,
+        "unoccupied_spaces": 0,
+        "query.target.enum": 0,
+        "query.target.comparison.topk": 0
+      }
+    }
+  },
+  "property_target_value": {
+    "control": {
+      "random": 4,
+      "delta": 3,
+      "query.property.device": 1,
+      "memory": 1
+    },
+    "goal": {
+      "random": 4,
+      "delta": 3,
+      "query.property.space": 1,
+      "memory": 1
+    }
+  },
+  "post_control_query": {
+    "single_target_delta": {
+      "none": 3,
+      "query_modified_value": 1
+    }
+  },
+  "query_result_memory": {
+    "none": 8,
+    "create": 1,
+    "update": 1
+  },
+  "memory_scope_weights": {
+    "user": 0,
+    "global": 1
+  },
+  "control_groups": {
+    "min": 1,
+    "max": 5
+  },
+  "aggregate_component_count": {
+    "min": 2,
+    "max": 10
+  },
+  "capability_weights": {},
+  "workflow": {
+    "subtype_weights": {
+      "single": 1,
+      "condition_follow": 1,
+      "condition_delay": 1,
+      "condition_window": 1,
+      "synchronize": 1,
+      "at": 1,
+      "before": 1,
+      "environment_deadline": 0,
+      "environment_before_process": 0
+    },
+    "initial_state_weights": {
+      "idle": 1,
+      "running": 1
+    },
+    "outcome_weights": {
+      "valid": 8,
+      "DEVICE_TARGET_NOT_FOUND": 1,
+      "DEVICE_PROPERTY_NOT_SUPPORTED": 1
+    },
+    "tolerance_minutes": 1,
+    "delay_minutes": [
+      1,
+      5,
+      10
+    ],
+    "windows_minutes": [
+      [
+        1,
+        5
+      ],
+      [
+        5,
+        10
+      ]
+    ]
+  },
+  "structure": {
+    "multi_property_count": {
+      "min": 2,
+      "max": 3
+    },
+    "multi_target_count": {
+      "min": 2,
+      "max": 5
+    },
+    "complex_property_count": {
+      "min": 2,
+      "max": 3
+    },
+    "complex_target_count": {
+      "min": 2,
+      "max": 5
+    },
+    "query_candidate_count": {
+      "min": 3,
+      "max": 10
+    },
+    "query_topk_count": {
+      "min": 2,
+      "max": 3
+    }
+  },
+  "goal_probe_max_minutes": 240,
+  "query_dependency_weights": {
+    "none": 8,
+    "infeasible": 1,
+    "partial": 1
+  }
+}

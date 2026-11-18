@@ -1,0 +1,202 @@
+{
+  "WashingMachine": {
+    "meta": {
+      "name": "WashingMachine",
+      "description": "Washing machine. It supports only laundry-related functions.",
+      "version": "1.0.0",
+      "from": "../WasherDryer.json"
+    },
+    "process": {
+      "mode_property": "washing_program",
+      "start_function": "start_cycle",
+      "pause_function": "pause_cycle",
+      "resume_function": "resume_cycle",
+      "modes": {
+        "daily": [
+          {
+            "phase": "wash",
+            "minutes": 25
+          },
+          {
+            "phase": "rinse",
+            "minutes": 10
+          },
+          {
+            "phase": "spin",
+            "minutes": 5
+          }
+        ],
+        "quick": [
+          {
+            "phase": "wash",
+            "minutes": 10
+          },
+          {
+            "phase": "rinse",
+            "minutes": 5
+          },
+          {
+            "phase": "spin",
+            "minutes": 3
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "washing_program": {
+          "type": "string",
+          "description": "Selected wash-only program. Daily has 25 wash, 10 rinse and 5 spin minutes; quick has 10 wash, 5 rinse and 3 spin minutes.",
+          "mode": 3,
+          "value": {
+            "default": "daily",
+            "choices": [
+              "daily",
+              "quick"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current washing stage. Pausing preserves the active stage; the cycle completes after spin without a drying stage.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "wash",
+              "rinse",
+              "spin",
+              "completed"
+            ]
+          }
+        }
+      },
+      "disabled": [
+        "drying_mode",
+        "drying_duration"
+      ]
+    },
+    "functions": {
+      "update": {
+        "start_cycle": {
+          "description": "Manually select and start the daily or quick wash-only cycle. Require power and idle or completed status. Set washing_program to program, status to running, phase to wash, progress_minutes to zero and remaining_minutes to the declared wash-only program total: 40 minutes for daily or 18 minutes for quick. Establish started_at_minute at the current elapsed minute. Configuration remains frozen while running or paused. Return an empty success object. Validate all arguments and preconditions before changes; failure preserves all state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "program": {
+                "type": "string",
+                "enum": [
+                  "daily",
+                  "quick"
+                ]
+              }
+            },
+            "required": [
+              "program"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "washing_program"
+          ],
+          "writes": [
+            "washing_program",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "program",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": [
+        "get_drying_mode",
+        "set_drying_mode",
+        "get_drying_duration",
+        "set_drying_duration"
+      ]
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While powered and running, calculate progress_minutes as elapsed minutes minus started_at_minute, clamped between zero and the declared washing_program total. Use only the declared wash, rinse and spin durations. Advance phase at each exact cumulative boundary and set remaining_minutes to total minus progress_minutes. At the final boundary set status and phase to completed and remaining_minutes to zero. Idle, paused, completed and unpowered cycles do not advance. Preserve all settings. During wash contribute 45 dBA, during rinse contribute 42 dBA, and during spin contribute 50 plus spin_speed divided by 40 dBA. The absolute noise contribution is zero whenever power is false or status is not running. Reapply the contribution each minute, including zero to clear previous output. Emit this absolute noise contribution solely as a set_contribution effect for the containing Home Space noise property, unit dBA; it is not a device-side noise state.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Required for process advancement and active noise."
+            },
+            {
+              "name": "washing_program",
+              "description": "Selects the declared wash-only stages and durations."
+            },
+            {
+              "name": "spin_speed",
+              "description": "Determines spin-stage noise."
+            },
+            {
+              "name": "status",
+              "description": "Gates advancement and active noise; becomes completed at the end."
+            },
+            {
+              "name": "phase",
+              "description": "Tracks the active washing stage and determines noise."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Updated to the total washing duration minus progress."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Persisted origin used to calculate running progress."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Persisted elapsed process minutes, clamped to the declared wash-only total."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "This hook has two separate action-dependent branches. After set_power switches power off while the process status is running, set status=paused and preserve phase, progress, remaining time and origin. Restoring power does not resume a paused process and does not rebase the origin. After start_cycle or resume_cycle transitions status from a non-running value to running while powered, set started_at_minute to the current elapsed world minute minus progress_minutes. pause_cycle preserves the origin and progress. These are conditional branches of the shared hook; there is no origin update caused by set_power. Emit no Space effects.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Power loss pauses operation."
+            },
+            {
+              "name": "status",
+              "description": "Identifies transitions into running and power-loss pauses."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Running-time origin established on start or resume."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Retained progress used to establish the running-time origin."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

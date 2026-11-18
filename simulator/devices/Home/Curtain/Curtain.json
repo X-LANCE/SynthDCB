@@ -1,0 +1,261 @@
+{
+  "Curtain": {
+    "meta": {
+      "name": "Curtain",
+      "description": "Curtain. Users can query and set its open or closed state and opening percentage, and can also open or close it incrementally. Moving the curtain changes the degree of light blocking in its space.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "open_state": {
+          "type": "string",
+          "description": "Derived open or closed state of the curtain. It is closed at 0 percent and open above 0 percent.",
+          "mode": 2,
+          "value": {
+            "default": "closed",
+            "choices": [
+              "open",
+              "closed"
+            ]
+          }
+        },
+        "position": {
+          "type": "integer",
+          "description": "Opening percentage of the curtain, where 0 is fully closed and 100 is fully open.",
+          "mode": 3,
+          "value": {
+            "default": 0,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_open_state": {
+          "description": "Return the curtain's derived open or closed state.",
+          "response": {
+            "open_state": {
+              "type": "string",
+              "description": "The curtain's state: open when position is above 0, otherwise closed."
+            }
+          },
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "open_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "open_state",
+            "response_key": "open_state"
+          }
+        },
+        "set_open_state": {
+          "description": "Set the curtain to open or closed. Opening sets the position to 100 percent; closing sets it to 0 percent. Invalid values leave the curtain unchanged.",
+          "response": {},
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "Desired curtain state.",
+                "enum": [
+                  "open",
+                  "closed"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "open_state",
+            "position"
+          ],
+          "writes": [
+            "open_state",
+            "position"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Atomically set position to 100 for open or 0 for closed, then set the derived open_state consistently."
+          }
+        },
+        "get_position": {
+          "description": "Return the curtain's opening percentage.",
+          "response": {
+            "position": {
+              "type": "integer",
+              "description": "The curtain opening percentage from 0 to 100."
+            }
+          },
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "position"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "position",
+            "response_key": "position"
+          }
+        },
+        "set_position": {
+          "description": "Set the curtain opening percentage and derive its open or closed state. Position 0 is closed; any position above 0 is open. Invalid values leave the curtain unchanged.",
+          "response": {},
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Desired curtain opening percentage.",
+                "minimum": 0,
+                "maximum": 100,
+                "examples": [
+                  0,
+                  25,
+                  50,
+                  100
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "position",
+            "open_state"
+          ],
+          "writes": [
+            "position",
+            "open_state"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Set position to the requested percentage and derive open_state as closed at 0 or open above 0."
+          }
+        },
+        "open_incrementally": {
+          "description": "Increase the curtain opening percentage by the requested positive number of percentage points, capped at 100, and update its derived state.",
+          "response": {},
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "percentage_points": {
+                "type": "integer",
+                "description": "Positive number of percentage points by which to open the curtain.",
+                "minimum": 1,
+                "maximum": 100,
+                "examples": [
+                  5,
+                  10,
+                  25
+                ]
+              }
+            },
+            "required": [
+              "percentage_points"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "position",
+            "open_state"
+          ],
+          "writes": [
+            "position",
+            "open_state"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Increase position by percentage_points, cap it at 100, and derive open_state as closed at 0 or open above 0."
+          }
+        },
+        "close_incrementally": {
+          "description": "Decrease the curtain opening percentage by the requested positive number of percentage points, floored at 0, and update its derived state.",
+          "response": {},
+          "errorcodes": {},
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "percentage_points": {
+                "type": "integer",
+                "description": "Positive number of percentage points by which to close the curtain.",
+                "minimum": 1,
+                "maximum": 100,
+                "examples": [
+                  5,
+                  10,
+                  25
+                ]
+              }
+            },
+            "required": [
+              "percentage_points"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "position",
+            "open_state"
+          ],
+          "writes": [
+            "position",
+            "open_state"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Decrease position by percentage_points, floor it at 0, and derive open_state as closed at 0 or open above 0."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "After a successful curtain mutation, contribute position multiplied by 6 lux to the containing space's illuminance. A fully closed curtain contributes zero.",
+          "effect_properties": [
+            {
+              "name": "position",
+              "description": "The curtain opening percentage determines its illuminance contribution."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

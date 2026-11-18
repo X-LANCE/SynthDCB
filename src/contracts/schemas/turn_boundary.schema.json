@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:turn-boundary",
+  "title": "DCB v2 runner-submitted turn boundary",
+  "type": "object",
+  "required": ["turn_id", "apply_after_turn"],
+  "properties": {
+    "turn_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "apply_after_turn": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

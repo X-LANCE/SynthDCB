@@ -1,0 +1,278 @@
+{
+  "DriverAssistance": {
+    "meta": {
+      "name": "DriverAssistance",
+      "description": "Driver assistance settings and state module. Supports switching cruise control on and off, setting target speed, and enabling assistance functions such as lane keeping and automatic following.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "cruise_control_enabled": {
+          "type": "boolean",
+          "description": "Whether cruise-control assistance is enabled as a local driver setting.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "target_speed": {
+          "type": "integer",
+          "description": "Configured cruise-control target speed. This setting does not directly change the vehicle's actual speed.",
+          "mode": 3,
+          "value": {
+            "default": 60,
+            "unit": "km/h",
+            "minimum": 0,
+            "maximum": 240,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "lane_keeping_enabled": {
+          "type": "boolean",
+          "description": "Whether lane-keeping assistance is enabled as a local driver setting.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "automatic_following_enabled": {
+          "type": "boolean",
+          "description": "Whether automatic-following assistance is enabled as a local driver setting.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_cruise_control_enabled": {
+          "description": "Return whether cruise-control assistance is enabled. This setting does not indicate that cruise control is actively controlling the vehicle.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "cruise_control_enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cruise_control_enabled",
+            "response_key": "cruise_control_enabled"
+          },
+          "response": {
+            "cruise_control_enabled": {
+              "type": "boolean",
+              "description": "Whether cruise-control assistance is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_cruise_control_enabled": {
+          "description": "Enable or disable cruise-control assistance. This changes only the local assistance setting and does not directly change vehicle speed. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "cruise_control_enabled"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "cruise_control_enabled",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_target_speed": {
+          "description": "Return the configured cruise-control target speed without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "target_speed"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_speed",
+            "response_key": "target_speed"
+          },
+          "response": {
+            "target_speed": {
+              "type": "integer",
+              "description": "Configured cruise-control target speed in kilometers per hour."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_target_speed": {
+          "description": "Set the cruise-control target speed to an integer from 0 through 240 km/h. The setting may be configured while cruise control is disabled and does not directly alter actual vehicle speed. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 240,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "target_speed"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_speed",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Target speed must be an integer from 0 through 240 km/h."
+          }
+        },
+        "get_lane_keeping_enabled": {
+          "description": "Return whether lane-keeping assistance is enabled. Enablement does not assert that lane keeping is currently active.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "lane_keeping_enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "lane_keeping_enabled",
+            "response_key": "lane_keeping_enabled"
+          },
+          "response": {
+            "lane_keeping_enabled": {
+              "type": "boolean",
+              "description": "Whether lane-keeping assistance is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_lane_keeping_enabled": {
+          "description": "Enable or disable lane-keeping assistance as a local driver setting. This does not assert active steering control. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "lane_keeping_enabled"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "lane_keeping_enabled",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_automatic_following_enabled": {
+          "description": "Return whether automatic-following assistance is enabled. Enablement does not assert that the vehicle is currently following another vehicle.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "automatic_following_enabled"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "automatic_following_enabled",
+            "response_key": "automatic_following_enabled"
+          },
+          "response": {
+            "automatic_following_enabled": {
+              "type": "boolean",
+              "description": "Whether automatic-following assistance is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_automatic_following_enabled": {
+          "description": "Enable or disable automatic-following assistance as a local driver setting. This does not assert active longitudinal control or alter actual vehicle speed. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "automatic_following_enabled"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "automatic_following_enabled",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

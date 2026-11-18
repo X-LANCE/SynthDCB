@@ -1,0 +1,305 @@
+{
+  "Lamp": {
+    "domain": "Home",
+    "class": "Lamp",
+    "description": "Lighting fixture. Users can query and set brightness and color temperature, and can also increase or decrease them incrementally. Turning the lamp off does not clear the configured brightness or color temperature. When the lamp is on, it changes the illuminance of its space according to brightness; color temperature changes only the perceived warmth or coolness of the light and does not determine illuminance intensity.",
+    "inherited_list": [
+      {
+        "class": "SimpleLamp",
+        "description": "A simplified lamp subclass that inherits the base lamp's power control and lighting effect but provides only stepped brightness adjustment, with no color-temperature state or related operations."
+      },
+      {
+        "class": "ColorLamp",
+        "description": "A lamp subclass that supports colored lighting and adds light-mode and color states to the base lamp. In white-light mode, color temperature can be adjusted but colored light cannot; in color mode, light color can be adjusted globally or by color channel but color temperature cannot. Brightness can be adjusted in both modes, and space illuminance remains determined by the inherited power and brightness states."
+      }
+    ]
+  },
+  "AirPurifier": {
+    "domain": "Home",
+    "class": "AirPurifier",
+    "description": "Air purifier. Users can query and set the fan-speed level and target air quality, and can query but not directly modify the remaining filter life. While running, the device gradually moves the air quality of its space toward the configured target according to the fan-speed level; it produces no further purification effect when turned off or when the air quality has reached the target. Current air quality should be provided by the containing space rather than duplicated as device state.",
+    "inherited_list": []
+  },
+  "AirConditioner": {
+    "domain": "Home",
+    "class": "AirConditioner",
+    "description": "Air conditioner. It supports cooling, heating, fan, dehumidification, and automatic modes. Users can query and set the operating mode, target temperature, fan speed, swing direction, sleep mode, and auxiliary-heating state, and can incrementally raise or lower the target temperature. Target temperature is available only in operating modes that regulate temperature; temperature cannot be set in dehumidification mode; auxiliary heating is available only in modes that require heating and turns off after the room reaches the target temperature. While running, the device adjusts the temperature or humidity of its space according to the current operating mode; fan-only operation does not directly change temperature or humidity.",
+    "inherited_list": [
+      {
+        "class": "CoolingOnlyAirConditioner",
+        "description": "A cooling-only air-conditioner subclass. It inherits the base air conditioner's cooling, fan, dehumidification, and automatic-mode capabilities but does not provide heating, auxiliary heating, or related operations. The device produces no heating effect in its space."
+      }
+    ]
+  },
+  "Humidifier": {
+    "domain": "Home",
+    "class": "Humidifier",
+    "description": "Humidifier. Users can query and set power, sleep mode, target humidity, and humidification intensity. When the device is on and the humidity of its space is below the target, it gradually increases humidity according to the humidification intensity; it produces no further humidification effect when turned off or when the space has reached the target humidity. Current space humidity is provided by the containing space.",
+    "inherited_list": [
+      {
+        "class": "UltrasonicHumidifier",
+        "description": "A humidifier subclass that uses ultrasonic vibration to atomize water and release the mist into the air. It inherits all functions and properties."
+      },
+      {
+        "class": "EvaporativeHumidifier",
+        "description": "A humidifier subclass that uses a fan to move air through a wet medium and increase humidity through natural evaporation. It inherits all functions and properties."
+      }
+    ],
+    "base_only": true
+  },
+  "Curtain": {
+    "domain": "Home",
+    "class": "Curtain",
+    "description": "Curtain. Users can query and set its open or closed state and opening percentage, and can also open or close it incrementally. Moving the curtain changes the degree of light blocking in its space.",
+    "inherited_list": [
+      {
+        "class": "DualLayerCurtain",
+        "description": "A dual-layer curtain variant. It provides separate open or closed states and opening percentages for the sheer and fabric layers, which can be controlled independently; the overall light-blocking effect is determined jointly by both layers."
+      }
+    ]
+  },
+  "DoorLock": {
+    "domain": "Home",
+    "class": "DoorLock",
+    "description": "Smart door lock. Users can query the lock's open or closed state and perform lock and unlock actions. The device provides multiple identity-verification methods and allows individual methods to be enabled or disabled.",
+    "inherited_list": []
+  },
+  "SurveillanceCamera": {
+    "domain": "Home",
+    "class": "SurveillanceCamera",
+    "description": "Surveillance camera. Users can query the video-monitoring state and set camera power, horizontal and vertical pan-tilt directions, night-vision mode, and motion-tracking state.",
+    "inherited_list": []
+  },
+  "Dehumidifier": {
+    "domain": "Home",
+    "class": "Dehumidifier",
+    "description": "Dehumidifier. Users can query and set target humidity, dehumidification intensity, and fan speed, and can query the full-tank and continuous-drainage states. While running and when space humidity is above the target, the device gradually lowers space humidity; it stops dehumidifying when the target is reached or the tank is full. The amount of water in the tank changes with dehumidification intensity and remains unchanged in continuous-drainage mode.",
+    "inherited_list": []
+  },
+  "AirExchanger": {
+    "domain": "Home",
+    "class": "AirExchanger",
+    "description": "Fresh-air exchanger. Users can query and set the ventilation mode and fan speed, and can query indoor and outdoor air quality and filter state. While running, the device draws in and filters outdoor air to gradually improve the air quality of its space; heat-exchange mode maintains ventilation while reducing temperature changes.",
+    "inherited_list": []
+  },
+  "Heater": {
+    "domain": "Home",
+    "class": "Heater",
+    "description": "Electric heater. Users can query and set the target temperature, heating mode, and heating intensity. While running and when space temperature is below the target, the device produces a heating effect; it stops heating after the target is reached.",
+    "inherited_list": []
+  },
+  "Fan": {
+    "domain": "Home",
+    "class": "Fan",
+    "description": "Electric fan. Users can query and set fan speed, natural-wind or sleep-wind mode, oscillation state, and oscillation angle. A running fan does not change space temperature or humidity.",
+    "inherited_list": [
+      {
+        "class": "CeilingFan",
+        "description": "A ceiling-fan variant. It is a simple fan that supports only fan-speed adjustment."
+      }
+    ]
+  },
+  "FragranceDiffuser": {
+    "domain": "Home",
+    "class": "FragranceDiffuser",
+    "description": "Fragrance diffuser. Users can query and set the fragrance output state.",
+    "inherited_list": []
+  },
+  "Toilet": {
+    "domain": "Home",
+    "class": "Toilet",
+    "description": "Toilet. Users can query and set seat heating, wash-water temperature and pressure, feminine-wash or rear-wash mode, drying, deodorization, and automatic lid-opening states.",
+    "inherited_list": []
+  },
+  "BathroomHeater": {
+    "domain": "Home",
+    "class": "BathroomHeater",
+    "description": "Bathroom heater. Users can separately query and set the lighting, heating, and fan states, and can set the heating intensity. Heating changes space temperature; lighting changes space brightness.",
+    "inherited_list": [
+      {
+        "class": "HatLampBathroomHeater",
+        "description": "A heat-lamp bathroom-heater variant. Its heating mode changes space brightness."
+      },
+      {
+        "class": "WarmAirBathroomHeater",
+        "description": "A warm-air bathroom-heater variant. It switches between ventilation and air-supply functions through the fan mode, and heating can be enabled only after switching to the air-supply function."
+      }
+    ],
+    "base_only": true
+  },
+  "WaterHeater": {
+    "domain": "Home",
+    "class": "WaterHeater",
+    "description": "Water heater. Users can query and set the target outlet-water temperature and heating state.",
+    "inherited_list": [
+      {
+        "class": "ElectricWaterHeater",
+        "description": "An electric-water-heater variant. It provides heat retention and stored-water volume-level settings."
+      },
+      {
+        "class": "GasWaterHeater",
+        "description": "A gas-water-heater variant. It provides instantaneous or recirculating hot-water control."
+      }
+    ],
+    "base_only": true
+  },
+  "WaterPurifier": {
+    "domain": "Home",
+    "class": "WaterPurifier",
+    "description": "Water purifier. Users can query filter usage duration and filter life, and can query and enable flushing or backwashing modes. The filter usage duration can be reset.",
+    "inherited_list": []
+  },
+  "BathroomMirror": {
+    "domain": "Home",
+    "class": "BathroomMirror",
+    "description": "Bathroom mirror. Users can query and set lighting brightness, the defogging state, and the automatic-lighting function. Its lighting changes room brightness.",
+    "inherited_list": []
+  },
+  "RobotVacuum": {
+    "domain": "Home",
+    "class": "RobotVacuum",
+    "description": "Robot vacuum. Users can query and set the cleaning mode, suction level, mopping-water level, and cleaning area, and can perform start, pause, recharge, and return-to-base actions. The device moves across and cleans the floor; the mopping-water level is effective only in mopping mode, and the base station can provide dust collection, mop washing, or drying states.",
+    "inherited_list": []
+  },
+  "FloorWasher": {
+    "domain": "Home",
+    "class": "FloorWasher",
+    "description": "Floor washer. Users can query and set the cleaning mode and suction level, and can query the dirty-water tank, clean-water tank, roller-brush, and self-cleaning states.",
+    "inherited_list": []
+  },
+  "WasherDryer": {
+    "domain": "Home",
+    "class": "WasherDryer",
+    "description": "Washer-dryer. Users can query and set the washing program, water temperature, spin speed, drying mode, and drying duration. The current stage and remaining time are queryable; preset stages associated with the washing program progress over time, and operation is started through a manual setting. Operation affects the room's noise level.",
+    "inherited_list": [
+      {
+        "class": "WashingMachine",
+        "description": "Washing machine. It supports only laundry-related functions."
+      },
+      {
+        "class": "Dryer",
+        "description": "Dryer. It supports only drying-related functions."
+      }
+    ]
+  },
+  "DryingRack": {
+    "domain": "Home",
+    "class": "DryingRack",
+    "description": "Clothes-drying rack. Users can query and set the current height, and the device supports lighting. Raising or lowering it changes the position of the drying rods.",
+    "inherited_list": []
+  },
+  "Dishwasher": {
+    "domain": "Home",
+    "class": "Dishwasher",
+    "description": "Dishwasher. Users can query and set the washing program, cleaning intensity, drying state, and detergent dispensing. The current stage and remaining time are queryable; preset stages associated with the washing program progress over time, and operation is started through a manual setting.",
+    "inherited_list": []
+  },
+  "RiceCooker": {
+    "domain": "Home",
+    "class": "RiceCooker",
+    "description": "Rice cooker. Users can query and set the cooking program, rice type or texture, and keep-warm state, and can query the cooking stage and inner-pot state. A cooking program heats in stages; after cooking is complete, the device can enter keep-warm mode without continuing to cook.",
+    "inherited_list": []
+  },
+  "Oven": {
+    "domain": "Home",
+    "class": "Oven",
+    "description": "Oven. Users can query and set the cooking mode, heating temperature, and cooking time. Cooking modes other than manual mode preset the temperature and time.",
+    "inherited_list": [
+      {
+        "class": "Microwave",
+        "description": "Microwave oven. Users can query and set microwave power. Defrost mode is added to the available modes. Heating temperature is not supported."
+      },
+      {
+        "class": "AirFryer",
+        "description": "Air fryer. It has the same settings as the oven."
+      }
+    ]
+  },
+  "Kettle": {
+    "domain": "Home",
+    "class": "Kettle",
+    "description": "Electric kettle. Users can query and set the target water temperature and the heating and keep-warm states, and can query the current water temperature and boiling state. While heating, the device raises the water temperature in the kettle; after reaching the target, it stops heating or enters keep-warm mode.",
+    "inherited_list": []
+  },
+  "RangeHood": {
+    "domain": "Home",
+    "class": "RangeHood",
+    "description": "Range hood. Users can query and set the fan-speed level and lighting. The self-cleaning mode can be started.",
+    "inherited_list": []
+  },
+  "Refrigerator": {
+    "domain": "Home",
+    "class": "Refrigerator",
+    "description": "Refrigerator. Users can query and set the target temperatures and operating modes for the refrigerator, freezer, and variable-temperature compartments. Fast-freeze and fast-cool modes can be queried and toggled.",
+    "inherited_list": []
+  },
+  "WaterDispenser": {
+    "domain": "Home",
+    "class": "WaterDispenser",
+    "description": "Water dispenser. Users can query and set the keep-warm temperature and child-lock function.",
+    "inherited_list": []
+  },
+  "CoffeeMaker": {
+    "domain": "Home",
+    "class": "CoffeeMaker",
+    "description": "Coffee maker. Users can query and set the brewing program, cup volume, strength, and current extraction state, and can perform brew, pause, and cleaning actions. During extraction, the device dispenses the beverage according to the selected cup volume and strength; normal beverage preparation is unavailable while the cleaning program is running.",
+    "inherited_list": []
+  },
+  "Speaker": {
+    "domain": "Home",
+    "class": "Speaker",
+    "description": "Speaker. Users can query and set the playback state, volume, playback content, and playback mode, and can perform play, pause, previous-track, and next-track actions.",
+    "inherited_list": [
+      {
+        "class": "BluetoothSpeaker",
+        "description": "Bluetooth speaker. It supports querying the battery level."
+      }
+    ]
+  },
+  "Monitor": {
+    "domain": "Home",
+    "class": "Monitor",
+    "description": "Display device. Users can query and set display power, input source, volume, mute, picture mode, and brightness. When the display device is on, it presents content from the current input source; switching the input source changes the displayed content.",
+    "inherited_list": [
+      {
+        "class": "Television",
+        "description": "A television variant. It adds channel selection, program playback, and casting states to the base display capabilities, and users can query and set the current channel or media content."
+      },
+      {
+        "class": "Projector",
+        "description": "A projector variant. It adds projection focus, keystone correction, and projected-image size controls to the base display capabilities. Focus and keystone correction affect only the clarity and geometry of the projected image."
+      }
+    ],
+    "base_only": true
+  },
+  "PetFeeder": {
+    "domain": "Home",
+    "class": "PetFeeder",
+    "description": "Pet feeder. Users can query and set the feeding portion and feeding mode, perform an immediate-feeding action, and query the remaining food in the hopper. A feeding action dispenses the configured portion; if the hopper contains insufficient food or the device is jammed, it cannot complete the full feeding.",
+    "inherited_list": []
+  },
+  "PetWaterDispenser": {
+    "domain": "Home",
+    "class": "PetWaterDispenser",
+    "description": "Pet water dispenser. Users can query and set the dispensing or circulation mode, and can query the water level, filter state, and low-water state. Circulation mode filters and circulates drinking water; when the water level is too low, dispensing or circulation stops.",
+    "inherited_list": []
+  },
+  "CatLitterBox": {
+    "domain": "Home",
+    "class": "CatLitterBox",
+    "description": "Cat litter box. Users can query and set the cleaning mode and can perform cleaning and litter-replacement actions.",
+    "inherited_list": []
+  },
+  "InductionCooker": {
+    "domain": "Home",
+    "class": "InductionCooker",
+    "description": "Induction cooker. Users can query and set the heating mode, power level, and target temperature.",
+    "inherited_list": []
+  },
+  "WindowOpener": {
+    "domain": "Home",
+    "class": "WindowOpener",
+    "description": "Smart window opener. Users can query and set the window's open or closed state and opening percentage, and can perform open, close, and stop actions. The opening percentage is updated while the device moves. Opening or closing the window affects the temperature, humidity, and air quality of its space according to differences between indoor and outdoor environments.",
+    "inherited_list": []
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "WarmAirBathroomHeater": {
+    "meta": {
+      "name": "WarmAirBathroomHeater",
+      "description": "A warm-air bathroom-heater variant. It switches between ventilation and air-supply functions through the fan mode, and heating can be enabled only after switching to the air-supply function.",
+      "version": "1.0.0",
+      "from": "../BathroomHeater.json"
+    },
+    "properties": {
+      "update": {
+        "fan": {
+          "type": "string",
+          "description": "Current fan function. ventilation exhausts bathroom air, while air_supply circulates warm air into the bathroom.",
+          "mode": 3,
+          "value": {
+            "default": "ventilation",
+            "choices": [
+              "ventilation",
+              "air_supply"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_fan": {
+          "description": "Get the current fan function. This operation is available only while the bathroom heater is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "fan"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fan",
+            "response_key": "fan",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "fan": {
+              "type": "string",
+              "description": "Current fan function: ventilation or air_supply."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_fan": {
+          "description": "Set the fan function to ventilation or air_supply. This operation is available only while the bathroom heater is powered. Changing the fan function does not automatically change the heating state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "ventilation",
+                  "air_supply"
+                ],
+                "description": "Desired fan function."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "fan"
+          ],
+          "writes": [
+            "fan"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "fan",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "set_heating": {
+          "description": "Enable or disable bathroom heating. This operation is available only while the bathroom heater is powered. Heating may be enabled only when the fan function is air_supply; disabling heating is allowed in either fan function. Invalid requests leave the heating state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Desired heating state."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "heating",
+            "fan"
+          ],
+          "writes": [
+            "heating"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Enabling heating has a conditional precondition on the fan value, while disabling heating is permitted for either fan function."
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

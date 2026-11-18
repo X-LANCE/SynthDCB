@@ -1,0 +1,66 @@
+{
+  "BluetoothSpeaker": {
+    "meta": {
+      "name": "BluetoothSpeaker",
+      "description": "Bluetooth speaker. It supports querying the battery level.",
+      "version": "1.0.0",
+      "from": "../Speaker.json"
+    },
+    "properties": {
+      "update": {
+        "battery_level": {
+          "type": "integer",
+          "description": "The speaker battery level as a percentage.",
+          "mode": 3,
+          "value": {
+            "default": 100,
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "%"
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_battery_level": {
+          "description": "Returns the speaker battery level as an integer percentage from 0 through 100. Fails when the speaker is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "battery_level"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "battery_level",
+            "response_key": "battery_level",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "battery_level": {
+              "type": "integer",
+              "description": "The speaker battery level percentage."
+            }
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

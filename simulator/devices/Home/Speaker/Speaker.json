@@ -1,0 +1,513 @@
+{
+  "Speaker": {
+    "meta": {
+      "name": "Speaker",
+      "description": "Speaker. Users can query and set the playback state, volume, playback content, and playback mode, and can perform play, pause, previous-track, and next-track actions.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the speaker is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "playback_state": {
+          "type": "string",
+          "description": "The current playback state.",
+          "mode": 3,
+          "value": {
+            "default": "stopped",
+            "choices": [
+              "playing",
+              "paused",
+              "stopped"
+            ]
+          }
+        },
+        "volume": {
+          "type": "integer",
+          "description": "Speaker volume level as a percentage.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "%"
+          }
+        },
+        "content": {
+          "type": "string",
+          "description": "The currently selected playback content.",
+          "mode": 3,
+          "value": {
+            "default": "",
+            "max_length": 500
+          }
+        },
+        "playback_mode": {
+          "type": "string",
+          "description": "The playback mode used for the selected content.",
+          "mode": 3,
+          "value": {
+            "default": "normal",
+            "choices": [
+              "normal",
+              "repeat_all",
+              "repeat_one",
+              "shuffle"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_playback_state": {
+          "description": "Returns the current playback state. Fails when the speaker is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "playback_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "playback_state",
+            "response_key": "playback_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "playback_state": {
+              "type": "string",
+              "description": "The current playback state."
+            }
+          }
+        },
+        "set_playback_state": {
+          "description": "Sets the playback state to playing, paused, or stopped. Fails when the speaker is powered off or the value is invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "playing",
+                  "paused",
+                  "stopped"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "playback_state"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "playback_state",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_volume": {
+          "description": "Returns the speaker volume percentage. Fails when the speaker is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "volume"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "volume",
+            "response_key": "volume",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "volume": {
+              "type": "integer",
+              "description": "The volume percentage."
+            }
+          }
+        },
+        "set_volume": {
+          "description": "Sets the speaker volume to an integer percentage from 0 through 100. Fails when powered off or the value is outside the allowed range.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "volume"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "volume",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_content": {
+          "description": "Returns the selected playback content. Fails when the speaker is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "content"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "content",
+            "response_key": "content",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "content": {
+              "type": "string",
+              "description": "The selected playback content."
+            }
+          }
+        },
+        "set_content": {
+          "description": "Sets the playback content to a string of at most 500 characters. Fails when powered off or the value is invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "maxLength": 500
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "content"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "content",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_playback_mode": {
+          "description": "Returns the playback mode. Fails when the speaker is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "playback_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "playback_mode",
+            "response_key": "playback_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "playback_mode": {
+              "type": "string",
+              "description": "The playback mode."
+            }
+          }
+        },
+        "set_playback_mode": {
+          "description": "Sets the playback mode to normal, repeat_all, repeat_one, or shuffle. Fails when powered off or the value is invalid.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "normal",
+                  "repeat_all",
+                  "repeat_one",
+                  "shuffle"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "playback_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "playback_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "play": {
+          "description": "Starts playback of the selected content. Fails when the speaker is powered off or no content is selected.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "content"
+          ],
+          "writes": [
+            "playback_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "playback_state": {
+                "value": "playing"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "pause": {
+          "description": "Pauses playback. Fails when the speaker is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "playback_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "playback_state": {
+                "value": "paused"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "previous_track": {
+          "description": "Selects the previous track in the playback source and starts playback. The selected content is not represented as a changed device property. Fails when the speaker is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "playback_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "playback_state": {
+                "value": "playing"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "next_track": {
+          "description": "Selects the next track in the playback source and starts playback. The selected content is not represented as a changed device property. Fails when the speaker is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "playback_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "playback_state": {
+                "value": "playing"
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "Recalculates the speaker's room noise contribution after a successful state change. A powered speaker contributes noise only while playback_state is playing, with contribution determined by volume; otherwise it contributes zero.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the speaker is powered."
+            },
+            {
+              "name": "playback_state",
+              "description": "The current playback state."
+            },
+            {
+              "name": "volume",
+              "description": "The speaker volume percentage."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

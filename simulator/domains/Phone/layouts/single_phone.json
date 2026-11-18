@@ -1,0 +1,16 @@
+{
+  "id": "single_phone",
+  "spaces": [
+    {
+      "id": "Setting",
+      "type": "Setting",
+      "virtual": true
+    },
+    {
+      "id": "Application",
+      "type": "Application",
+      "virtual": true
+    }
+  ],
+  "connections": []
+}

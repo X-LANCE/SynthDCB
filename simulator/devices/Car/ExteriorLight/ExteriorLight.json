@@ -1,0 +1,575 @@
+{
+  "ExteriorLight": {
+    "meta": {
+      "name": "ExteriorLight",
+      "description": "Vehicle exterior lighting and signaling module. Supports driver selection of lighting mode, low/high-beam requests, turn signals, and hazard lights, with queries of actual illumination feedback. Automatic lighting uses local environment inputs.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the exterior-light module is powered. When false, it produces no exterior illuminance and non-power public functions are unavailable.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "lighting_mode": {
+          "type": "string",
+          "description": "Driver-selected exterior lighting mode. This controls parking and headlight illumination but does not change the stored signal requests.",
+          "mode": 3,
+          "value": {
+            "default": "off",
+            "choices": [
+              "off",
+              "parking",
+              "headlights",
+              "auto"
+            ]
+          }
+        },
+        "beam_request": {
+          "type": "string",
+          "description": "Driver-requested beam applied in headlights mode and whenever automatic mode activates the headlights.",
+          "mode": 3,
+          "value": {
+            "default": "low",
+            "choices": [
+              "low",
+              "high"
+            ]
+          }
+        },
+        "turn_signal": {
+          "type": "string",
+          "description": "Driver-requested directional turn signal. The request remains stored while hazard lights are active.",
+          "mode": 3,
+          "value": {
+            "default": "off",
+            "choices": [
+              "off",
+              "left",
+              "right"
+            ]
+          }
+        },
+        "hazard_lights": {
+          "type": "boolean",
+          "description": "Whether both direction indicators are requested as hazard lights.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "actual_beam_state": {
+          "type": "string",
+          "description": "Actual front-lighting feedback after applying power, the selected lighting mode, the beam request, and the automatic-lighting policy.",
+          "mode": 2,
+          "value": {
+            "default": "off",
+            "choices": [
+              "off",
+              "parking",
+              "low",
+              "high"
+            ]
+          }
+        },
+        "actual_illumination": {
+          "type": "integer",
+          "description": "The module's current absolute contribution to exterior illuminance. It is cleared immediately when power is turned off and otherwise includes front lighting and signals.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "lux",
+            "minimum": 0,
+            "maximum": 1700,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_lighting_mode": {
+          "description": "Return the driver-selected exterior lighting mode. Requires module power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "lighting_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "lighting_mode",
+            "response_key": "lighting_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "lighting_mode": {
+              "type": "string",
+              "description": "Selected mode: off, parking, headlights, or auto."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The exterior-light module must be powered on."
+          }
+        },
+        "set_lighting_mode": {
+          "description": "Select off, parking, headlights, or auto mode. Auto mode activates the requested beam according to exterior ambient illuminance after excluding this module's own contribution. Requires module power. Invalid input or a failed power precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "off",
+                  "parking",
+                  "headlights",
+                  "auto"
+                ],
+                "examples": [
+                  "off",
+                  "parking",
+                  "headlights",
+                  "auto"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "lighting_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "lighting_mode",
+            "parameter": "mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The exterior-light module must be powered on.",
+            "INVALID_INPUT_ERROR": "Mode must be off, parking, headlights, or auto."
+          }
+        },
+        "get_beam_request": {
+          "description": "Return the stored low- or high-beam request. Requires module power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "beam_request"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "beam_request",
+            "response_key": "beam_request",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "beam_request": {
+              "type": "string",
+              "description": "Requested beam: low or high."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The exterior-light module must be powered on."
+          }
+        },
+        "set_beam_request": {
+          "description": "Request low or high beam. The request is retained in every lighting mode and is applied in headlights mode or when automatic mode activates the headlights. Requires module power. Invalid input or a failed power precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "beam": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "high"
+                ],
+                "examples": [
+                  "low",
+                  "high"
+                ]
+              }
+            },
+            "required": [
+              "beam"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "beam_request"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "beam_request",
+            "parameter": "beam",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The exterior-light module must be powered on.",
+            "INVALID_INPUT_ERROR": "Beam request must be low or high."
+          }
+        },
+        "get_turn_signal": {
+          "description": "Return the stored directional turn-signal request. Hazard lights can override its physical indication without erasing the request. Requires module power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "turn_signal"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "turn_signal",
+            "response_key": "turn_signal",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "turn_signal": {
+              "type": "string",
+              "description": "Directional request: off, left, or right."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The exterior-light module must be powered on."
+          }
+        },
+        "set_turn_signal": {
+          "description": "Set the directional turn-signal request to off, left, or right. While hazard lights are active, both indicators remain requested and this directional request is retained for use after hazards are disabled. Requires module power. Invalid input or a failed power precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "signal": {
+                "type": "string",
+                "enum": [
+                  "off",
+                  "left",
+                  "right"
+                ],
+                "examples": [
+                  "off",
+                  "left",
+                  "right"
+                ]
+              }
+            },
+            "required": [
+              "signal"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "turn_signal"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "turn_signal",
+            "parameter": "signal",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The exterior-light module must be powered on.",
+            "INVALID_INPUT_ERROR": "Turn signal must be off, left, or right."
+          }
+        },
+        "get_hazard_lights": {
+          "description": "Return whether hazard lights are requested. Requires module power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "hazard_lights"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "hazard_lights",
+            "response_key": "hazard_lights",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "hazard_lights": {
+              "type": "boolean",
+              "description": "Whether both direction indicators are requested as hazard lights."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The exterior-light module must be powered on."
+          }
+        },
+        "set_hazard_lights": {
+          "description": "Enable or disable hazard lights. Enabling hazards requests both direction indicators while preserving the stored directional turn-signal request. Requires module power. A failed power precondition or invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enabled"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "hazard_lights"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "hazard_lights",
+            "parameter": "enabled",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The exterior-light module must be powered on."
+          }
+        },
+        "get_actual_beam_state": {
+          "description": "Return actual front-lighting feedback. In automatic mode this can differ from the stored beam request because headlights remain inactive in bright conditions. Requires module power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "actual_beam_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "actual_beam_state",
+            "response_key": "actual_beam_state",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "actual_beam_state": {
+              "type": "string",
+              "description": "Actual front-lighting state: off, parking, low, or high."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The exterior-light module must be powered on."
+          }
+        },
+        "get_actual_illumination": {
+          "description": "Return this module's current absolute contribution to exterior illuminance, including front lighting and signals. Requires module power.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "actual_illumination"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "actual_illumination",
+            "response_key": "actual_illumination",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "actual_illumination": {
+              "type": "integer",
+              "description": "Current absolute exterior illuminance contribution in lux."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The exterior-light module must be powered on."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "actual_beam_state",
+            "actual_illumination",
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "Each minute, replace this module's exterior illuminance contribution. While power is off, keep actual_beam_state off, keep actual_illumination at zero, and contribute zero illuminance while preserving all driver requests. While powered, determine ambient exterior illuminance by subtracting this module's previous absolute contribution from aggregate exterior illuminance, with a minimum ambient value of zero. Off mode provides no front-light illumination. Parking mode sets actual_beam_state to parking and contributes 100 lux. Headlights mode sets actual_beam_state to the requested low or high beam and contributes 800 or 1600 lux respectively. In auto mode, activate the requested beam when ambient illuminance is at most 200 lux and set the beam state to off when ambient illuminance is at least 1000 lux. Between 201 and 999 lux, preserve activation only when the previous actual_beam_state was low or high, applying the current beam request; treat previous off or parking state as inactive and set actual_beam_state to off. While powered, add 100 lux for hazards, otherwise 50 lux for an active directional signal. Store the emitted total in actual_illumination so later automatic-lighting decisions can exclude this module's own output.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Gates all exterior-light output and keeps beam and illumination feedback cleared while off."
+            },
+            {
+              "name": "lighting_mode",
+              "description": "Determines whether front lighting is off, parking, manually active, or automatically controlled."
+            },
+            {
+              "name": "beam_request",
+              "description": "Determines whether active headlights use low or high beam."
+            },
+            {
+              "name": "turn_signal",
+              "description": "Determines whether one directional signal contributes illumination when hazards are disabled."
+            },
+            {
+              "name": "hazard_lights",
+              "description": "Determines whether both direction indicators contribute illumination."
+            },
+            {
+              "name": "actual_beam_state",
+              "description": "Retains automatic-headlight activation within the hysteresis band and receives updated front-lighting feedback."
+            },
+            {
+              "name": "actual_illumination",
+              "description": "Records the module's previous absolute contribution so automatic lighting can exclude it from ambient illuminance."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "After a successful public mutation, when power is false, set actual_beam_state to off, set actual_illumination to zero, and immediately replace the module's exterior illuminance contribution with zero. When power remains true, preserve the current actual beam and illumination feedback and retain the current actual_illumination contribution until the normal lighting update recalculates it.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether feedback and the exterior illuminance contribution must be cleared immediately."
+            },
+            {
+              "name": "actual_beam_state",
+              "description": "Front-lighting feedback that is set to off whenever power is false."
+            },
+            {
+              "name": "actual_illumination",
+              "description": "Illumination feedback that is set to zero whenever power is false and otherwise supplies the retained absolute contribution."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

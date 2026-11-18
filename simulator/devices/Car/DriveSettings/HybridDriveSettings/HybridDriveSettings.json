@@ -1,0 +1,457 @@
+{
+  "HybridDriveSettings": {
+    "meta": {
+      "name": "HybridDriveSettings",
+      "description": "Hybrid or range-extended vehicle driving settings. Adds energy-use strategy selection and queries of actual engine and electric-drive operating states, distinguishing user requests from the actual strategy under protection conditions. Instantiate only for vehicle models equipped with both fuel and electric energy systems. Range-extender generation does not imply that the engine directly drives the wheels.",
+      "version": "1.0.0",
+      "from": "../DriveSettings.json"
+    },
+    "properties": {
+      "update": {
+        "requested_energy_strategy": {
+          "type": "string",
+          "description": "Identifier of the most recently accepted energy-use strategy request. An empty string means no strategy has been requested.",
+          "mode": 3,
+          "value": {
+            "default": "",
+            "pattern": "^$|^[A-Za-z0-9_-]{1,32}$",
+            "max_length": 32
+          }
+        },
+        "effective_energy_strategy": {
+          "type": "string",
+          "description": "Energy-use strategy currently applied by the simulated powertrain. It may differ from requested_energy_strategy while protection_active is true.",
+          "mode": 2,
+          "value": {
+            "default": "balanced",
+            "pattern": "^[A-Za-z0-9_-]{1,32}$",
+            "max_length": 32
+          }
+        },
+        "configured_energy_strategies": {
+          "type": "dict",
+          "description": "Read-only vehicle-model configuration keyed by selectable energy-strategy identifier. Each record declares whether the strategy favors electric energy, balances both energy systems, or favors engine use.",
+          "mode": 2,
+          "value": {
+            "default": {
+              "electric_priority": {
+                "energy_bias": "electric"
+              },
+              "balanced": {
+                "energy_bias": "balanced"
+              },
+              "engine_priority": {
+                "energy_bias": "engine"
+              }
+            },
+            "schema": {
+              "type": "object",
+              "minProperties": 1,
+              "propertyNames": {
+                "pattern": "^[A-Za-z0-9_-]{1,32}$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "energy_bias": {
+                    "type": "string",
+                    "enum": [
+                      "electric",
+                      "balanced",
+                      "engine"
+                    ]
+                  }
+                },
+                "required": [
+                  "energy_bias"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "protection_active": {
+          "type": "boolean",
+          "description": "Whether a simulated powertrain protection condition currently overrides the requested energy-use strategy.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        },
+        "protection_strategy": {
+          "type": "string",
+          "description": "Read-only configured energy strategy applied whenever protection_active is true. Its value is always a key in configured_energy_strategies.",
+          "mode": 2,
+          "value": {
+            "default": "balanced",
+            "pattern": "^[A-Za-z0-9_-]{1,32}$",
+            "max_length": 32
+          }
+        },
+        "engine_operating_state": {
+          "type": "string",
+          "description": "Actual simulated engine operating state supplied by powertrain feedback. Generating electricity does not imply mechanical drive to the wheels.",
+          "mode": 2,
+          "value": {
+            "default": "off",
+            "choices": [
+              "off",
+              "idling",
+              "generating_electricity",
+              "propelling_vehicle"
+            ]
+          }
+        },
+        "electric_drive_operating_state": {
+          "type": "string",
+          "description": "Actual simulated electric-drive operating state supplied by powertrain feedback, independent of the requested energy strategy.",
+          "mode": 2,
+          "value": {
+            "default": "inactive",
+            "choices": [
+              "inactive",
+              "propelling_vehicle",
+              "regenerating"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_requested_energy_strategy": {
+          "description": "Return the most recently accepted energy-use strategy request without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "requested_energy_strategy"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "requested_energy_strategy",
+            "response_key": "requested_energy_strategy"
+          },
+          "response": {
+            "requested_energy_strategy": {
+              "type": "string",
+              "description": "Requested configured energy-strategy identifier, or an empty string when none has been requested."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_effective_energy_strategy": {
+          "description": "Return the energy-use strategy currently applied by the simulated powertrain without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "effective_energy_strategy"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "effective_energy_strategy",
+            "response_key": "effective_energy_strategy"
+          },
+          "response": {
+            "effective_energy_strategy": {
+              "type": "string",
+              "description": "Currently effective energy-strategy identifier."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_energy_strategy_configuration": {
+          "description": "Return the fixed configuration for one available energy-use strategy. An unknown strategy identifier is rejected without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "strategy": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,32}$",
+                "maxLength": 32,
+                "examples": [
+                  "electric_priority",
+                  "balanced",
+                  "engine_priority"
+                ]
+              }
+            },
+            "required": [
+              "strategy"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "configured_energy_strategies"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "configured_energy_strategies",
+            "id_parameter": "strategy",
+            "response_key": "strategy_configuration",
+            "preconditions": {
+              "configured_energy_strategies": {
+                "contains_key": {
+                  "parameter": "strategy"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "strategy": {
+              "property": "configured_energy_strategies",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "strategy_configuration": {
+              "type": "object",
+              "description": "Fixed strategy record containing its energy_bias."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The requested energy-use strategy is not configured for this vehicle model."
+          }
+        },
+        "get_protection_active": {
+          "description": "Return whether a simulated powertrain protection condition is currently overriding the requested energy-use strategy.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "protection_active"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "protection_active",
+            "response_key": "protection_active"
+          },
+          "response": {
+            "protection_active": {
+              "type": "boolean",
+              "description": "Whether protection-based strategy override is active."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_protection_strategy": {
+          "description": "Return the configured energy-use strategy applied while protection_active is true.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "protection_strategy"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "protection_strategy",
+            "response_key": "protection_strategy"
+          },
+          "response": {
+            "protection_strategy": {
+              "type": "string",
+              "description": "Configured protection strategy identifier."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_engine_operating_state": {
+          "description": "Return the actual simulated engine operating state. A generating_electricity result does not establish a mechanical connection between the engine and the wheels.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "engine_operating_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "engine_operating_state",
+            "response_key": "engine_operating_state"
+          },
+          "response": {
+            "engine_operating_state": {
+              "type": "string",
+              "description": "Actual engine state: off, idling, generating_electricity, or propelling_vehicle."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_electric_drive_operating_state": {
+          "description": "Return the actual simulated electric-drive operating state without inferring it from the requested energy strategy.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "electric_drive_operating_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "electric_drive_operating_state",
+            "response_key": "electric_drive_operating_state"
+          },
+          "response": {
+            "electric_drive_operating_state": {
+              "type": "string",
+              "description": "Actual electric-drive state: inactive, propelling_vehicle, or regenerating."
+            }
+          },
+          "errorcodes": {}
+        },
+        "select_energy_strategy": {
+          "description": "Select an energy-use strategy configured for this vehicle model. The accepted strategy is always stored in requested_energy_strategy. When protection_active is false, it also becomes effective_energy_strategy; when protection_active is true, effective_energy_strategy remains the configured protection_strategy. The operation does not infer or modify actual engine or electric-drive operating states and does not set speed or gear. Unknown identifiers are rejected before any state change.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "strategy": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,32}$",
+                "maxLength": 32,
+                "examples": [
+                  "electric_priority",
+                  "balanced",
+                  "engine_priority"
+                ]
+              }
+            },
+            "required": [
+              "strategy"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "configured_energy_strategies",
+            "protection_active",
+            "protection_strategy"
+          ],
+          "writes": [
+            "requested_energy_strategy",
+            "effective_energy_strategy"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The effective strategy is conditionally assigned from either the accepted request or the configured protection strategy.",
+            "preconditions": {
+              "configured_energy_strategies": {
+                "contains_key": {
+                  "parameter": "strategy"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "strategy": {
+              "property": "configured_energy_strategies",
+              "field": "$key"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The requested energy-use strategy is not configured for this vehicle model."
+          }
+        },
+        "report_powertrain_status": {
+          "description": "Atomically ingest simulated powertrain feedback. The supplied protection condition and actual engine and electric-drive operating states replace the previous feedback. When protection_active is true, effective_energy_strategy becomes protection_strategy. When protection_active is false and a requested strategy exists, that request becomes effective; when no request exists, the configured protection strategy remains the deterministic baseline. This feedback operation does not change requested_energy_strategy, select a driving mode, set vehicle speed or gear, or imply that electricity generation mechanically drives the wheels. Invalid input leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "protection_active": {
+                "type": "boolean",
+                "description": "Whether a powertrain protection condition currently overrides the requested energy-use strategy."
+              },
+              "engine_operating_state": {
+                "type": "string",
+                "enum": [
+                  "off",
+                  "idling",
+                  "generating_electricity",
+                  "propelling_vehicle"
+                ],
+                "examples": [
+                  "off",
+                  "generating_electricity"
+                ]
+              },
+              "electric_drive_operating_state": {
+                "type": "string",
+                "enum": [
+                  "inactive",
+                  "propelling_vehicle",
+                  "regenerating"
+                ],
+                "examples": [
+                  "inactive",
+                  "propelling_vehicle"
+                ]
+              }
+            },
+            "required": [
+              "protection_active",
+              "engine_operating_state",
+              "electric_drive_operating_state"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "requested_energy_strategy",
+            "protection_strategy"
+          ],
+          "writes": [
+            "protection_active",
+            "effective_energy_strategy",
+            "engine_operating_state",
+            "electric_drive_operating_state"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "This operation atomically records a feedback bundle and conditionally reconciles the effective strategy from the protection strategy or the previously accepted user request."
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Protection status and both operating states must use the declared types and choices; invalid feedback leaves all state unchanged."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

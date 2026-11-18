@@ -1,0 +1,148 @@
+{
+  "AdaptiveDamping": {
+    "meta": {
+      "name": "AdaptiveDamping",
+      "description": "Variable damping module with user-selectable modes. Supports selecting a damping mode from a fixed set and querying the effective state. Its configuration is independent of air-suspension height control, so inheritance from AirSuspension is not required.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "damping_mode": {
+          "type": "string",
+          "description": "User-selected damping mode.",
+          "mode": 3,
+          "value": {
+            "default": "standard",
+            "choices": [
+              "comfort",
+              "standard",
+              "sport"
+            ]
+          }
+        },
+        "effective_state": {
+          "type": "string",
+          "description": "Effective damping state currently applied by the module.",
+          "mode": 2,
+          "value": {
+            "default": "standard",
+            "choices": [
+              "comfort",
+              "standard",
+              "sport"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_damping_mode": {
+          "description": "Return the user-selected damping mode without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "damping_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "damping_mode",
+            "response_key": "damping_mode"
+          },
+          "response": {
+            "damping_mode": {
+              "type": "string",
+              "description": "Selected damping mode: comfort, standard, or sport."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_damping_mode": {
+          "description": "Select comfort, standard, or sport damping. A valid selection is applied immediately to both the configured mode and effective state. Invalid input is rejected and leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "comfort",
+                  "standard",
+                  "sport"
+                ],
+                "examples": [
+                  "comfort",
+                  "standard",
+                  "sport"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "damping_mode",
+            "effective_state"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "damping_mode": {
+                "parameter": "mode"
+              },
+              "effective_state": {
+                "parameter": "mode"
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Damping mode must be comfort, standard, or sport."
+          }
+        },
+        "get_effective_state": {
+          "description": "Return the effective damping state currently applied by the module without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "effective_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "effective_state",
+            "response_key": "effective_state"
+          },
+          "response": {
+            "effective_state": {
+              "type": "string",
+              "description": "Effective damping state: comfort, standard, or sport."
+            }
+          },
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

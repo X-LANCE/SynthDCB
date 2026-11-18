@@ -1,0 +1,414 @@
+{
+  "FloorWasher": {
+    "meta": {
+      "name": "FloorWasher",
+      "description": "Floor washer. Users can query and set the cleaning mode and suction level, and can query the dirty-water tank, clean-water tank, roller-brush, and self-cleaning states.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the floor washer is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "cleaning_mode": {
+          "type": "string",
+          "description": "Selected floor-cleaning mode.",
+          "mode": 3,
+          "value": {
+            "default": "auto",
+            "choices": [
+              "auto",
+              "max"
+            ]
+          }
+        },
+        "suction_level": {
+          "type": "integer",
+          "description": "Selected suction level from 1 to 3.",
+          "mode": 3,
+          "value": {
+            "default": 2,
+            "minimum": 1,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "dirty_water_tank": {
+          "type": "string",
+          "description": "Current dirty-water tank state.",
+          "mode": 2,
+          "value": {
+            "default": "available",
+            "choices": [
+              "available",
+              "full"
+            ]
+          }
+        },
+        "clean_water_tank": {
+          "type": "string",
+          "description": "Current clean-water tank state.",
+          "mode": 2,
+          "value": {
+            "default": "sufficient",
+            "choices": [
+              "sufficient",
+              "low",
+              "empty"
+            ]
+          }
+        },
+        "roller_brush": {
+          "type": "string",
+          "description": "Current roller-brush maintenance state.",
+          "mode": 2,
+          "value": {
+            "default": "clean",
+            "choices": [
+              "clean",
+              "needs_cleaning"
+            ]
+          }
+        },
+        "self_cleaning": {
+          "type": "string",
+          "description": "Current self-cleaning state.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "cleaning",
+              "completed"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_cleaning_mode": {
+          "description": "Get the selected cleaning mode. The floor washer must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "cleaning_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cleaning_mode",
+            "response_key": "cleaning_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "cleaning_mode": {
+              "type": "string",
+              "description": "Selected cleaning mode."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_cleaning_mode": {
+          "description": "Set the cleaning mode to auto or max. The floor washer must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "max"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "cleaning_mode"
+          ],
+          "writes": [
+            "cleaning_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "cleaning_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_suction_level": {
+          "description": "Get the selected suction level. The floor washer must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "suction_level"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "suction_level",
+            "response_key": "suction_level",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "suction_level": {
+              "type": "integer",
+              "description": "Selected suction level from 1 to 3."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_suction_level": {
+          "description": "Set the suction level from 1 to 3. The floor washer must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "suction_level"
+          ],
+          "writes": [
+            "suction_level"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "suction_level",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_dirty_water_tank": {
+          "description": "Get the dirty-water tank state. The floor washer must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "dirty_water_tank"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "dirty_water_tank",
+            "response_key": "dirty_water_tank",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "dirty_water_tank": {
+              "type": "string",
+              "description": "Current dirty-water tank state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_clean_water_tank": {
+          "description": "Get the clean-water tank state. The floor washer must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "clean_water_tank"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "clean_water_tank",
+            "response_key": "clean_water_tank",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "clean_water_tank": {
+              "type": "string",
+              "description": "Current clean-water tank state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_roller_brush": {
+          "description": "Get the roller-brush maintenance state. The floor washer must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "roller_brush"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "roller_brush",
+            "response_key": "roller_brush",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "roller_brush": {
+              "type": "string",
+              "description": "Current roller-brush maintenance state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_self_cleaning": {
+          "description": "Get the self-cleaning state. The floor washer must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "self_cleaning"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "self_cleaning",
+            "response_key": "self_cleaning",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "self_cleaning": {
+              "type": "string",
+              "description": "Current self-cleaning state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,1062 @@
+{
+  "RobotVacuum": {
+    "meta": {
+      "name": "RobotVacuum",
+      "description": "Robot vacuum. Users can query and set the cleaning mode, suction level, mopping-water level, and cleaning area, and can perform start, pause, recharge, and return-to-base actions. The device moves across and cleans the floor; the mopping-water level is effective only in mopping mode, and the base station can provide dust collection, mop washing, or drying states. The single process includes deterministic return, base service and charging phases. Read-only cleaning output counters record actual vacuum/mopping work; paused or skipped time never creates cleaning output.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "process": {
+      "mode_property": "operation_mode",
+      "start_function": "start",
+      "pause_function": "pause",
+      "resume_function": "resume",
+      "modes": {
+        "vacuum": [
+          {
+            "phase": "cleaning",
+            "minutes": 30
+          },
+          {
+            "phase": "returning",
+            "minutes": 5
+          },
+          {
+            "phase": "dust_collection",
+            "minutes": 3
+          },
+          {
+            "phase": "charging",
+            "minutes": 30
+          }
+        ],
+        "mop": [
+          {
+            "phase": "cleaning",
+            "minutes": 30
+          },
+          {
+            "phase": "returning",
+            "minutes": 5
+          },
+          {
+            "phase": "mop_washing",
+            "minutes": 5
+          },
+          {
+            "phase": "drying",
+            "minutes": 30
+          },
+          {
+            "phase": "charging",
+            "minutes": 30
+          }
+        ],
+        "vacuum_and_mop": [
+          {
+            "phase": "cleaning",
+            "minutes": 30
+          },
+          {
+            "phase": "returning",
+            "minutes": 5
+          },
+          {
+            "phase": "dust_collection",
+            "minutes": 3
+          },
+          {
+            "phase": "mop_washing",
+            "minutes": 5
+          },
+          {
+            "phase": "drying",
+            "minutes": 30
+          },
+          {
+            "phase": "charging",
+            "minutes": 30
+          }
+        ],
+        "recharge": [
+          {
+            "phase": "returning",
+            "minutes": 5
+          },
+          {
+            "phase": "charging",
+            "minutes": 30
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the robot vacuum is powered and available for non-power controls.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "cleaning_mode": {
+          "type": "string",
+          "description": "Configured cleaning mode. Mopping-water level affects cleaning only in mop and vacuum_and_mop modes.",
+          "mode": 3,
+          "value": {
+            "default": "vacuum_and_mop",
+            "choices": [
+              "vacuum",
+              "mop",
+              "vacuum_and_mop"
+            ]
+          }
+        },
+        "suction_level": {
+          "type": "integer",
+          "description": "Configured suction level from 1 through 4.",
+          "mode": 3,
+          "value": {
+            "default": 2,
+            "minimum": 1,
+            "maximum": 4,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "mopping_water_level": {
+          "type": "integer",
+          "description": "Configured mopping-water level from 0 through 3. It has a cleaning effect only in mop and vacuum_and_mop modes.",
+          "mode": 3,
+          "value": {
+            "default": 1,
+            "minimum": 0,
+            "maximum": 3,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "cleaning_area": {
+          "type": "string",
+          "description": "Configured non-empty single-line descriptive label for the floor area to clean.",
+          "mode": 3,
+          "value": {
+            "default": "\u5168\u5c4b",
+            "pattern": "^[^\\r\\n]+$",
+            "max_length": 100
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Current robot and cleaning lifecycle state.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "running",
+              "paused",
+              "completed"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current process phase, or idle or completed when no phase is active.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "cleaning",
+              "returning",
+              "dust_collection",
+              "mop_washing",
+              "drying",
+              "charging",
+              "completed"
+            ]
+          }
+        },
+        "remaining_minutes": {
+          "type": "integer",
+          "description": "Minutes remaining in the complete cleaning and base-station process.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "started_at_minute": {
+          "type": "integer",
+          "description": "Logical elapsed-minute origin adjusted for retained or skipped progress. It may be negative after an early return-to-base skips the remaining cleaning segment.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": -1000,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "progress_minutes": {
+          "type": "integer",
+          "description": "Minutes of process progress retained across pauses and resumes.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "base_state": {
+          "type": "string",
+          "description": "Current base-station phase, retained while paused; idle outside dust_collection, mop_washing and drying. status and power determine whether that phase is advancing.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "dust_collection",
+              "mop_washing",
+              "drying"
+            ]
+          }
+        },
+        "operation_mode": {
+          "type": "string",
+          "description": "Persisted mode of the single active cleaning or recharge process.",
+          "mode": 2,
+          "value": {
+            "default": "vacuum_and_mop",
+            "choices": [
+              "vacuum",
+              "mop",
+              "vacuum_and_mop",
+              "recharge"
+            ]
+          }
+        },
+        "vacuum_cleaned_units": {
+          "type": "integer",
+          "description": "Cumulative simulated cleaning output in the most recent process run; retained after completion, reset on a new start or recharge.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "maximum": 120,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "mopped_units": {
+          "type": "integer",
+          "description": "Cumulative simulated cleaning output in the most recent process run; retained after completion, reset on a new start or recharge.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "maximum": 90,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_cleaning_mode": {
+          "description": "Get the configured cleaning mode while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "cleaning_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cleaning_mode",
+            "response_key": "cleaning_mode",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_cleaning_mode": {
+          "description": "Set the cleaning mode while powered on and no process is running. Settings can change only in idle or completed state, so the selected run configuration is stable across a pause.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "vacuum",
+                  "mop",
+                  "vacuum_and_mop"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "cleaning_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "cleaning_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_suction_level": {
+          "description": "Get the configured suction level while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "suction_level"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "suction_level",
+            "response_key": "suction_level",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_suction_level": {
+          "description": "Set suction level from 1 through 4 while powered on and not running. Settings can change only in idle or completed state, so the selected run configuration is stable across a pause.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "suction_level"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "suction_level",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_mopping_water_level": {
+          "description": "Get the configured mopping-water level while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "mopping_water_level"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "mopping_water_level",
+            "response_key": "mopping_water_level",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_mopping_water_level": {
+          "description": "Set mopping-water level from 0 through 3 while powered on and not running. Settings can change only in idle or completed state, so the selected run configuration is stable across a pause.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 3
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "mopping_water_level"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "mopping_water_level",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_cleaning_area": {
+          "description": "Get the configured cleaning area while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "cleaning_area"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cleaning_area",
+            "response_key": "cleaning_area",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "set_cleaning_area": {
+          "description": "Set a non-empty single-line cleaning-area label while powered on and not running. Settings can change only in idle or completed state, so the selected run configuration is stable across a pause.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "pattern": "^[^\\r\\n]+$",
+                "minLength": 1,
+                "maxLength": 100
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "cleaning_area"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "cleaning_area",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "get_status": {
+          "description": "Get the process status while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "status",
+            "response_key": "status",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_phase": {
+          "description": "Get the current process phase while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "phase"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "phase",
+            "response_key": "phase",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_remaining_minutes": {
+          "description": "Get the remaining process duration while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "remaining_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "remaining_minutes",
+            "response_key": "remaining_minutes",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_progress_minutes": {
+          "description": "Get retained process progress while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "progress_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "progress_minutes",
+            "response_key": "progress_minutes",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "get_base_state": {
+          "description": "Get the base-station state while powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "base_state"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "base_state",
+            "response_key": "base_state",
+            "preconditions": {
+              "power": true
+            }
+          }
+        },
+        "start": {
+          "description": "Start a fresh cleaning or recharge process from idle or completed state. The requested cleaning mode and the configured cleaning_area select the floor-cleaning run. Set operation_mode to the supplied mode, status=running, phase to the first declared phase, progress_minutes=0, remaining_minutes to the sum of the mode phase durations, base_state=idle, vacuum_cleaned_units=0 and mopped_units=0. For a cleaning mode also assign cleaning_mode to that mode; recharge preserves cleaning_mode. The after_action hook establishes the logical time origin. Invalid arguments leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "vacuum",
+                  "mop",
+                  "vacuum_and_mop",
+                  "recharge"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "cleaning_area"
+          ],
+          "writes": [
+            "operation_mode",
+            "cleaning_mode",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes",
+            "base_state",
+            "vacuum_cleaned_units",
+            "mopped_units"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "mode",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        "pause": {
+          "description": "Pause the running process and retain its progress.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_pause",
+            "preconditions": {
+              "power": true,
+              "status": "running"
+            }
+          }
+        },
+        "resume": {
+          "description": "Resume a paused process without resetting its progress.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "progress_minutes"
+          ],
+          "writes": [
+            "status",
+            "started_at_minute"
+          ],
+          "semantics": {
+            "kind": "process_resume",
+            "preconditions": {
+              "power": true,
+              "status": "paused"
+            }
+          }
+        },
+        "recharge": {
+          "description": "Cancel the current process if any, and begin a single returning-then-charging process in recharge mode. Set operation_mode to the supplied mode, status=running, phase to the first declared phase, progress_minutes=0, remaining_minutes to the sum of the mode phase durations, base_state=idle, vacuum_cleaned_units=0 and mopped_units=0. For a cleaning mode also assign cleaning_mode to that mode; recharge preserves cleaning_mode. The after_action hook establishes the logical time origin. Invalid arguments leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "recharge"
+                ],
+                "default": "recharge"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "phase",
+            "operation_mode",
+            "progress_minutes"
+          ],
+          "writes": [
+            "operation_mode",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes",
+            "base_state",
+            "vacuum_cleaned_units",
+            "mopped_units"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "return_to_base": {
+          "description": "While powered, if phase=cleaning and status is running or paused, stop further floor cleaning and skip directly to the returning boundary: set progress_minutes=30, phase=returning, status=running, remaining_minutes to the selected operation_mode total minus 30, and base_state=idle. Preserve achieved vacuum_cleaned_units and mopped_units; skipped cleaning time produces no cleaning output. The after_action hook rebases started_at_minute to the current elapsed minute minus progress_minutes, even if that origin is negative. If already paused in returning, set status=running and rebase the origin while preserving progress. In idle, completed, already-running returning, or any base-station phase, succeed without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "phase",
+            "operation_mode",
+            "progress_minutes"
+          ],
+          "writes": [
+            "status",
+            "phase",
+            "progress_minutes",
+            "remaining_minutes",
+            "started_at_minute",
+            "base_state"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Skip remaining cleaning while preserving actual cleaning output and start or resume the existing return-and-base sequence.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "power",
+            "status"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_operation_mode": {
+          "description": "Return operation_mode while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "operation_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "operation_mode",
+            "response_key": "operation_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "operation_mode": {
+              "type": "string",
+              "description": "Persisted mode of the single active cleaning or recharge process."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_vacuum_cleaned_units": {
+          "description": "Return vacuum_cleaned_units while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "vacuum_cleaned_units"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "vacuum_cleaned_units",
+            "response_key": "vacuum_cleaned_units",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "vacuum_cleaned_units": {
+              "type": "integer",
+              "description": "Cumulative simulated cleaning output in the most recent process run; retained after completion, reset on a new start or recharge."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_mopped_units": {
+          "description": "Return mopped_units while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "mopped_units"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "mopped_units",
+            "response_key": "mopped_units",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "mopped_units": {
+              "type": "integer",
+              "description": "Cumulative simulated cleaning output in the most recent process run; retained after completion, reset on a new start or recharge."
+            }
+          },
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While powered and running, compute new progress as elapsed world minutes minus started_at_minute, clamped to the selected operation_mode total duration. Before replacing progress_minutes, calculate actually traversed cleaning minutes as max(0, min(new progress,30)-min(previous progress_minutes,30)) for a cleaning mode, or zero in recharge mode. Increase vacuum_cleaned_units by those minutes times suction_level in vacuum or vacuum_and_mop mode, and increase mopped_units by those minutes times mopping_water_level in mop or vacuum_and_mop mode. These internal outputs quantify the most recent run on its selected cleaning_area; they are not Space properties. Thus water has no cleaning effect in vacuum mode, and an action that skips cleaning produces no fabricated cleaning output. Persist the new progress, set remaining_minutes=total-progress, and select phases at their exact cumulative duration boundaries. At the final boundary set status and phase to completed and remaining_minutes=0. Set base_state to the phase during dust_collection, mop_washing or drying, otherwise idle. Paused and unpowered processes do not advance or change cleaning outputs. After processing, return one absolute set_contribution effect to the containing Home Space noise property, unit dBA: while powered and running, cleaning is 20+5*suction_level dBA for vacuum-containing modes or 20 for mop-only, returning is 20, dust_collection is 45, mop_washing is 25, drying is 15, and charging is zero. All idle, completed, paused or unpowered states contribute zero; always emit zero to clear stale output. Emit this Space noise effect only on tick.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            },
+            {
+              "name": "suction_level",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            },
+            {
+              "name": "mopping_water_level",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            },
+            {
+              "name": "cleaning_area",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            },
+            {
+              "name": "status",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            },
+            {
+              "name": "phase",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            },
+            {
+              "name": "base_state",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            },
+            {
+              "name": "operation_mode",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            },
+            {
+              "name": "vacuum_cleaned_units",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            },
+            {
+              "name": "mopped_units",
+              "description": "Process progress, stable run configuration, cleaning output, or noise input."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "Power loss changes a running status to paused and preserves all progress, phases and outputs; power-on never resumes it. For a new start, recharge, resume or return-to-base transition into running, establish started_at_minute as the current elapsed world minute minus progress_minutes. Identify a new or rebased run by a non-running previous status, a changed operation_mode, a changed phase, or changed progress_minutes; an unchanged already-running process keeps its origin. These origin updates are reachable through the process actions, not through set_power. Emit no Space effects here.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Read process transition input or internally updated status/origin."
+            },
+            {
+              "name": "status",
+              "description": "Read process transition input or internally updated status/origin."
+            },
+            {
+              "name": "operation_mode",
+              "description": "Read process transition input or internally updated status/origin."
+            },
+            {
+              "name": "phase",
+              "description": "Read process transition input or internally updated status/origin."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Read process transition input or internally updated status/origin."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Read process transition input or internally updated status/origin."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

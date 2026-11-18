@@ -1,0 +1,549 @@
+{
+  "Dehumidifier": {
+    "meta": {
+      "name": "Dehumidifier",
+      "description": "Dehumidifier. Users can query and set target humidity, dehumidification intensity, and fan speed, and can query the full-tank and continuous-drainage states. While running and when space humidity is above the target, the device gradually lowers space humidity; it stops dehumidifying when the target is reached or the tank is full. The amount of water in the tank changes with dehumidification intensity and remains unchanged in continuous-drainage mode. A powered empty_tank action resets the tank amount and full interlock, allowing dehumidification to resume.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the dehumidifier is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "target_humidity": {
+          "type": "integer",
+          "description": "Desired room relative humidity target.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "unit": "%RH",
+            "minimum": 20,
+            "maximum": 80,
+            "step": 1,
+            "step_origin": 20
+          }
+        },
+        "dehumidification_intensity": {
+          "type": "string",
+          "description": "Dehumidification intensity used while operating.",
+          "mode": 3,
+          "value": {
+            "default": "medium",
+            "choices": [
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        },
+        "fan_speed": {
+          "type": "string",
+          "description": "Fan speed used while operating.",
+          "mode": 3,
+          "value": {
+            "default": "medium",
+            "choices": [
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        },
+        "tank_full": {
+          "type": "boolean",
+          "description": "Whether the water collection tank is full. A full tank prevents dehumidification.",
+          "mode": 2,
+          "value": {
+            "default": false
+          }
+        },
+        "continuous_drainage": {
+          "type": "boolean",
+          "description": "Whether collected water is continuously drained instead of accumulating in the tank.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "tank_fill_units": {
+          "type": "integer",
+          "description": "Accumulated moisture-removal units in the tank, 0 through 60; one unit equals one percentage point of room humidity actually removed.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "maximum": 60,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_target_humidity": {
+          "description": "Return the configured target humidity while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "target_humidity"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_humidity",
+            "response_key": "target_humidity",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "target_humidity": {
+              "type": "integer",
+              "description": "Configured target humidity in percent relative humidity."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_target_humidity": {
+          "description": "Set the target humidity from 20 through 80 percent relative humidity while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 20,
+                "maximum": 80,
+                "description": "Target humidity in percent relative humidity."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "target_humidity"
+          ],
+          "writes": [
+            "target_humidity"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_humidity",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_dehumidification_intensity": {
+          "description": "Return the configured dehumidification intensity while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "dehumidification_intensity"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "dehumidification_intensity",
+            "response_key": "dehumidification_intensity",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "dehumidification_intensity": {
+              "type": "string",
+              "description": "Configured dehumidification intensity."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_dehumidification_intensity": {
+          "description": "Set the dehumidification intensity to low, medium, or high while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "description": "Desired dehumidification intensity."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "dehumidification_intensity"
+          ],
+          "writes": [
+            "dehumidification_intensity"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "dehumidification_intensity",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_fan_speed": {
+          "description": "Return the configured fan speed while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "fan_speed"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fan_speed",
+            "response_key": "fan_speed",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "fan_speed": {
+              "type": "string",
+              "description": "Configured fan speed."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_fan_speed": {
+          "description": "Set the fan speed to low, medium, or high while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "description": "Desired fan speed."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "fan_speed"
+          ],
+          "writes": [
+            "fan_speed"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "fan_speed",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_tank_full": {
+          "description": "Return whether the tank is full while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "tank_full"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "tank_full",
+            "response_key": "tank_full",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "tank_full": {
+              "type": "boolean",
+              "description": "Whether the tank is full."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_continuous_drainage": {
+          "description": "Return whether continuous-drainage mode is enabled while powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "continuous_drainage"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "continuous_drainage",
+            "response_key": "continuous_drainage",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "continuous_drainage": {
+              "type": "boolean",
+              "description": "Whether continuous-drainage mode is enabled."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_continuous_drainage": {
+          "description": "Enable or disable continuous-drainage mode while powered. When enabled, tank fill remains unchanged during dehumidification.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether continuous-drainage mode should be enabled."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "continuous_drainage"
+          ],
+          "writes": [
+            "continuous_drainage"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "continuous_drainage",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_tank_fill_units": {
+          "description": "Return accumulated moisture-removal units in the tank while powered; one unit is one percentage point of humidity actually removed, not one elapsed minute.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "tank_fill_units"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "tank_fill_units",
+            "response_key": "tank_fill_units",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "tank_fill_units": {
+              "type": "integer",
+              "description": "Accumulated moisture-removal units, capped at 60."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "empty_tank": {
+          "description": "Empty the collection tank while powered on. Atomically reset tank_fill_units to zero and tank_full to false. Idempotent when the tank is already empty; preserve all operating settings.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "tank_fill_units",
+            "tank_full"
+          ],
+          "semantics": {
+            "kind": "update",
+            "preconditions": {
+              "power": true
+            },
+            "fields": {
+              "tank_fill_units": {
+                "value": 0
+              },
+              "tank_full": {
+                "value": false
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "The tick interval is one elapsed world minute. If power is false, tank_full is true, or space humidity is at or below target_humidity, emit no humidity effect and do not increase tank_fill_units. Otherwise emit a humidity delta that lowers space humidity by the lesser of the current humidity minus target_humidity and the deterministic removal rate. The removal rate is 1 %RH per minute for low intensity, 2 %RH per minute for medium intensity, and 3 %RH per minute for high intensity, multiplied by 1 for low fan speed, 1.5 for medium fan speed, and 2 for high fan speed; the resulting rate is rounded down to the nearest integer and has a minimum of 1 %RH per minute. When continuous_drainage is false, increase tank_fill_units by the actual integer humidity removal for that minute, capped at 60, and set tank_full to true when it reaches 60. When continuous_drainage is true, tank_fill_units and tank_full remain unchanged. Emit only the humidity delta effect for the active minute.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the dehumidifier is powered."
+            },
+            {
+              "name": "target_humidity",
+              "description": "Desired room humidity target."
+            },
+            {
+              "name": "dehumidification_intensity",
+              "description": "Configured moisture-removal intensity."
+            },
+            {
+              "name": "fan_speed",
+              "description": "Configured fan speed."
+            },
+            {
+              "name": "tank_full",
+              "description": "Whether the collection tank is full."
+            },
+            {
+              "name": "continuous_drainage",
+              "description": "Whether collected water is continuously drained."
+            },
+            {
+              "name": "tank_fill_units",
+              "description": "Accumulated non-drained dehumidifying minutes."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "Tailgate": {
+    "meta": {
+      "name": "Tailgate",
+      "description": "Pickup cargo-bed tailgate that inherits Door locking, unlocking, and door-state queries. Represents the door connection between cargo_bed and exterior; opening and closing affect exchange between the cargo-bed Space and the outside. Instantiate only for vehicle models with a cargo bed.",
+      "version": "1.0.0",
+      "from": "../Door.json"
+    },
+    "properties": {
+      "update": {},
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "manual_open": {
+          "description": "Record a local manual action that places the tailgate in the fully open position. This is not a powered opening command. If the tailgate is closed and locked, the action is rejected and all state remains unchanged. Otherwise, including when it is already open, door_state is set to open and closure_feedback is set to false atomically; the lock state is unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "locked",
+            "door_state"
+          ],
+          "writes": [
+            "door_state",
+            "closure_feedback"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "door_state": {
+                "value": "open"
+              },
+              "closure_feedback": {
+                "value": false
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "A closed, locked tailgate cannot be opened. Unlock it before moving it away from the closed position."
+          }
+        },
+        "manual_set_ajar": {
+          "description": "Record a local manual action that places the tailgate in the ajar or unlatched position. This is not a powered movement command. If the tailgate is closed and locked, the action is rejected and all state remains unchanged. Otherwise, including when it is already ajar, door_state is set to ajar and closure_feedback is set to false atomically; the lock state is unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "locked",
+            "door_state"
+          ],
+          "writes": [
+            "door_state",
+            "closure_feedback"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "door_state": {
+                "value": "ajar"
+              },
+              "closure_feedback": {
+                "value": false
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "A closed, locked tailgate cannot be set ajar. Unlock it before moving it away from the closed position."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

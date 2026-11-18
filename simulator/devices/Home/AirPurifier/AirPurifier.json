@@ -1,0 +1,307 @@
+{
+  "AirPurifier": {
+    "meta": {
+      "name": "AirPurifier",
+      "description": "Air purifier. Users can query and set the fan-speed level and target air quality, and can query but not directly modify the remaining filter life. While running, the device gradually moves the air quality of its space toward the configured target according to the fan-speed level; it produces no further purification effect when turned off or when the air quality has reached the target. Current air quality should be provided by the containing space rather than duplicated as device state.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the air purifier is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "fan_speed": {
+          "type": "integer",
+          "description": "Configured fan-speed level. Higher levels purify the space more quickly.",
+          "mode": 3,
+          "value": {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 5,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "target_air_quality": {
+          "type": "integer",
+          "description": "Configured target air-quality index for the containing space.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "minimum": 0,
+            "maximum": 500,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "AQI"
+          }
+        },
+        "filter_life": {
+          "type": "integer",
+          "description": "Remaining filter life as a percentage. This value can be queried but not directly modified.",
+          "mode": 2,
+          "value": {
+            "default": 100,
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "%"
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_fan_speed": {
+          "description": "Return the configured fan-speed level. The purifier must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "fan_speed"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "fan_speed",
+            "response_key": "fan_speed",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "fan_speed": {
+              "type": "integer",
+              "description": "Configured fan-speed level."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_fan_speed": {
+          "description": "Set the fan-speed level from 1 through 5. The purifier must be powered; invalid values fail without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5,
+                "multipleOf": 1,
+                "description": "Fan-speed level."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "fan_speed"
+          ],
+          "writes": [
+            "fan_speed"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "fan_speed",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_target_air_quality": {
+          "description": "Return the configured target air-quality index. The purifier must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "target_air_quality"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "target_air_quality",
+            "response_key": "target_air_quality",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "target_air_quality": {
+              "type": "integer",
+              "description": "Configured target air-quality index."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_target_air_quality": {
+          "description": "Set the target air-quality index from 0 through 500. The purifier must be powered; invalid values fail without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 500,
+                "multipleOf": 1,
+                "description": "Target air-quality index."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "target_air_quality"
+          ],
+          "writes": [
+            "target_air_quality"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "target_air_quality",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_filter_life": {
+          "description": "Return the remaining filter life percentage. The purifier must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "filter_life"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "filter_life",
+            "response_key": "filter_life",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "filter_life": {
+              "type": "integer",
+              "description": "Remaining filter life percentage."
+            }
+          },
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While powered, move the containing space's air_quality toward target_air_quality using an approach effect. The approach rate is determined by fan_speed, with higher fan-speed levels producing faster movement. Emit no purification effect when powered off or when the space air_quality already equals the target.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the air purifier is powered."
+            },
+            {
+              "name": "fan_speed",
+              "description": "Configured fan-speed level controlling purification rate."
+            },
+            {
+              "name": "target_air_quality",
+              "description": "Configured target air-quality index."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

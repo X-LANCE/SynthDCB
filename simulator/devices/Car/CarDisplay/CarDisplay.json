@@ -1,0 +1,248 @@
+{
+  "CarDisplay": {
+    "meta": {
+      "name": "CarDisplay",
+      "description": "In-vehicle display, instantiated for each actual independent center, instrument, front-passenger, or rear-seat screen. Supports brightness, light/dark theme, and display layout settings.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "brightness": {
+          "type": "integer",
+          "description": "Configured display brightness as a percentage.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "theme": {
+          "type": "string",
+          "description": "Selected light or dark display theme.",
+          "mode": 3,
+          "value": {
+            "default": "light",
+            "choices": [
+              "light",
+              "dark"
+            ]
+          }
+        },
+        "layout": {
+          "type": "string",
+          "description": "Selected display presentation layout.",
+          "mode": 3,
+          "value": {
+            "default": "standard",
+            "choices": [
+              "standard",
+              "minimal",
+              "split"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_brightness": {
+          "description": "Return the configured display brightness percentage without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "brightness"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "brightness",
+            "response_key": "brightness"
+          },
+          "response": {
+            "brightness": {
+              "type": "integer",
+              "description": "Configured display brightness from 0 through 100 percent."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_brightness": {
+          "description": "Set display brightness to an integer from 0 through 100 percent. This changes only the display setting and does not claim a corresponding cabin illuminance. Invalid input is rejected and leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "brightness",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Brightness must be an integer from 0 through 100."
+          }
+        },
+        "get_theme": {
+          "description": "Return the selected display theme without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "theme"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "theme",
+            "response_key": "theme"
+          },
+          "response": {
+            "theme": {
+              "type": "string",
+              "description": "Selected display theme: light or dark."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_theme": {
+          "description": "Select the light or dark display theme. Invalid input is rejected and leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "light",
+                  "dark"
+                ],
+                "examples": [
+                  "light",
+                  "dark"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "theme"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "theme",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Theme must be light or dark."
+          }
+        },
+        "get_layout": {
+          "description": "Return the selected display layout without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "layout"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "layout",
+            "response_key": "layout"
+          },
+          "response": {
+            "layout": {
+              "type": "string",
+              "description": "Selected presentation layout: standard, minimal, or split."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_layout": {
+          "description": "Select the standard, minimal, or split presentation layout. The setting changes presentation only and does not alter underlying vehicle state. Invalid input is rejected and leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "standard",
+                  "minimal",
+                  "split"
+                ],
+                "examples": [
+                  "standard",
+                  "minimal",
+                  "split"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "layout"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "layout",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "Layout must be standard, minimal, or split."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "GasWaterHeater": {
+    "meta": {
+      "name": "GasWaterHeater",
+      "description": "A gas-water-heater variant. It provides instantaneous or recirculating hot-water control.",
+      "version": "1.0.0",
+      "from": "../WaterHeater.json"
+    },
+    "properties": {
+      "update": {
+        "water_delivery_mode": {
+          "type": "string",
+          "description": "Hot-water delivery mode.",
+          "mode": 3,
+          "value": {
+            "default": "instantaneous",
+            "choices": [
+              "instantaneous",
+              "recirculating"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_water_delivery_mode": {
+          "description": "Return whether the gas water heater is configured for instantaneous or recirculating hot-water delivery. This operation fails while the water heater is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "water_delivery_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "water_delivery_mode",
+            "response_key": "water_delivery_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "water_delivery_mode": {
+              "type": "string",
+              "description": "Configured hot-water delivery mode."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_water_delivery_mode": {
+          "description": "Set the hot-water delivery mode while powered on. The value must be instantaneous or recirculating; invalid values leave the state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "instantaneous",
+                  "recirculating"
+                ],
+                "description": "Hot-water delivery mode."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "water_delivery_mode"
+          ],
+          "writes": [
+            "water_delivery_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "water_delivery_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

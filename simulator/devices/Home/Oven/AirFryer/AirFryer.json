@@ -1,0 +1,22 @@
+{
+  "AirFryer": {
+    "meta": {
+      "name": "AirFryer",
+      "description": "Air fryer. It has the same settings as the oven.",
+      "version": "1.0.0",
+      "from": "../Oven.json"
+    },
+    "properties": {
+      "update": {},
+      "disabled": []
+    },
+    "functions": {
+      "update": {},
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

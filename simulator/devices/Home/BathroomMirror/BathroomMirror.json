@@ -1,0 +1,339 @@
+{
+  "BathroomMirror": {
+    "meta": {
+      "name": "BathroomMirror",
+      "description": "Bathroom mirror. Users can query and set lighting brightness, the defogging state, and the automatic-lighting function. Its lighting changes room brightness.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the bathroom mirror is powered. When false, non-power properties remain configured but are not publicly accessible or changeable.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "brightness": {
+          "type": "integer",
+          "description": "Configured mirror-light brightness percentage. This value persists while the mirror is powered off and is publicly accessible only while power is on.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "defogging": {
+          "type": "boolean",
+          "description": "Whether the mirror's defogging function is enabled. This setting persists while the mirror is powered off and is publicly accessible only while power is on.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "automatic_lighting": {
+          "type": "boolean",
+          "description": "Whether automatic lighting is enabled. This setting persists while the mirror is powered off and is publicly accessible only while power is on.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_brightness": {
+          "description": "Return the configured lighting brightness percentage. The mirror must be powered on; otherwise the function fails without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "brightness",
+            "response_key": "brightness",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "brightness": {
+              "type": "integer",
+              "description": "Configured brightness from 0 through 100 percent."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The mirror must be powered on to read brightness."
+          }
+        },
+        "set_brightness": {
+          "description": "Set the mirror-light brightness to an integer percentage from 0 through 100. The mirror must be powered on. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Desired lighting brightness percentage.",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "brightness",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The mirror must be powered on to change brightness.",
+            "INVALID_INPUT_ERROR": "value must be an integer from 0 through 100."
+          }
+        },
+        "get_defogging": {
+          "description": "Return whether defogging is enabled. The mirror must be powered on; otherwise the function fails without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "defogging"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "defogging",
+            "response_key": "defogging",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "defogging": {
+              "type": "boolean",
+              "description": "Whether defogging is enabled."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The mirror must be powered on to read defogging."
+          }
+        },
+        "set_defogging": {
+          "description": "Enable or disable the mirror's defogging function. The mirror must be powered on. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether defogging should be enabled."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "defogging"
+          ],
+          "writes": [
+            "defogging"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "defogging",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The mirror must be powered on to change defogging.",
+            "INVALID_INPUT_ERROR": "value must be a boolean."
+          }
+        },
+        "get_automatic_lighting": {
+          "description": "Return whether automatic lighting is enabled. The mirror must be powered on; otherwise the function fails without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "automatic_lighting"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "automatic_lighting",
+            "response_key": "automatic_lighting",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "automatic_lighting": {
+              "type": "boolean",
+              "description": "Whether automatic lighting is enabled."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The mirror must be powered on to read automatic lighting."
+          }
+        },
+        "set_automatic_lighting": {
+          "description": "Enable or disable the automatic-lighting setting. The mirror must be powered on. This changes only the setting; no presence sensor or automatic trigger is modeled. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether automatic lighting should be enabled."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "automatic_lighting"
+          ],
+          "writes": [
+            "automatic_lighting"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "automatic_lighting",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The mirror must be powered on to change automatic lighting.",
+            "INVALID_INPUT_ERROR": "value must be a boolean."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "Recalculate the mirror's absolute illuminance contribution after a successful state-changing action. The contribution is zero when power is off; when power is on, it is equal to the configured brightness percentage multiplied by 10 lux.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether the mirror contributes light."
+            },
+            {
+              "name": "brightness",
+              "description": "Determines the mirror's illuminance contribution while powered on."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

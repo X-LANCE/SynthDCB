@@ -1,0 +1,388 @@
+{
+  "MemorySeatComfort": {
+    "meta": {
+      "name": "MemorySeatComfort",
+      "description": "Powered seat with memory. Adds saving the current actual position to a local memory slot, recalling a saved position, and canceling recall. Recall uses the existing adjustment process.",
+      "version": "1.0.0",
+      "from": "../SeatComfort.json"
+    },
+    "properties": {
+      "update": {
+        "memory_slots": {
+          "type": "dict",
+          "description": "Local memory slots keyed by caller-supplied slot ID. Each slot contains a snapshot of the actual positions of all installed axes at the time it was saved.",
+          "mode": 2,
+          "value": {
+            "default": {},
+            "schema": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^(?!none$)[a-z0-9][a-z0-9_-]{0,31}$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "positions": {
+                    "type": "object",
+                    "propertyNames": {
+                      "enum": [
+                        "fore_aft",
+                        "height",
+                        "recline",
+                        "lumbar"
+                      ]
+                    },
+                    "additionalProperties": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "required": [
+                  "positions"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "active_memory_slot": {
+          "type": "string",
+          "description": "Slot currently being recalled, or none when no memory recall is active. A recall remains active across its sequential axis adjustments and while paused or obstructed.",
+          "mode": 2,
+          "value": {
+            "default": "none",
+            "pattern": "^(none|[a-z0-9][a-z0-9_-]{0,31})$",
+            "max_length": 32
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_memory_slot": {
+          "description": "Return one saved memory slot, including the saved positions of all axes installed when the slot was last saved. The seat must be powered on and the slot must exist.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "slot_id": {
+                "type": "string",
+                "pattern": "^(?!none$)[a-z0-9][a-z0-9_-]{0,31}$",
+                "maxLength": 32,
+                "examples": [
+                  "driver",
+                  "passenger",
+                  "slot_1"
+                ]
+              }
+            },
+            "required": [
+              "slot_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "memory_slots"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "collection_read",
+            "property": "memory_slots",
+            "id_parameter": "slot_id",
+            "response_key": "memory_slot",
+            "preconditions": {
+              "power": true,
+              "memory_slots": {
+                "contains_key": {
+                  "parameter": "slot_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "slot_id": {
+              "property": "memory_slots",
+              "field": "$key"
+            }
+          },
+          "response": {
+            "memory_slot": {
+              "type": "object",
+              "description": "Saved position snapshot for the requested memory slot."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on.",
+            "MEMORY_SLOT_NOT_FOUND": "The requested memory slot does not exist."
+          }
+        },
+        "get_active_memory_slot": {
+          "description": "Return the slot currently being recalled, or none when no recall is active. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "active_memory_slot"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "active_memory_slot",
+            "response_key": "active_memory_slot",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "active_memory_slot": {
+              "type": "string",
+              "description": "Active memory slot ID, or none when no recall is active."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on."
+          }
+        },
+        "save_memory_slot": {
+          "description": "Save the current actual position of every installed axis under slot_id. The seat must be powered on and idle, with no active recall. If the slot already exists, only that slot is replaced; every other slot is preserved. Targets and motion state are not changed. Invalid input or a failed precondition leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "slot_id": {
+                "type": "string",
+                "pattern": "^(?!none$)[a-z0-9][a-z0-9_-]{0,31}$",
+                "maxLength": 32,
+                "examples": [
+                  "driver",
+                  "passenger",
+                  "slot_1"
+                ]
+              }
+            },
+            "required": [
+              "slot_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "axes",
+            "memory_slots",
+            "motion_status",
+            "active_memory_slot"
+          ],
+          "writes": [
+            "memory_slots"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Saving must atomically derive a collection record from the current actual value of every dynamically installed axis while preserving all unrelated slots.",
+            "preconditions": {
+              "power": true,
+              "motion_status": "idle",
+              "active_memory_slot": "none"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on.",
+            "ADJUSTMENT_ACTIVE": "A memory slot can be saved only while seat adjustment is idle.",
+            "RECALL_ACTIVE": "A memory slot cannot be saved while a memory recall is active.",
+            "INVALID_INPUT_ERROR": "Slot ID must contain 1 through 32 lowercase letters, digits, underscores, or hyphens, must begin with a letter or digit, and cannot be none."
+          }
+        },
+        "recall_memory_slot": {
+          "description": "Recall an existing memory slot. The seat must be powered on, idle, unobstructed, and not already recalling another slot. The first differing saved axis is selected in fore_aft, height, recline, lumbar order and starts through the inherited adjustment mechanism. Each later eligible minute tick completes the current axis and starts the next differing saved axis. If all saved positions already equal their actual positions, the call completes immediately without starting motion. Missing slots and failed preconditions leave all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "slot_id": {
+                "type": "string",
+                "pattern": "^(?!none$)[a-z0-9][a-z0-9_-]{0,31}$",
+                "maxLength": 32,
+                "examples": [
+                  "driver",
+                  "passenger",
+                  "slot_1"
+                ]
+              }
+            },
+            "required": [
+              "slot_id"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "axes",
+            "memory_slots",
+            "motion_status",
+            "obstruction_state",
+            "active_memory_slot"
+          ],
+          "writes": [
+            "axes",
+            "motion_status",
+            "active_axis",
+            "progress_percent",
+            "active_memory_slot"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Recall must read a saved multi-axis snapshot, select the first differing installed axis in deterministic order, and initialize the inherited single-axis adjustment state atomically.",
+            "preconditions": {
+              "power": true,
+              "motion_status": "idle",
+              "obstruction_state": "clear",
+              "active_memory_slot": "none",
+              "memory_slots": {
+                "contains_key": {
+                  "parameter": "slot_id"
+                }
+              }
+            }
+          },
+          "argument_sources": {
+            "slot_id": {
+              "property": "memory_slots",
+              "field": "$key"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on.",
+            "MEMORY_SLOT_NOT_FOUND": "The requested memory slot does not exist.",
+            "ADJUSTMENT_ACTIVE": "Stop the current or interrupted adjustment before recalling a memory slot.",
+            "OBSTRUCTION_DETECTED": "Memory recall cannot start while an obstruction is detected.",
+            "RECALL_ACTIVE": "Cancel or stop the current memory recall before starting another."
+          }
+        },
+        "cancel_recall": {
+          "description": "Cancel an active memory recall. If an axis is currently moving, paused, or obstructed, its target is replaced with its current actual position while its limits, unit, actual position, and start position are preserved. Motion_status becomes idle, active_axis becomes none, progress_percent becomes 100, and active_memory_slot becomes none. Obstruction feedback is preserved. Calling with no active recall succeeds without affecting an unrelated manual adjustment. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "axes",
+            "motion_status",
+            "active_axis",
+            "active_memory_slot"
+          ],
+          "writes": [
+            "axes",
+            "motion_status",
+            "active_axis",
+            "progress_percent",
+            "active_memory_slot"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Cancellation must conditionally stop the dynamically selected inherited axis only when memory recall owns the adjustment, then atomically clear recall and motion state.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on."
+          }
+        },
+        "stop_adjustment": {
+          "description": "Stop a moving, paused, or obstructed adjustment and cancel any active memory recall. When an active axis exists, only that axis record's target is replaced with its current actual position; its actual, start, limits, and unit remain unchanged. Motion_status becomes idle, active_axis becomes none, progress_percent becomes 100, and active_memory_slot becomes none. Calling while already idle performs the same state cleanup idempotently. Obstruction feedback is preserved and must be cleared separately. Requires power on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "axes",
+            "motion_status",
+            "active_axis",
+            "active_memory_slot"
+          ],
+          "writes": [
+            "axes",
+            "motion_status",
+            "active_axis",
+            "progress_percent",
+            "active_memory_slot"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Stopping must update the dynamically selected axis record, when present, and atomically clear both inherited motion state and child memory-recall state.",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Seat adjustment module must be powered on."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "On an eligible minute tick, complete the moving active axis by setting its actual position to its target. During memory recall, then compare saved positions with current actual positions in fore_aft, height, recline, lumbar order. If another saved installed axis differs, initialize that axis through the existing adjustment state with progress at 0; otherwise finish recall, set motion_status to idle, set progress_percent to 100, and clear active_axis and active_memory_slot. For movement not owned by a recall, retain the inherited single-axis completion behavior. If obstruction is detected while moving, preserve all positions and targets, set motion_status to obstructed, and retain the active memory slot for cancellation. Unpowered, idle, paused, and obstructed states do not advance.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether pending adjustment or recall movement may advance."
+            },
+            {
+              "name": "axes",
+              "description": "Provides actual, target, and start positions for completing and sequencing axis adjustments."
+            },
+            {
+              "name": "motion_status",
+              "description": "Determines whether an axis is moving and records completion, continued recall, or obstruction."
+            },
+            {
+              "name": "active_axis",
+              "description": "Selects the axis being adjusted and records the next axis selected during recall."
+            },
+            {
+              "name": "progress_percent",
+              "description": "Records completion of the current axis or zero progress for the next recalled axis."
+            },
+            {
+              "name": "obstruction_state",
+              "description": "Prevents movement completion and changes moving status to obstructed when detection is active."
+            },
+            {
+              "name": "memory_slots",
+              "description": "Provides the saved axis positions for the active recall."
+            },
+            {
+              "name": "active_memory_slot",
+              "description": "Identifies whether movement belongs to a recall and selects its saved position snapshot."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

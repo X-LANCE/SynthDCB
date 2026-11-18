@@ -1,0 +1,878 @@
+{
+  "Oven": {
+    "meta": {
+      "name": "Oven",
+      "description": "Oven. Users can query and set the cooking mode, heating temperature, and cooking time. Cooking modes other than manual mode preset the temperature and time.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "process": {
+      "mode_property": "cooking_mode",
+      "start_function": "start_cooking",
+      "pause_function": "pause_cooking",
+      "resume_function": "resume_cooking",
+      "modes": {
+        "manual": [
+          {
+            "phase": "cooking",
+            "minutes": {
+              "property": "cooking_time"
+            }
+          }
+        ],
+        "bake": [
+          {
+            "phase": "cooking",
+            "minutes": 30
+          }
+        ],
+        "roast": [
+          {
+            "phase": "cooking",
+            "minutes": 60
+          }
+        ],
+        "broil": [
+          {
+            "phase": "cooking",
+            "minutes": 15
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Device-wide electrical power state. Turning the oven off preserves its configuration and pauses a running cooking process.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "cooking_mode": {
+          "type": "string",
+          "description": "Selected cooking mode. Manual mode uses the configured temperature and time. Bake presets 180 degrees Celsius for 30 minutes, roast presets 200 degrees Celsius for 60 minutes, and broil presets 230 degrees Celsius for 15 minutes.",
+          "mode": 3,
+          "value": {
+            "default": "manual",
+            "choices": [
+              "manual",
+              "bake",
+              "roast",
+              "broil"
+            ]
+          }
+        },
+        "heating_temperature": {
+          "type": "integer",
+          "description": "Configured oven heating temperature. It can be directly changed only in manual mode while no cooking process is running or paused.",
+          "mode": 3,
+          "value": {
+            "default": 180,
+            "unit": "degC",
+            "minimum": 50,
+            "maximum": 250,
+            "step": 5,
+            "step_origin": 50
+          }
+        },
+        "cooking_time": {
+          "type": "integer",
+          "description": "Configured cooking duration. It can be directly changed only in manual mode while no cooking process is running or paused.",
+          "mode": 3,
+          "value": {
+            "default": 30,
+            "unit": "min",
+            "minimum": 1,
+            "maximum": 240,
+            "step": 1,
+            "step_origin": 1
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Current cooking-process status.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "running",
+              "paused",
+              "completed"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current cooking-process phase.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "cooking",
+              "completed"
+            ]
+          }
+        },
+        "remaining_minutes": {
+          "type": "integer",
+          "description": "Whole minutes remaining in the current cooking process.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "min",
+            "minimum": 0,
+            "maximum": 240,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "started_at_minute": {
+          "type": "integer",
+          "description": "Elapsed world minute at which the current running-time origin was established.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "min",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "progress_minutes": {
+          "type": "integer",
+          "description": "Whole cooking minutes completed since the beginning of the current process.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "min",
+            "minimum": 0,
+            "maximum": 240,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_cooking_mode": {
+          "description": "Get the selected cooking mode. The operation fails without changing state while the oven is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "cooking_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cooking_mode",
+            "response_key": "cooking_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "cooking_mode": {
+              "type": "string",
+              "description": "Selected cooking mode: manual, bake, roast, or broil."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Cooking mode is inaccessible while the oven is powered off."
+          }
+        },
+        "set_cooking_mode": {
+          "description": "Set the cooking mode while powered and while the process is idle or completed. Selecting manual preserves the current heating temperature and cooking time. Bake sets 180 degrees Celsius and 30 minutes, roast sets 200 degrees Celsius and 60 minutes, and broil sets 230 degrees Celsius and 15 minutes. Invalid input or an unavailable process state leaves all properties unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "description": "Cooking mode to select.",
+                "enum": [
+                  "manual",
+                  "bake",
+                  "roast",
+                  "broil"
+                ],
+                "examples": [
+                  "manual",
+                  "bake",
+                  "roast",
+                  "broil"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "cooking_mode",
+            "heating_temperature",
+            "cooking_time"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Non-manual modes apply mode-specific temperature and duration presets, while selecting manual changes only the mode and preserves the existing settings.",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Cooking mode cannot be changed while the oven is powered off.",
+            "PROCESS_ACTIVE": "Cooking mode cannot be changed while cooking is running or paused.",
+            "INVALID_MODE": "Cooking mode must be manual, bake, roast, or broil."
+          }
+        },
+        "get_heating_temperature": {
+          "description": "Get the configured heating temperature. The operation fails without changing state while the oven is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "heating_temperature"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "heating_temperature",
+            "response_key": "heating_temperature",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "heating_temperature": {
+              "type": "integer",
+              "description": "Configured heating temperature in degrees Celsius."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Heating temperature is inaccessible while the oven is powered off."
+          }
+        },
+        "set_heating_temperature": {
+          "description": "Set the heating temperature from 50 through 250 degrees Celsius in 5-degree increments. This operation is available only while powered, in manual mode, and while the process is idle or completed. Invalid input or a failed precondition leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Desired heating temperature in degrees Celsius.",
+                "minimum": 50,
+                "maximum": 250,
+                "multipleOf": 5
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "cooking_mode",
+            "status"
+          ],
+          "writes": [
+            "heating_temperature"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "heating_temperature",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "cooking_mode": "manual",
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Heating temperature cannot be changed while the oven is powered off.",
+            "INVALID_MODE": "Heating temperature can be directly changed only in manual mode.",
+            "PROCESS_ACTIVE": "Heating temperature cannot be changed while cooking is running or paused.",
+            "INVALID_TEMPERATURE": "Heating temperature must be from 50 through 250 degrees Celsius in 5-degree increments."
+          }
+        },
+        "get_cooking_time": {
+          "description": "Get the configured cooking time. The operation fails without changing state while the oven is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "cooking_time"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cooking_time",
+            "response_key": "cooking_time",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "cooking_time": {
+              "type": "integer",
+              "description": "Configured cooking duration in minutes."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Cooking time is inaccessible while the oven is powered off."
+          }
+        },
+        "set_cooking_time": {
+          "description": "Set the cooking time from 1 through 240 minutes. This operation is available only while powered, in manual mode, and while the process is idle or completed. Invalid input or a failed precondition leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Desired cooking duration in whole minutes.",
+                "minimum": 1,
+                "maximum": 240,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "cooking_mode",
+            "status"
+          ],
+          "writes": [
+            "cooking_time"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "cooking_time",
+            "parameter": "value",
+            "preconditions": {
+              "power": true,
+              "cooking_mode": "manual",
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Cooking time cannot be changed while the oven is powered off.",
+            "INVALID_MODE": "Cooking time can be directly changed only in manual mode.",
+            "PROCESS_ACTIVE": "Cooking time cannot be changed while cooking is running or paused.",
+            "INVALID_TIME": "Cooking time must be an integer from 1 through 240 minutes."
+          }
+        },
+        "get_status": {
+          "description": "Get the current cooking-process status without changing progress. The operation fails while the oven is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "status",
+            "response_key": "status",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "status": {
+              "type": "string",
+              "description": "Current process status: idle, running, paused, or completed."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Process status is inaccessible while the oven is powered off."
+          }
+        },
+        "get_phase": {
+          "description": "Get the current cooking-process phase without changing progress. The operation fails while the oven is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "phase"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "phase",
+            "response_key": "phase",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "phase": {
+              "type": "string",
+              "description": "Current process phase: idle, cooking, or completed."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Process phase is inaccessible while the oven is powered off."
+          }
+        },
+        "get_remaining_minutes": {
+          "description": "Get the number of whole minutes remaining in the cooking process without changing progress. The operation fails while the oven is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "remaining_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "remaining_minutes",
+            "response_key": "remaining_minutes",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "remaining_minutes": {
+              "type": "integer",
+              "description": "Whole minutes remaining in the cooking process."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Remaining cooking time is inaccessible while the oven is powered off."
+          }
+        },
+        "get_started_at_minute": {
+          "description": "Get the elapsed world minute used as the current running-time origin. Reading it does not change process state. The operation fails while the oven is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "started_at_minute"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "started_at_minute",
+            "response_key": "started_at_minute",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "started_at_minute": {
+              "type": "integer",
+              "description": "Elapsed world minute at which the current running-time origin was established."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The process time origin is inaccessible while the oven is powered off."
+          }
+        },
+        "get_progress_minutes": {
+          "description": "Get the number of whole cooking minutes already completed without changing process state. The operation fails while the oven is powered off.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "progress_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "progress_minutes",
+            "response_key": "progress_minutes",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "progress_minutes": {
+              "type": "integer",
+              "description": "Whole cooking minutes completed."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "Cooking progress is inaccessible while the oven is powered off."
+          }
+        },
+        "start_cooking": {
+          "description": "Start a new cooking process in the requested mode while powered and while the previous process is idle or completed. Manual mode uses the current temperature and cooking time. Bake applies 180 degrees Celsius and 30 minutes, roast applies 200 degrees Celsius and 60 minutes, and broil applies 230 degrees Celsius and 15 minutes before initializing the process. Starting resets progress to zero, selects the cooking phase, and freezes the resulting configuration until completion or an explicit stop.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "description": "Cooking mode to start.",
+                "enum": [
+                  "manual",
+                  "bake",
+                  "roast",
+                  "broil"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "cooking_time",
+            "progress_minutes"
+          ],
+          "writes": [
+            "cooking_mode",
+            "heating_temperature",
+            "cooking_time",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "mode",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Cooking cannot start while the oven is powered off.",
+            "PROCESS_ACTIVE": "A new cooking process can start only while the previous process is idle or completed.",
+            "INVALID_MODE": "Cooking mode must be manual, bake, roast, or broil."
+          }
+        },
+        "pause_cooking": {
+          "description": "Pause a running cooking process while powered. Progress and remaining time are synchronized to the current elapsed minute before status becomes paused. The selected mode, temperature, duration, phase, and running-time origin are retained. The operation fails without changing state unless the process is running.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "cooking_time",
+            "started_at_minute"
+          ],
+          "writes": [
+            "status",
+            "remaining_minutes",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "process_pause",
+            "preconditions": {
+              "power": true,
+              "status": "running"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Cooking cannot be paused while the oven is powered off.",
+            "NOT_RUNNING": "Only a running cooking process can be paused."
+          }
+        },
+        "resume_cooking": {
+          "description": "Resume a paused cooking process while powered. Existing configuration, phase, remaining time, and progress are retained. Status becomes running and started_at_minute is re-established from the retained progress. The operation fails without changing state unless the process is paused.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "progress_minutes"
+          ],
+          "writes": [
+            "status",
+            "started_at_minute"
+          ],
+          "semantics": {
+            "kind": "process_resume",
+            "preconditions": {
+              "power": true,
+              "status": "paused"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Cooking cannot be resumed while the oven is powered off.",
+            "NOT_PAUSED": "Only a paused cooking process can be resumed."
+          }
+        },
+        "stop_cooking": {
+          "description": "Stop and abandon a running or paused cooking process while powered. The operation resets status and phase to idle and resets remaining time, elapsed progress, and the running-time origin to zero. The configured cooking mode, heating temperature, and cooking time are preserved so they may be changed or used for a new process. A failed precondition leaves all state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "status": {
+                "value": "idle"
+              },
+              "phase": {
+                "value": "idle"
+              },
+              "remaining_minutes": {
+                "value": 0
+              },
+              "started_at_minute": {
+                "value": 0
+              },
+              "progress_minutes": {
+                "value": 0
+              }
+            },
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "running",
+                  "paused"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "Cooking cannot be stopped while the oven is powered off.",
+            "NOT_ACTIVE": "Only a running or paused cooking process can be stopped."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "power",
+            "status"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "Each minute, advance a powered and running cooking process using elapsed time from started_at_minute. The single cooking phase lasts exactly the frozen cooking_time. Clamp progress to the configured duration and remaining time to zero; at the exact duration boundary set both status and phase to completed. Paused, idle, completed, or unpowered processes do not advance. For each minute that begins with the oven powered and running, increase the containing space temperature by 0.1 degrees Celsius when heating_temperature is from 50 through 145 degrees, by 0.2 degrees when it is from 150 through 195 degrees, or by 0.3 degrees when it is from 200 through 250 degrees.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether cooking may advance and whether the oven releases heat."
+            },
+            {
+              "name": "heating_temperature",
+              "description": "Determines the per-minute temperature increase produced while the oven is cooking."
+            },
+            {
+              "name": "cooking_time",
+              "description": "Provides the exact duration of the cooking phase."
+            },
+            {
+              "name": "status",
+              "description": "Determines whether the process advances and whether the oven releases heat."
+            },
+            {
+              "name": "phase",
+              "description": "Tracks the active cooking phase and is set to completed when the configured duration elapses."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Stores the internally updated number of whole minutes remaining in the cooking process."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Provides the elapsed-minute origin used to calculate process progress."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Stores the internally updated number of completed cooking minutes."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "When a cooking process transitions into running, establish started_at_minute as the current elapsed world minute minus retained progress_minutes. When power changes from on to off during a running process, change status to paused while retaining the current process configuration and progress. Restoring power does not resume cooking. This event emits no space effect.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether loss of power must pause a running process."
+            },
+            {
+              "name": "status",
+              "description": "Identifies transitions into running and records an automatic pause after power loss."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Provides retained progress when establishing the running-time origin."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Stores the internally established elapsed-minute origin when the process transitions into running."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

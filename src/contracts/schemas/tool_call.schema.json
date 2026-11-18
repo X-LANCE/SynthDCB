@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:tool-call",
+  "title": "DCB v2 tool call",
+  "type": "object",
+  "required": ["call_id", "turn_id", "command"],
+  "properties": {
+    "call_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "turn_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "command": {"$ref": "urn:dcb:v2:schema:command"}
+  },
+  "additionalProperties": false
+}

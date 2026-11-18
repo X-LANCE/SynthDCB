@@ -1,0 +1,24 @@
+{
+  "generation_run_id": "home-tasks",
+  "domain": "Home",
+  "domain_path": "../../devices/Home",
+  "world_output_root": "../../../data/generated/Home/worlds",
+  "task_output_root": "../../../data/generated/Home/tasks",
+  "run_output_root": "../../../run",
+  "random_seed": 20260920,
+  "worlds": {
+    "count": 100,
+    "id_prefix": "world",
+    "min_devices_per_space": 3,
+    "max_devices_per_space": 10,
+    "max_workers": 16
+  },
+  "tasks": {
+    "sampling_profile": "home_task_gen_profile.json",
+    "world_samples": 100,
+    "samples_per_world": 6,
+    "max_initial_tweaks": 5,
+    "max_task_attempts": 32,
+    "max_workers": 16
+  }
+}

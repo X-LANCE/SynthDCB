@@ -1,0 +1,309 @@
+{
+  "CatLitterBox": {
+    "meta": {
+      "name": "CatLitterBox",
+      "description": "Cat litter box. Users can query and set the cleaning mode and can perform cleaning and litter-replacement actions.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the cat litter box is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "cleaning_mode": {
+          "type": "string",
+          "description": "Cleaning mode used when a cleaning action is started.",
+          "mode": 3,
+          "value": {
+            "default": "automatic",
+            "choices": [
+              "automatic",
+              "manual"
+            ]
+          }
+        },
+        "operation_status": {
+          "type": "string",
+          "description": "Current litter box operation status. This status persists while the device is powered off; the active operation is paused while powered off and remains in the same status when power is restored.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "cleaning",
+              "replacing_litter"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_cleaning_mode": {
+          "description": "Return the configured cleaning mode. The device must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "cleaning_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "cleaning_mode",
+            "response_key": "cleaning_mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "cleaning_mode": {
+              "type": "string",
+              "description": "Configured cleaning mode."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_cleaning_mode": {
+          "description": "Set the cleaning mode to automatic or manual. The device must be powered on. Invalid input leaves the setting unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "automatic",
+                  "manual"
+                ],
+                "description": "Cleaning mode to configure."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "cleaning_mode"
+          ],
+          "writes": [
+            "cleaning_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "cleaning_mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_operation_status": {
+          "description": "Return the current cleaning or litter-replacement status. The device must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "operation_status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "operation_status",
+            "response_key": "operation_status",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "operation_status": {
+              "type": "string",
+              "description": "Current operation status."
+            }
+          },
+          "errorcodes": {}
+        },
+        "start_cleaning": {
+          "description": "Start a cleaning operation using the configured cleaning mode. The device must be powered on and idle.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "operation_status",
+            "cleaning_mode"
+          ],
+          "writes": [
+            "operation_status"
+          ],
+          "semantics": {
+            "kind": "update",
+            "preconditions": {
+              "power": true,
+              "operation_status": "idle"
+            },
+            "fields": {
+              "operation_status": {
+                "value": "cleaning"
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "replace_litter": {
+          "description": "Start a litter-replacement operation. The device must be powered on and idle.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "operation_status"
+          ],
+          "writes": [
+            "operation_status"
+          ],
+          "semantics": {
+            "kind": "update",
+            "preconditions": {
+              "power": true,
+              "operation_status": "idle"
+            },
+            "fields": {
+              "operation_status": {
+                "value": "replacing_litter"
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "stop_operation": {
+          "description": "Stop the active cleaning or litter-replacement operation and return the device to idle. The device must be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "operation_status"
+          ],
+          "writes": [
+            "operation_status"
+          ],
+          "semantics": {
+            "kind": "update",
+            "preconditions": {
+              "power": true,
+              "operation_status": {
+                "one_of": [
+                  "cleaning",
+                  "replacing_litter"
+                ]
+              }
+            },
+            "fields": {
+              "operation_status": {
+                "value": "idle"
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

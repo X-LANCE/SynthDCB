@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dcb:v2:schema:world-list-record",
+  "title": "DCB v2 validated world success record",
+  "type": "object",
+  "required": [
+    "generation_run_id",
+    "world_id",
+    "domain",
+    "world_root",
+    "world_init_path",
+    "resolved_world_path",
+    "random_seed",
+    "space_count",
+    "device_count"
+  ],
+  "properties": {
+    "generation_run_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "world_id": {"$ref": "urn:dcb:v2:schema:common#/$defs/nonSessionIdentifier"},
+    "domain": {"$ref": "urn:dcb:v2:schema:common#/$defs/identifier"},
+    "world_root": {"type": "string", "minLength": 1},
+    "world_init_path": {"type": "string", "minLength": 1},
+    "resolved_world_path": {"type": "string", "minLength": 1},
+    "random_seed": {"type": "integer"},
+    "space_count": {"type": "integer", "minimum": 0},
+    "device_count": {"type": "integer", "minimum": 1}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,273 @@
+{
+  "AmbientLight": {
+    "meta": {
+      "name": "AmbientLight",
+      "description": "Interior ambient light with adjustable color, instantiated for each independently controlled area. Supports switching on and off, brightness, and color settings. The available colors or color space are fixed capabilities. A brightness setting is distinct from seat illuminance; the environment model calculates the actual lighting contribution. It does not replace existing reading lights.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the ambient light is powered. When false, it contributes no illuminance and its non-power settings are inaccessible through public functions.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "brightness": {
+          "type": "integer",
+          "description": "Ambient-light brightness setting as an integer percentage. The setting persists while powered off but is publicly accessible only while powered on.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "color": {
+          "type": "string",
+          "description": "Ambient-light color in the fixed 24-bit sRGB hexadecimal format #RRGGBB. The setting persists while powered off but is publicly accessible only while powered on.",
+          "mode": 3,
+          "value": {
+            "default": "#FFFFFF",
+            "pattern": "^#[0-9A-Fa-f]{6}$",
+            "max_length": 7
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_brightness": {
+          "description": "Return the current brightness percentage. Requires the ambient light to be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "brightness",
+            "response_key": "brightness",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "brightness": {
+              "type": "integer",
+              "description": "Current brightness setting from 0 through 100 percent."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The ambient light must be powered on."
+          }
+        },
+        "set_brightness": {
+          "description": "Set brightness to an integer percentage from 0 through 100. Requires the ambient light to be powered on. Invalid input or a failed power precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Desired brightness percentage.",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "brightness",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The ambient light must be powered on.",
+            "INVALID_INPUT_ERROR": "Brightness must be an integer from 0 through 100."
+          }
+        },
+        "get_color": {
+          "description": "Return the selected 24-bit sRGB color in #RRGGBB format. Requires the ambient light to be powered on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "color"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "color",
+            "response_key": "color",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "color": {
+              "type": "string",
+              "description": "Selected color in 24-bit sRGB hexadecimal #RRGGBB format."
+            }
+          },
+          "errorcodes": {
+            "POWER_OFF": "The ambient light must be powered on."
+          }
+        },
+        "set_color": {
+          "description": "Set the color using the fixed 24-bit sRGB hexadecimal format #RRGGBB, for example #FF0000. Requires the ambient light to be powered on. Invalid input or a failed power precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "Desired 24-bit sRGB color in #RRGGBB format.",
+                "pattern": "^#[0-9A-Fa-f]{6}$",
+                "maxLength": 7,
+                "examples": [
+                  "#FFFFFF",
+                  "#FF0000",
+                  "#3366FF"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "brightness"
+          ],
+          "writes": [
+            "color"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "color",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "POWER_OFF": "The ambient light must be powered on.",
+            "INVALID_INPUT_ERROR": "Color must use the 24-bit sRGB hexadecimal format #RRGGBB."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "brightness",
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "Set the ambient light's contribution to illuminance in its containing area to the brightness percentage expressed in lux while powered, otherwise set the contribution to zero. Repeated updates replace the prior contribution rather than accumulating it.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether the light contributes illuminance."
+            },
+            {
+              "name": "brightness",
+              "description": "Determines the illuminance contribution while the light is powered."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

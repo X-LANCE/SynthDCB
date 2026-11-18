@@ -1,0 +1,255 @@
+{
+  "DryingRack": {
+    "meta": {
+      "name": "DryingRack",
+      "description": "Clothes-drying rack. Users can query and set the current height, and the device supports lighting. Raising or lowering it changes the position of the drying rods.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the drying rack is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "height": {
+          "type": "integer",
+          "description": "Current height of the drying rods.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "light": {
+          "type": "boolean",
+          "description": "Whether the drying rack light is on.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_height": {
+          "description": "Return the current drying-rod height while the rack is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "height"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "height",
+            "response_key": "height",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "height": {
+              "type": "integer",
+              "description": "Current drying-rod height."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_height": {
+          "description": "Set the drying-rod height to an integer from 0 through 100 while the rack is powered. Invalid values leave the height unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Desired drying-rod height."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "height"
+          ],
+          "writes": [
+            "height"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "height",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_light": {
+          "description": "Return whether the drying rack light is on while the rack is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "light"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "light",
+            "response_key": "light",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "light": {
+              "type": "boolean",
+              "description": "Whether the drying rack light is on."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_light": {
+          "description": "Turn the drying rack light on or off while the rack is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Whether the light should be on."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "light"
+          ],
+          "writes": [
+            "light"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "light",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {}
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "after_action": {
+          "description": "Recalculate the drying rack's illuminance contribution after a successful change to power, height, or light. When the rack is powered and its light is on, emit an illuminance contribution that increases with the rod height; otherwise emit a zero contribution.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Whether the drying rack is powered."
+            },
+            {
+              "name": "height",
+              "description": "Current height of the drying rods."
+            },
+            {
+              "name": "light",
+              "description": "Whether the drying rack light is on."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

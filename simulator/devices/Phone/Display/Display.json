@@ -1,0 +1,305 @@
+{
+  "Display": {
+    "meta": {
+      "name": "Display",
+      "description": "Display settings, placed in Setting. Supports 0–100% brightness, automatic brightness, dark mode, and screen-off timeouts of 1/2/5/10 minutes. Each setting is stored independently, without changing virtual Space properties.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "brightness": {
+          "type": "integer",
+          "description": "Configured display brightness as a whole-number percentage from 0 through 100.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "unit": "percent",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "automatic_brightness": {
+          "type": "boolean",
+          "description": "Whether automatic brightness adjustment is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "dark_mode": {
+          "type": "boolean",
+          "description": "Whether dark mode is enabled.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "screen_off_timeout_minutes": {
+          "type": "string",
+          "description": "Configured inactivity timeout before the screen turns off, represented as 1, 2, 5, or 10 minutes.",
+          "mode": 3,
+          "value": {
+            "default": "5",
+            "unit": "minutes",
+            "choices": [
+              "1",
+              "2",
+              "5",
+              "10"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_brightness": {
+          "description": "Return the configured display brightness percentage without changing any setting.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "brightness"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "brightness",
+            "response_key": "brightness",
+            "preconditions": {}
+          },
+          "response": {
+            "brightness": {
+              "type": "integer",
+              "description": "Configured display brightness percentage."
+            }
+          }
+        },
+        "set_brightness": {
+          "description": "Set display brightness to a whole-number percentage from 0 through 100. Invalid values are rejected and leave all settings unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1,
+                "examples": [
+                  0,
+                  25,
+                  50,
+                  100
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "brightness"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "brightness",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_automatic_brightness": {
+          "description": "Return whether automatic brightness adjustment is enabled without changing any setting.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "automatic_brightness"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "automatic_brightness",
+            "response_key": "automatic_brightness",
+            "preconditions": {}
+          },
+          "response": {
+            "automatic_brightness": {
+              "type": "boolean",
+              "description": "Whether automatic brightness adjustment is enabled."
+            }
+          }
+        },
+        "set_automatic_brightness": {
+          "description": "Enable or disable automatic brightness adjustment. This changes only the automatic brightness setting.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "automatic_brightness"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "automatic_brightness",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_dark_mode": {
+          "description": "Return whether dark mode is enabled without changing any setting.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "dark_mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "dark_mode",
+            "response_key": "dark_mode",
+            "preconditions": {}
+          },
+          "response": {
+            "dark_mode": {
+              "type": "boolean",
+              "description": "Whether dark mode is enabled."
+            }
+          }
+        },
+        "set_dark_mode": {
+          "description": "Enable or disable dark mode. This changes only the dark mode setting.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "examples": [
+                  true,
+                  false
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "dark_mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "dark_mode",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        },
+        "get_screen_off_timeout_minutes": {
+          "description": "Return the configured screen-off timeout as one of the supported minute values: 1, 2, 5, or 10.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "screen_off_timeout_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "screen_off_timeout_minutes",
+            "response_key": "screen_off_timeout_minutes",
+            "preconditions": {}
+          },
+          "response": {
+            "screen_off_timeout_minutes": {
+              "type": "string",
+              "description": "Configured screen-off timeout in minutes, represented as 1, 2, 5, or 10."
+            }
+          }
+        },
+        "set_screen_off_timeout_minutes": {
+          "description": "Set the screen-off timeout to exactly 1, 2, 5, or 10 minutes. Unsupported values are rejected and leave all settings unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "1",
+                  "2",
+                  "5",
+                  "10"
+                ],
+                "examples": [
+                  "1",
+                  "2",
+                  "5",
+                  "10"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "screen_off_timeout_minutes"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "screen_off_timeout_minutes",
+            "parameter": "value",
+            "preconditions": {}
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

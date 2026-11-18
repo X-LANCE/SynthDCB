@@ -1,0 +1,101 @@
+{
+  "Sunroof": {
+    "meta": {
+      "name": "Sunroof",
+      "description": "Sunroof that inherits the opening controls of Window. Adds an independent sunshade opening property; adjusting the sunshade does not change the sunroof opening.",
+      "version": "1.0.0",
+      "from": "../Window.json"
+    },
+    "properties": {
+      "update": {
+        "sunshade_position": {
+          "type": "integer",
+          "description": "Sunshade opening percentage, where 0 is fully closed and 100 is fully open; independent of the sunroof opening percentage.",
+          "mode": 3,
+          "value": {
+            "default": 0,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_sunshade_position": {
+          "description": "Return the current sunshade opening percentage without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "sunshade_position"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "sunshade_position",
+            "response_key": "sunshade_position"
+          },
+          "response": {
+            "sunshade_position": {
+              "type": "integer",
+              "description": "Current sunshade opening percentage, where 0 is fully closed and 100 is fully open."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_sunshade_position": {
+          "description": "Set the sunshade opening percentage to an integer from 0 through 100 inclusive without changing the inherited sunroof opening percentage. Invalid values are rejected and leave state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "multipleOf": 1,
+                "description": "Desired sunshade opening percentage.",
+                "examples": [
+                  0,
+                  50,
+                  100
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [],
+          "writes": [
+            "sunshade_position"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "sunshade_position",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {
+            "INVALID_INPUT_ERROR": "The sunshade opening percentage must be an integer from 0 through 100."
+          }
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

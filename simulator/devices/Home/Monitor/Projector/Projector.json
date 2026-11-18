@@ -1,0 +1,254 @@
+{
+  "Projector": {
+    "meta": {
+      "name": "Projector",
+      "description": "A projector variant. It adds projection focus, keystone correction, and projected-image size controls to the base display capabilities. Focus and keystone correction affect only the clarity and geometry of the projected image.",
+      "version": "1.0.0",
+      "from": "../Monitor.json"
+    },
+    "properties": {
+      "update": {
+        "focus": {
+          "type": "integer",
+          "description": "Manual focus position on a normalized scale from 0 to 100. Higher values move focus toward the far end of its adjustment range, not necessarily toward greater clarity. Changes affect only projected-image clarity.",
+          "mode": 3,
+          "value": {
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "keystone": {
+          "type": "integer",
+          "description": "Signed vertical keystone correction angle in degrees. Zero applies no correction; positive values narrow the top of the projected image and negative values narrow the bottom. Changes affect only projected-image geometry.",
+          "mode": 3,
+          "value": {
+            "default": 0,
+            "unit": "degrees",
+            "minimum": -40,
+            "maximum": 40,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "image_size": {
+          "type": "integer",
+          "description": "Projected-image diagonal size in inches. Adjusting this setting changes only the projected-image dimensions without changing focus, keystone, or inherited display settings.",
+          "mode": 3,
+          "value": {
+            "default": 100,
+            "unit": "inches",
+            "minimum": 30,
+            "maximum": 300,
+            "step": 1,
+            "step_origin": 0
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_focus": {
+          "description": "Return the manual focus position under focus. Available only while powered on; otherwise fail without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "focus"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "focus",
+            "response_key": "focus",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "focus": {
+              "type": "integer",
+              "description": "The manual focus position from 0 through 100."
+            }
+          }
+        },
+        "set_focus": {
+          "description": "Set the manual focus position to an integer from 0 through 100 inclusive. This affects only projected-image clarity and does not automatically find optimal focus. Available only while powered on. Invalid arguments or a failed power precondition leave all state unchanged. Success returns no data fields.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Desired manual focus position."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "focus"
+          ],
+          "writes": [
+            "focus"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "focus",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {}
+        },
+        "get_keystone": {
+          "description": "Return the signed vertical keystone correction angle in degrees under keystone. Available only while powered on; otherwise fail without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "keystone"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "keystone",
+            "response_key": "keystone",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "keystone": {
+              "type": "integer",
+              "description": "Vertical keystone correction from -40 through 40 degrees."
+            }
+          }
+        },
+        "set_keystone": {
+          "description": "Set vertical keystone correction to an integer from -40 through 40 degrees inclusive. Zero removes correction; positive values narrow the image top and negative values narrow the bottom. This affects only projected-image geometry. Available only while powered on. Invalid arguments or a failed power precondition leave all state unchanged. Success returns no data fields.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": -40,
+                "maximum": 40,
+                "description": "Desired signed vertical keystone correction in degrees."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "keystone"
+          ],
+          "writes": [
+            "keystone"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "keystone",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {}
+        },
+        "get_image_size": {
+          "description": "Return the projected-image diagonal in inches under image_size. Available only while powered on; otherwise fail without changing state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "image_size"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "image_size",
+            "response_key": "image_size",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "image_size": {
+              "type": "integer",
+              "description": "The projected-image diagonal from 30 through 300 inches."
+            }
+          }
+        },
+        "set_image_size": {
+          "description": "Set the projected-image diagonal to an integer from 30 through 300 inches inclusive, changing only image dimensions. Available only while powered on. Invalid arguments or a failed power precondition leave all state unchanged. Success returns no data fields.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 30,
+                "maximum": 300,
+                "description": "Desired projected-image diagonal in inches."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "image_size"
+          ],
+          "writes": [
+            "image_size"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "image_size",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}

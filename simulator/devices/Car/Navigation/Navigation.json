@@ -1,0 +1,1103 @@
+{
+  "Navigation": {
+    "meta": {
+      "name": "Navigation",
+      "description": "Local vehicle navigation module. Supports setting a destination, selecting a local simulated route, starting or canceling guidance, setting route preferences, and querying route state, remaining distance, and estimated time. Route calculation, position updates, and arrival events use an explicit local execution model without accessing real map services. Starting guidance does not mean the vehicle has moved or arrived. Navigation prompts affect the shared cabin sound field through the media output chain.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "process": {
+      "mode_property": "selected_route",
+      "start_function": "start_guidance",
+      "pause_function": "pause_guidance",
+      "resume_function": "resume_guidance",
+      "modes": {
+        "fastest": [
+          {
+            "phase": "guidance",
+            "minutes": 12
+          }
+        ],
+        "shortest": [
+          {
+            "phase": "guidance",
+            "minutes": 15
+          }
+        ],
+        "scenic": [
+          {
+            "phase": "guidance",
+            "minutes": 20
+          }
+        ]
+      }
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the local navigation module is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "destination": {
+          "type": "string",
+          "description": "Selected local simulated destination.",
+          "mode": 3,
+          "value": {
+            "default": "none",
+            "choices": [
+              "none",
+              "city_center",
+              "airport",
+              "charging_station"
+            ]
+          }
+        },
+        "route_preference": {
+          "type": "string",
+          "description": "Stored route calculation preference. It is retained for future route selection but does not change an already selected synthetic route.",
+          "mode": 3,
+          "value": {
+            "default": "balanced",
+            "choices": [
+              "balanced",
+              "avoid_tolls",
+              "avoid_highways"
+            ]
+          }
+        },
+        "selected_route": {
+          "type": "string",
+          "description": "Selected deterministic local route profile and navigation process mode.",
+          "mode": 2,
+          "value": {
+            "default": "none",
+            "choices": [
+              "none",
+              "fastest",
+              "shortest",
+              "scenic"
+            ]
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Navigation process state. Running means guidance is active, paused means progress is suspended, and completed means the simulated destination has been reached.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "running",
+              "paused",
+              "completed"
+            ]
+          }
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current navigation process phase.",
+          "mode": 2,
+          "value": {
+            "default": "idle",
+            "choices": [
+              "idle",
+              "guidance",
+              "completed"
+            ]
+          }
+        },
+        "remaining_minutes": {
+          "type": "integer",
+          "description": "Estimated whole minutes remaining in the selected synthetic route.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "maximum": 20,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "min"
+          }
+        },
+        "started_at_minute": {
+          "type": "integer",
+          "description": "Simulation elapsed-minute timestamp from which current guidance progress is measured.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "min"
+          }
+        },
+        "progress_minutes": {
+          "type": "integer",
+          "description": "Whole elapsed minutes of progress in the current synthetic route.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "maximum": 20,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "min"
+          }
+        },
+        "remaining_distance": {
+          "type": "integer",
+          "description": "Estimated whole kilometers remaining in the selected synthetic route.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "minimum": 0,
+            "maximum": 18,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "km"
+          }
+        },
+        "voice_guidance": {
+          "type": "boolean",
+          "description": "Whether simulated navigation voice prompts are enabled.",
+          "mode": 3,
+          "value": {
+            "default": true
+          }
+        },
+        "guidance_volume": {
+          "type": "integer",
+          "description": "Audio level contributed by active simulated navigation prompts.",
+          "mode": 3,
+          "value": {
+            "default": 40,
+            "minimum": 0,
+            "maximum": 120,
+            "step": 1,
+            "step_origin": 0,
+            "unit": "dBA"
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_destination": {
+          "description": "Return the selected local simulated destination. The module must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "destination"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "destination",
+            "response_key": "destination",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "destination": {
+              "type": "string",
+              "description": "Selected destination: none, city_center, airport, or charging_station."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered."
+          }
+        },
+        "set_destination": {
+          "description": "Select a local simulated destination while powered and while guidance is idle or completed. This clears the previous route selection and resets route progress and metrics. Invalid input or a failed precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "destination": {
+                "type": "string",
+                "enum": [
+                  "city_center",
+                  "airport",
+                  "charging_station"
+                ],
+                "examples": [
+                  "city_center",
+                  "airport",
+                  "charging_station"
+                ]
+              }
+            },
+            "required": [
+              "destination"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "destination",
+            "selected_route",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes",
+            "remaining_distance"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "destination": {
+                "parameter": "destination"
+              },
+              "selected_route": {
+                "value": "none"
+              },
+              "status": {
+                "value": "idle"
+              },
+              "phase": {
+                "value": "idle"
+              },
+              "remaining_minutes": {
+                "value": 0
+              },
+              "started_at_minute": {
+                "value": 0
+              },
+              "progress_minutes": {
+                "value": 0
+              },
+              "remaining_distance": {
+                "value": 0
+              }
+            },
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The module must be powered and guidance must be idle or completed.",
+            "INVALID_INPUT_ERROR": "Destination must be city_center, airport, or charging_station."
+          }
+        },
+        "get_route_preference": {
+          "description": "Return the stored route preference. The module must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "route_preference"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "route_preference",
+            "response_key": "route_preference",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "route_preference": {
+              "type": "string",
+              "description": "Stored preference: balanced, avoid_tolls, or avoid_highways."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered."
+          }
+        },
+        "set_route_preference": {
+          "description": "Store the route calculation preference while powered. The setting does not alter a route that is already selected or running. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "preference": {
+                "type": "string",
+                "enum": [
+                  "balanced",
+                  "avoid_tolls",
+                  "avoid_highways"
+                ],
+                "examples": [
+                  "balanced",
+                  "avoid_tolls",
+                  "avoid_highways"
+                ]
+              }
+            },
+            "required": [
+              "preference"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "route_preference"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "route_preference",
+            "parameter": "preference",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered.",
+            "INVALID_INPUT_ERROR": "Preference must be balanced, avoid_tolls, or avoid_highways."
+          }
+        },
+        "get_selected_route": {
+          "description": "Return the selected synthetic route profile. The module must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "selected_route"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "selected_route",
+            "response_key": "selected_route",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "selected_route": {
+              "type": "string",
+              "description": "Selected route: none, fastest, shortest, or scenic."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered."
+          }
+        },
+        "select_route": {
+          "description": "Select a deterministic local route while powered, with a destination set, and while guidance is idle or completed. Fastest initializes 12 km and 12 minutes, shortest initializes 10 km and 15 minutes, and scenic initializes 18 km and 20 minutes. Progress is reset to zero. Invalid input or a failed precondition leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "route": {
+                "type": "string",
+                "enum": [
+                  "fastest",
+                  "shortest",
+                  "scenic"
+                ],
+                "examples": [
+                  "fastest",
+                  "shortest",
+                  "scenic"
+                ]
+              }
+            },
+            "required": [
+              "route"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "destination",
+            "status"
+          ],
+          "writes": [
+            "selected_route",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes",
+            "remaining_distance"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "The selected route deterministically chooses different linked duration and distance values, which cannot be represented by unconditional field bindings.",
+            "preconditions": {
+              "power": true,
+              "destination": {
+                "one_of": [
+                  "city_center",
+                  "airport",
+                  "charging_station"
+                ]
+              },
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The module must be powered, a destination must be set, and guidance must be idle or completed.",
+            "INVALID_INPUT_ERROR": "Route must be fastest, shortest, or scenic."
+          }
+        },
+        "get_status": {
+          "description": "Return the navigation process state. The module must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "status",
+            "response_key": "status",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "status": {
+              "type": "string",
+              "description": "Navigation state: idle, running, paused, or completed."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered."
+          }
+        },
+        "get_phase": {
+          "description": "Return the current navigation process phase. The module must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "phase"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "phase",
+            "response_key": "phase",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "phase": {
+              "type": "string",
+              "description": "Current phase: idle, guidance, or completed."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered."
+          }
+        },
+        "get_estimated_time": {
+          "description": "Return the estimated whole minutes remaining in the current synthetic route. The module must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "remaining_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "remaining_minutes",
+            "response_key": "estimated_time",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "estimated_time": {
+              "type": "integer",
+              "description": "Estimated whole minutes remaining."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered."
+          }
+        },
+        "get_started_at_minute": {
+          "description": "Return the simulation elapsed-minute timestamp used as the guidance progress origin. The module must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "started_at_minute"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "started_at_minute",
+            "response_key": "started_at_minute",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "started_at_minute": {
+              "type": "integer",
+              "description": "Guidance progress origin in simulation elapsed minutes."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered."
+          }
+        },
+        "get_progress_minutes": {
+          "description": "Return the whole minutes of simulated route progress. The module must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "progress_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "progress_minutes",
+            "response_key": "progress_minutes",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "progress_minutes": {
+              "type": "integer",
+              "description": "Whole elapsed guidance minutes."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered."
+          }
+        },
+        "get_remaining_distance": {
+          "description": "Return the estimated whole kilometers remaining in the selected synthetic route. The module must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "remaining_distance"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "remaining_distance",
+            "response_key": "remaining_distance",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "remaining_distance": {
+              "type": "integer",
+              "description": "Estimated whole kilometers remaining."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered."
+          }
+        },
+        "get_voice_guidance": {
+          "description": "Return whether simulated voice guidance is enabled. The module must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "voice_guidance"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "voice_guidance",
+            "response_key": "voice_guidance",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "voice_guidance": {
+              "type": "boolean",
+              "description": "Whether navigation voice prompts are enabled."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered."
+          }
+        },
+        "set_voice_guidance": {
+          "description": "Enable or disable simulated navigation voice prompts while powered. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enabled"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "voice_guidance"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "voice_guidance",
+            "parameter": "enabled",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered."
+          }
+        },
+        "get_guidance_volume": {
+          "description": "Return the configured navigation prompt audio level. The module must be powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "guidance_volume"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "guidance_volume",
+            "response_key": "guidance_volume",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "guidance_volume": {
+              "type": "integer",
+              "description": "Configured navigation prompt audio level in dBA."
+            }
+          },
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered."
+          }
+        },
+        "set_guidance_volume": {
+          "description": "Set the simulated navigation prompt audio level from 0 through 120 dBA while powered. Invalid input leaves state unchanged.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "volume": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 120,
+                "multipleOf": 1
+              }
+            },
+            "required": [
+              "volume"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "guidance_volume"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "guidance_volume",
+            "parameter": "volume",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The navigation module must be powered.",
+            "INVALID_INPUT_ERROR": "Volume must be an integer from 0 through 120."
+          }
+        },
+        "start_guidance": {
+          "description": "Start deterministic guidance while powered using the supplied route profile. A destination must already be set and the process must be idle or completed. Fastest starts at 12 km for 12 minutes, shortest at 10 km for 15 minutes, and scenic at 18 km for 20 minutes. Progress starts at zero, so successful start does not itself represent movement or arrival.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "route": {
+                "type": "string",
+                "enum": [
+                  "fastest",
+                  "shortest",
+                  "scenic"
+                ],
+                "examples": [
+                  "fastest",
+                  "shortest",
+                  "scenic"
+                ]
+              }
+            },
+            "required": [
+              "route"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "destination",
+            "status",
+            "progress_minutes"
+          ],
+          "writes": [
+            "selected_route",
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes",
+            "remaining_distance"
+          ],
+          "semantics": {
+            "kind": "process_start",
+            "mode_parameter": "route",
+            "preconditions": {
+              "power": true,
+              "destination": {
+                "one_of": [
+                  "city_center",
+                  "airport",
+                  "charging_station"
+                ]
+              },
+              "status": {
+                "one_of": [
+                  "idle",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The module must be powered, a destination must be set, and guidance must be idle or completed.",
+            "INVALID_INPUT_ERROR": "Route must be fastest, shortest, or scenic."
+          }
+        },
+        "pause_guidance": {
+          "description": "Pause running guidance while powered. Current progress, remaining time, and remaining distance are retained. Calling this action unless guidance is running is rejected without mutation.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "status"
+          ],
+          "semantics": {
+            "kind": "process_pause",
+            "preconditions": {
+              "power": true,
+              "status": "running"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The module must be powered and guidance must be running."
+          }
+        },
+        "resume_guidance": {
+          "description": "Resume paused guidance while powered without resetting progress. The timing origin is recalculated from the retained progress. Calling this action unless guidance is paused is rejected without mutation.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status",
+            "progress_minutes"
+          ],
+          "writes": [
+            "status",
+            "started_at_minute"
+          ],
+          "semantics": {
+            "kind": "process_resume",
+            "preconditions": {
+              "power": true,
+              "status": "paused"
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The module must be powered and guidance must be paused."
+          }
+        },
+        "cancel_guidance": {
+          "description": "Cancel running or paused guidance while powered and return the process to idle. The destination and selected route are preserved, while progress is reset and the selected route's full preview distance and time are restored. Calling this action in any other state is rejected without mutation.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "selected_route",
+            "status"
+          ],
+          "writes": [
+            "status",
+            "phase",
+            "remaining_minutes",
+            "started_at_minute",
+            "progress_minutes",
+            "remaining_distance"
+          ],
+          "semantics": {
+            "kind": "custom",
+            "reason": "Cancellation restores route-specific duration and distance values that depend on the selected route and cannot be expressed as unconditional field bindings.",
+            "preconditions": {
+              "power": true,
+              "status": {
+                "one_of": [
+                  "running",
+                  "paused"
+                ]
+              }
+            }
+          },
+          "response": {},
+          "errorcodes": {
+            "PRECONDITION_FAILED": "The module must be powered and guidance must be running or paused."
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "status"
+          ],
+          "writes": [
+            "power",
+            "status"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {
+        "tick": {
+          "description": "While powered and running, advance guidance progress from its recorded start minute. Remaining time is the route duration minus progress. Remaining distance is the route's initial distance multiplied by the fraction of route time remaining and rounded up to the next whole kilometer. At the exact route-duration boundary, set remaining time and distance to zero and mark status and phase completed. Contribute guidance_volume to cabin audio_level only while powered, running, and enabled for voice guidance; otherwise contribute zero.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether guidance may advance and whether prompt audio may be emitted."
+            },
+            {
+              "name": "selected_route",
+              "description": "Determines the fixed route duration and initial distance."
+            },
+            {
+              "name": "status",
+              "description": "Determines whether route progress and prompt audio are active."
+            },
+            {
+              "name": "phase",
+              "description": "Tracks the active or completed navigation phase."
+            },
+            {
+              "name": "remaining_minutes",
+              "description": "Stores the route's estimated remaining time."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Provides the elapsed-minute origin for deterministic progress."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Stores elapsed route progress."
+            },
+            {
+              "name": "remaining_distance",
+              "description": "Stores the proportionally calculated whole kilometers remaining."
+            },
+            {
+              "name": "voice_guidance",
+              "description": "Determines whether navigation prompts contribute audio."
+            },
+            {
+              "name": "guidance_volume",
+              "description": "Sets the active navigation prompt audio contribution."
+            }
+          ]
+        },
+        "after_action": {
+          "description": "When a successful action transitions guidance into the running state, establish the timing origin from retained progress. If power becomes false while guidance is running, change the process state to paused without discarding progress. This event emits no cabin sound effect; sustained prompt audio is handled only by the tick event.",
+          "effect_properties": [
+            {
+              "name": "power",
+              "description": "Determines whether running guidance must be paused."
+            },
+            {
+              "name": "status",
+              "description": "Identifies transitions into running and running guidance interrupted by power loss."
+            },
+            {
+              "name": "progress_minutes",
+              "description": "Preserves existing progress when calculating the process timing origin."
+            },
+            {
+              "name": "started_at_minute",
+              "description": "Stores the elapsed-minute origin used by subsequent guidance ticks."
+            }
+          ]
+        }
+      },
+      "disabled": []
+    }
+  }
+}

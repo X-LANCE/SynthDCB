@@ -1,0 +1,289 @@
+{
+  "WaterPurifier": {
+    "meta": {
+      "name": "WaterPurifier",
+      "description": "Water purifier. Users can query filter usage duration and filter life, and can query and enable flushing or backwashing modes. The filter usage duration can be reset.",
+      "version": "1.0.0",
+      "from": ""
+    },
+    "properties": {
+      "update": {
+        "power": {
+          "type": "boolean",
+          "description": "Whether the water purifier is powered.",
+          "mode": 3,
+          "value": {
+            "default": false
+          }
+        },
+        "filter_usage_minutes": {
+          "type": "integer",
+          "description": "Filter usage duration in minutes since the last usage-duration reset.",
+          "mode": 2,
+          "value": {
+            "default": 0,
+            "unit": "min",
+            "minimum": 0,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "filter_life_percent": {
+          "type": "integer",
+          "description": "Remaining filter life as a percentage.",
+          "mode": 2,
+          "value": {
+            "default": 100,
+            "unit": "%",
+            "minimum": 0,
+            "maximum": 100,
+            "step": 1,
+            "step_origin": 0
+          }
+        },
+        "mode": {
+          "type": "string",
+          "description": "Current purifier operating mode.",
+          "mode": 3,
+          "value": {
+            "default": "normal",
+            "choices": [
+              "normal",
+              "flushing",
+              "backwashing"
+            ]
+          }
+        }
+      },
+      "disabled": []
+    },
+    "functions": {
+      "update": {
+        "get_filter_usage_minutes": {
+          "description": "Return the filter usage duration in minutes. This control is available only while the purifier is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "filter_usage_minutes"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "filter_usage_minutes",
+            "response_key": "filter_usage_minutes",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "filter_usage_minutes": {
+              "type": "integer",
+              "description": "Filter usage duration in minutes."
+            }
+          }
+        },
+        "get_filter_life_percent": {
+          "description": "Return the remaining filter life percentage. This control is available only while the purifier is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "filter_life_percent"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "filter_life_percent",
+            "response_key": "filter_life_percent",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "filter_life_percent": {
+              "type": "integer",
+              "description": "Remaining filter life percentage."
+            }
+          }
+        },
+        "get_mode": {
+          "description": "Return the current purifier mode. This control is available only while the purifier is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power",
+            "mode"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "mode",
+            "response_key": "mode",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "mode": {
+              "type": "string",
+              "description": "Current purifier mode."
+            }
+          }
+        },
+        "set_mode": {
+          "description": "Enable normal, flushing, or backwashing mode. This control is available only while the purifier is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "enum": [
+                  "normal",
+                  "flushing",
+                  "backwashing"
+                ],
+                "description": "The mode to enable."
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "mode"
+          ],
+          "writes": [
+            "mode"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "mode",
+            "parameter": "value",
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "mode": {
+              "type": "string",
+              "description": "The resulting purifier mode."
+            }
+          }
+        },
+        "reset_filter_usage": {
+          "description": "Reset the filter usage duration to zero. This changes only the tracked usage record and is available while the purifier is powered.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power",
+            "filter_usage_minutes"
+          ],
+          "writes": [
+            "filter_usage_minutes"
+          ],
+          "semantics": {
+            "kind": "update",
+            "fields": {
+              "filter_usage_minutes": {
+                "value": 0
+              }
+            },
+            "preconditions": {
+              "power": true
+            }
+          },
+          "response": {
+            "filter_usage_minutes": {
+              "type": "integer",
+              "description": "The reset filter usage duration, which is zero minutes."
+            }
+          }
+        },
+        "get_power": {
+          "description": "Get the current power state.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          },
+          "mutation": false,
+          "reads": [
+            "power"
+          ],
+          "writes": [],
+          "semantics": {
+            "kind": "read",
+            "property": "power",
+            "response_key": "power"
+          },
+          "response": {
+            "power": {
+              "type": "boolean",
+              "description": "Current power state."
+            }
+          },
+          "errorcodes": {}
+        },
+        "set_power": {
+          "description": "Set power and dependent property access. While off, every non-power property is inaccessible through public getters/setters. Turning on restores access. A property marked auto_reset resets only when turning on.",
+          "parameters_schema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "mutation": true,
+          "reads": [
+            "power"
+          ],
+          "writes": [
+            "power"
+          ],
+          "semantics": {
+            "kind": "set",
+            "property": "power",
+            "parameter": "value"
+          },
+          "response": {},
+          "errorcodes": {}
+        }
+      },
+      "disabled": []
+    },
+    "events": {
+      "update": {},
+      "disabled": []
+    }
+  }
+}
