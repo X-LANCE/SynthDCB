@@ -11,38 +11,48 @@
 <meta name="twitter:card" content="summary_large_image">
 <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans" rel="stylesheet">
 <link rel="icon" href="assets/logo.png"><link rel="stylesheet" href="assets/site.css">
+<script src="assets/benchmark-data.js" defer></script>
 <script src="assets/site.js" defer></script>
 <script src="assets/task-wall.js" defer></script>
-<script src="assets/subtask-chart.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#task-types">Skip to task examples</a>
 <header class="topbar">
-<nav class="research-nav" aria-label="Main navigation">
-  <div class="nav-brand">
-    <a href="https://github.com/X-LANCE"><svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-2.1c-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.72.39-1.22.71-1.5-2.5-.28-5.13-1.25-5.13-5.56 0-1.23.44-2.24 1.16-3.03-.12-.28-.5-1.43.11-2.98 0 0 .95-.3 3.08 1.15a10.8 10.8 0 0 1 5.61 0c2.14-1.45 3.08-1.15 3.08-1.15.61 1.55.23 2.7.11 2.98.72.79 1.16 1.8 1.16 3.03 0 4.32-2.63 5.28-5.14 5.56.4.35.76 1.03.76 2.08v3.1c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z"/></svg><strong>X-LANCE</strong></a>
-    <a href="https://github.com/OpenDFM"><svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-2.1c-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.72.39-1.22.71-1.5-2.5-.28-5.13-1.25-5.13-5.56 0-1.23.44-2.24 1.16-3.03-.12-.28-.5-1.43.11-2.98 0 0 .95-.3 3.08 1.15a10.8 10.8 0 0 1 5.61 0c2.14-1.45 3.08-1.15 3.08-1.15.61 1.55.23 2.7.11 2.98.72.79 1.16 1.8 1.16 3.03 0 4.32-2.63 5.28-5.14 5.56.4.35.76 1.03.76 2.08v3.1c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z"/></svg><strong>OpenDFM</strong></a>
-    <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="research-navigation"><span></span><span></span><span></span></button>
-  </div>
-  <div class="research-navigation" id="research-navigation">
-    <div class="research-center">
+  <svg width="0" height="0" class="icon-library" aria-hidden="true"><defs>
+    <symbol id="github-icon" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></symbol>
+    <symbol id="arxiv-icon" viewBox="0 0 448 512"><path fill="currentColor" d="M62 6Q66 6 70.5 8.5Q75 11 77 14L79 16L219 150L320 58Q328 50 338 50Q340 50 341 50Q357 54 365 68Q370 80 358 96H357L270 199L295 224Q308 235 308.0 252.5Q308 270 295 282L272 303L401 458Q411 468 407 482Q403 496 389 501Q385 502 382 502Q371 502 363 494L217 355L122 443Q116 451 106 451Q91 451 85 437Q80 423 92 410L172 312L143 285Q129 270 129.5 251.0Q130 232 145 217L170 194Q59 60 48 44Q37 29 41 19Q47 6 62 6ZM338 57Q330 58 325 64L224 155L265 194L352 92Q361 79 358 71Q352 61 341 57Q339 57 338 57ZM175 199 150 222Q137 235 136.5 250.5Q136 266 148 279L368 489Q374 494 382 495Q384 495 387 494Q397 490 400 480Q403 472 395 463Z"/></symbol>
+  </defs></svg>
+  <nav class="research-nav" aria-label="Main navigation">
+    <div class="nav-organizations">
+      <a href="https://github.com/X-LANCE" aria-label="X-LANCE on GitHub"><svg aria-hidden="true"><use href="#github-icon"/></svg>X-LANCE</a>
+      <a href="https://github.com/OpenDFM" aria-label="OpenDFM on GitHub"><svg aria-hidden="true"><use href="#github-icon"/></svg>OpenDFM</a>
+    </div>
+    <button class="nav-toggle" type="button" aria-label="Navigation menu" aria-expanded="false" aria-controls="research-navigation"><span aria-hidden="true"></span></button>
+    <div class="nav-menu" id="research-navigation">
       <details class="research-dropdown">
-        <summary>More Research <span class="chevron" aria-hidden="true"></span></summary>
+        <summary>More Research</summary>
         <div class="research-options">
-          <a href="https://opendfm.github.io/MULTI-Benchmark/">📊 MULTI-Benchmark</a>
-          <a href="https://github.com/OpenDFM/MobA">🎮 MobA</a>
-          <a href="https://github.com/OpenDFM/Image_Edit_Agent">🎨 Image Edit Agent</a>
+          <a href="https://opendfm.github.io/MULTI-Benchmark/">MULTI-Benchmark</a>
+          <a href="https://github.com/OpenDFM/MobA">MobA</a>
+          <a href="https://github.com/OpenDFM/Image_Edit_Agent">Image Edit Agent</a>
+          <div class="page-links" role="group" aria-label="On this page">
+            <span aria-hidden="true">On this page</span>
+            <a href="#method">Method</a><a href="#task-types">Tasks</a><a href="#main-results">Results</a><a href="#citation">Citation</a>
+          </div>
         </div>
       </details>
+      <div class="nav-services">
+        <a href="https://huggingface.co/OpenDFM" aria-label="OpenDFM on Hugging Face">OpenDFM <span class="emoji-icon" aria-hidden="true">&#x1F917;</span></a>
+        <a href="https://huggingface.co/X-LANCE" aria-label="X-LANCE on Hugging Face">X-LANCE <span class="emoji-icon" aria-hidden="true">&#x1F917;</span></a>
+      </div>
     </div>
-    <div class="nav-huggingface"><a href="https://huggingface.co/OpenDFM"><strong>OpenDFM 🤗</strong></a><a href="https://huggingface.co/X-LANCE"><strong>X-LANCE 🤗</strong></a></div>
-  </div>
-</nav>
+  </nav>
 </header>
-<main>
-<section class="hero wrap">
-<img class="logo" src="assets/logo.png" alt="SynthDCB" width="360">
-<h1 class="publication-title"><b>SynthDCB</b>: World Distillation for Scalable Device Control Benchmarking</h1>
-<div class="authors publication-authors">
+<main id="top">
+  <section class="wrap hero" aria-labelledby="paper-title">
+    <img class="logo" src="assets/logo.png" alt="" width="290" height="97">
+    <h1 id="paper-title"><strong>SynthDCB</strong>: World Distillation for Scalable Device Control Benchmarking</h1>
+    <div class="authors publication-authors">
 <span class="author-block"><a href="https://github.com/JamesZhutheThird">Zichen Zhu</a><sup>1,3</sup>,&nbsp;</span>
 <span class="author-block">Dingye Liu<sup>1</sup>,&nbsp;</span>
 <span class="author-block">Nan Jiang<sup>1</sup>,&nbsp;</span>
@@ -57,7 +67,7 @@
 <span class="author-block"><a href="https://coai-sjtu.github.io">Lu Chen</a><sup>1,2,4,†</sup>,&nbsp;</span>
 <span class="author-block"><a href="https://cs.sjtu.edu.cn/PeopleDetail.aspx?id=76">Kai Yu</a><sup>1,4,†</sup></span>
 </div>
-<div class="affiliations publication-authors">
+    <div class="affiliations publication-authors">
 <span class="author-block"><sup>1</sup> <a href="https://x-lance.sjtu.edu.cn">X-LANCE Lab</a>, School of Computer Science,<br>Shanghai Jiao Tong University</span>
 <span class="author-block"><sup>2</sup> Shanghai Innovation Institution</span>
 <span class="author-block"><sup>3</sup> Nanyang Technological University</span>
@@ -66,34 +76,73 @@
 <span class="author-block"><sup>6</sup> AISpeech Co., Ltd.</span>
 <span class="author-block">† Corresponding authors</span>
 </div>
-<div class="resources"><a class="pill primary" href="https://github.com/X-LANCE/SynthDCB">GitHub <span aria-hidden="true">↗</span></a><span class="pill pending">Code <small>Coming soon</small></span><span class="pill pending">Data <small>Coming soon</small></span><a class="pill" href="https://arxiv.org/abs/2611.18639">arXiv <span aria-hidden="true">↗</span></a><a class="pill" href="#citation">BibTeX <span aria-hidden="true">↓</span></a></div>
-<p class="tagline">From device knowledge to executable worlds.<br>From executable worlds to verifiable tasks.</p>
-<figure class="overview"><a href="assets/overview.png" target="_blank" rel="noopener" aria-label="Open full-size SynthDCB overview"><img src="assets/overview.png" alt="SynthDCB connects Home, Car, and Phone worlds to stateful device control and temporal task evaluation." width="2000" height="716"></a><figcaption>Configurable worlds. Stateful interactions. Verifiable evaluation.</figcaption></figure>
-<div class="stats" aria-label="Benchmark scale"><div><strong>3</strong><span>Domains</span></div><div><strong>114</strong><span>Device classes</span></div><div><strong>1,166</strong><span>Functions</span></div><div><strong>95</strong><span>Events</span></div><div><strong>2,560</strong><span>Test tasks</span></div></div>
-</section>
-<section id="abstract" class="band"><div class="reading"><p class="eyebrow">THE BENCHMARK</p><h2>Abstract</h2><p class="abstract">Scaling device-control evaluation requires scaling both interactive worlds and the tasks agents must solve. We introduce <strong>SynthDCB</strong>, a benchmark for environment awareness and device control built through <strong>world distillation</strong> (WD). World distillation transforms knowledge of device behaviors, constraints, and environmental effects into modular executable components. A unified capability representation connects tool discovery, world execution, and task synthesis. SynthDCB instantiates Home, Car, and Phone with 114 device classes, 1,166 functions, and 95 events, supporting five task families with 32 subtypes. Explicit states and tool-call traces support task validation and agent evaluation. We evaluate 22 models on 2,560 test tasks; the best achieves 88.8% mean Pass@1. Construction experiments demonstrate token efficiency and expansion of task coverage. At the richest knowledge level, WD fully covers 22/23 properties, 19/29 functionalities, and 30/39 event requirements specified in a real RobotVacuum protocol. Furthermore, the 1,000 sampled tasks semantically cover 81.6% of the 854 reference instructions in the real-world corpus. SynthDCB connects an expanding space of real-to-sim executable capabilities to verifiable agent evaluation.</p></div></section>
-<section id="pipeline" class="wrap section"><p class="eyebrow">WORLD DISTILLATION</p><h2>Building worlds, constructing tasks</h2><p class="section-intro">A shared capability specification connects device discovery, world execution, and task construction.</p><figure class="pipeline"><a href="assets/pipeline.png" target="_blank" rel="noopener" aria-label="Open full-size system pipeline"><img src="assets/pipeline.png" alt="Three stages: device metadata creation, device implementation with validation, and world and task construction with execution and replay." width="2000" loading="lazy"></a><figcaption>The system pipeline of world distillation and task construction.</figcaption></figure><div class="stages"><article><span class="step">01</span><h3>Device metadata</h3><p>Transform behavioral knowledge into structured properties, functions, and events.</p></article><article><span class="step">02</span><h3>Executable capabilities</h3><p>Implement reusable device models with component checks and bounded repair.</p></article><article><span class="step">03</span><h3>Worlds & tasks</h3><p>Compose interactive worlds and validate tasks through execution and reference replay.</p></article></div></section>
-<section id="instruction-styles" class="interactive-section"><div class="style-wide section">
-<p class="eyebrow">EIGHT STYLES · THREE MODELS</p><h2>How does the wording change performance?</h2>
-<div class="style-comparison"><div class="style-list" aria-label="All eight instruction styles"><button class="style-row" type="button" data-style="0" aria-pressed="true"><span class="style-row-title">Template<small>Rule-generated instruction</small></span><span class="style-row-example">“For Bedroom Lamp 1, set brightness to 20%.”</span></button><button class="style-row" type="button" data-style="1" aria-pressed="false"><span class="style-row-title">Direct<small>Explicit model terminology</small></span><span class="style-row-example">“Set the bedroom lamp’s brightness to 20%.”</span></button><button class="style-row" type="button" data-style="2" aria-pressed="false"><span class="style-row-title">Concise<small>Compact, explicit wording</small></span><span class="style-row-example">“Bedroom lamp: brightness 20%.”</span></button><button class="style-row" type="button" data-style="3" aria-pressed="false"><span class="style-row-title">Polite<small>Courtesy, explicit wording</small></span><span class="style-row-example">“Please set the brightness of bedroom lamp to 20%.”</span></button><button class="style-row" type="button" data-style="4" aria-pressed="false"><span class="style-row-title">Conversational<small>Natural everyday phrasing</small></span><span class="style-row-example">“Could you dim the bedroom lamp to 20%?”</span></button><button class="style-row" type="button" data-style="5" aria-pressed="false"><span class="style-row-title">Folk<small>Colloquial phrasing</small></span><span class="style-row-example">“Turn that bedroom light down to 20%, will ya?”</span></button><button class="style-row" type="button" data-style="6" aria-pressed="false"><span class="style-row-title">Distracting<small>Conversation with irrelevant asides</small></span><span class="style-row-example">“That bedroom lamp looks old-fashioned. Could you dim it to 20%?”</span></button><button class="style-row" type="button" data-style="7" aria-pressed="false"><span class="style-row-title">Implicit<small>Broad intent, omitted details</small></span><span class="style-row-example">“Make the bedroom light a little dimmer.”</span></button></div>
-<div class="chart-card"><div class="chart-heading"><label class="chart-mode">Metric<select id="chart-metric"><option value="values">Pass@1 (%)</option><option value="deltas">Δ vs. Template (pp)</option></select></label></div>
-<div id="chart-legend" class="chart-legend" aria-label="Visible models"><button type="button" data-model="0" aria-pressed="true" style="--series-color:#3478e5"><span></span>GPT-5.6 Sol</button><button type="button" data-model="1" aria-pressed="true" style="--series-color:#c66028"><span></span>GPT-5.6 Terra</button><button type="button" data-model="2" aria-pressed="true" style="--series-color:#8b53ca"><span></span>GPT-5.6 Luna</button></div>
-<div class="chart-scroll"><svg id="style-chart" viewBox="0 0 740 365" role="group" aria-label="Interactive line chart of instruction style results"></svg></div>
-
-<p class="chart-note">Select a style or a chart point to inspect values. Toggle models using the legend. Implicit instructions omit details; the shaded region marks this change in available information.</p>
-
-</div></div></div></section>
-<section id="task-types" class="task-wall-section">
-<div class="wrap section wall-heading"><p class="eyebrow">THREE DOMAINS · 32 FRAMEWORK SUBTYPES</p><h2>A world of tasks. Pick your view.</h2><p class="section-intro">Browse real instructions from the validation set. Choose a domain and task subtype, or explore the whole wall.</p>
-<div class="wall-controls"><label>Domain<select id="wall-domain"><option value="all">All domains</option><option>Home</option><option>Car</option><option>Phone</option></select></label><label>Task family<select id="wall-family"><option value="all">All families</option></select></label><label>Subtask<select id="wall-subtype"><option value="all">All subtypes</option></select></label><button type="button" id="wall-pause" aria-pressed="false">Pause motion</button></div>
-<div class="wall-status"><p id="wall-count" role="status"></p><span>Hover to pause · Select a card to read</span></div></div>
-<div id="task-wall" class="task-wall" aria-label="Task example poster wall"><div id="wall-empty" hidden>No examples match this selection.</div></div>
-<div class="wrap wall-bottom"><button type="button" id="wall-prev" aria-label="Scroll task wall left">← Previous</button><span>Validation examples · Coverage varies by domain</span><button type="button" id="wall-next" aria-label="Scroll task wall right">Next →</button></div>
-<dialog id="task-dialog"><div class="task-dialog-top"><span id="dialog-tags"></span><button type="button" id="dialog-close" aria-label="Close task">Close ×</button></div><h3>Task instruction</h3><p id="dialog-instruction"></p><p id="dialog-source"></p></dialog>
-</section>
-<section id="subtask-performance" class="wrap section"><p class="eyebrow">SEVEN MODELS · 32 SUBTASKS</p><h2>Performance across task types</h2><div class="subtask-chart-card"><div class="performance-controls"><label>Domain<select id="performance-domain"><option value="All">All domains</option><option>Home</option><option>Car</option><option>Phone</option></select></label><label>Task family<select id="performance-family"><option value="all">All families</option><option value="query">Query</option><option value="control">Control</option><option value="goal">Goal</option><option value="aggregate">Aggregate</option><option value="workflow">Workflow</option></select></label><span>Test set · Pass@1 (%)</span></div><div id="performance-legend" class="chart-legend" aria-label="Models"></div><div class="performance-scroll"><svg id="performance-chart" role="group" aria-label="Model performance by subtask"></svg></div><div id="performance-detail" class="performance-detail" aria-live="polite"></div><p class="chart-note">Select a point to compare models. All domains pools task counts; gaps indicate no test samples. Scroll horizontally to explore all subtypes.</p></div></section>
-<section id="release" class="wrap section release"><div><p class="eyebrow">RESOURCES</p><h2>Data and code coming soon.</h2><p>Follow the repository for release updates.</p></div><a class="pill primary" href="https://github.com/X-LANCE/SynthDCB">View on GitHub ↗</a></section>
-<section id="citation" class="wrap section citation"><div class="citation-heading"><h2>Citation</h2><button id="copy-citation" type="button">Copy BibTeX</button></div><p>If you find this work useful, please cite:</p><pre><code id="bibtex">@misc{zhu2026synthdcbworlddistillationscalable,
+    <div class="resources">
+      <a class="action" href="https://huggingface.co/datasets/JamesZhutheThird/SynthDCB"><span class="button-icon emoji-icon" aria-hidden="true">&#x1F917;</span>Dataset</a>
+      <a class="action" href="https://arxiv.org/abs/2611.18639"><span class="button-icon" aria-hidden="true"><svg><use href="#arxiv-icon"/></svg></span>arXiv</a>
+      <a class="action" href="https://github.com/X-LANCE/SynthDCB"><span class="button-icon" aria-hidden="true"><svg><use href="#github-icon"/></svg></span>GitHub</a>
+      <a class="action" href="#citation"><span class="button-icon emoji-icon" aria-hidden="true">&#x1F4C3;</span>BibTeX</a>
+    </div>
+  </section>
+  <section id="method" class="method-band"><div class="wrap section">
+    <h2>World distillation</h2>
+    <figure><a href="assets/overview.png" aria-label="Open the full-size SynthDCB overview"><img src="assets/overview.png" width="2000" height="716" alt="Overview of device capabilities, interactive worlds and verifiable tasks in Home, Car and Phone." loading="lazy"></a></figure>
+    <details class="paper-detail" id="abstract" open><summary>Abstract</summary><p class="abstract">Scaling device-control evaluation requires scaling both interactive worlds and the tasks agents must solve. We introduce <strong>SynthDCB</strong>, a benchmark for environment awareness and device control built through <strong>world distillation</strong> (WD). World distillation transforms knowledge of device behaviors, constraints, and environmental effects into modular executable components. A unified capability representation connects tool discovery, world execution, and task synthesis. SynthDCB instantiates Home, Car, and Phone with 114 device classes, 1,166 functions, and 95 events, supporting five task families with 32 subtypes. Explicit states and tool-call traces support task validation and agent evaluation. We evaluate 22 models on 2,560 test tasks; the best achieves 88.8% mean Pass@1. Construction experiments demonstrate token efficiency and expansion of task coverage. At the richest knowledge level, WD fully covers 22/23 properties, 19/29 functionalities, and 30/39 event requirements specified in a real RobotVacuum protocol. Furthermore, the 1,000 sampled tasks semantically cover 81.6% of the 854 reference instructions in the real-world corpus. SynthDCB connects an expanding space of real-to-sim executable capabilities to verifiable agent evaluation.</p></details>
+    <details class="paper-detail" id="pipeline" open><summary>Construction pipeline</summary><a href="assets/pipeline.png" aria-label="Open the full-size construction pipeline"><img src="assets/pipeline.png" width="2000" height="1073" alt="Device metadata creation, device implementation and validation, and world and task construction." loading="lazy"></a></details>
+  </div></section>
+  <section id="task-types" class="band tasks-band"><div class="wrap section">
+    <div class="heading-row"><h2>Task examples</h2><span id="wall-count" role="status"></span></div>
+    <div class="task-toolbar"><div class="fields">
+      <label>Domain<select id="wall-domain"><option value="all">All domains</option><option>Home</option><option>Car</option><option>Phone</option></select></label>
+      <label>Family<select id="wall-family"><option value="all">All families</option></select></label>
+      <label>Subtype<select id="wall-subtype"><option value="all">All subtypes</option></select></label>
+    </div><div class="wall-actions"><button type="button" id="wall-prev" aria-label="Previous task examples" title="Previous task examples">←</button><button type="button" id="wall-pause" aria-pressed="false">Pause motion</button><button type="button" id="wall-next" aria-label="Next task examples" title="Next task examples">→</button></div></div>
+    <div id="task-wall" class="task-wall" role="region" aria-label="Validation task examples"></div>
+    <dialog id="task-dialog" aria-labelledby="dialog-title"><div class="heading-row"><span id="dialog-tags"></span><button id="dialog-close" type="button" aria-label="Close task" title="Close">×</button></div><h3 id="dialog-title">Task instruction</h3><p id="dialog-instruction"></p><div class="dialog-footer"><span id="dialog-source"></span><a id="dialog-task-link">Open dataset task ↗</a></div></dialog>
+  </div></section>
+  <section id="main-results" class="wrap section">
+    <div class="heading-row"><h2>Main results</h2><span class="info"><button type="button" aria-label="About main results" aria-describedby="info-main-results" aria-controls="info-main-results" aria-expanded="false">i</button><span role="tooltip" id="info-main-results" hidden>Mean Pass@1 on 2,560 Test tasks. The 22 models retain their original one or three samples per task. Bars are ordered by mean Pass@1.</span></span></div>
+    <div class="chart-scroll" tabindex="0" role="region" aria-label="Test Pass@1 across 22 models"><svg id="main-chart" class="plot main-plot" role="group" aria-label="Mean Test Pass@1 by model"></svg></div>
+    <div class="scatter-grid">
+      <article><div class="heading-row"><h3>Cost and performance</h3><span class="info"><button type="button" aria-label="About API cost" aria-describedby="info-api-cost" aria-controls="info-api-cost" aria-expanded="false">i</button><span role="tooltip" id="info-api-cost" hidden>USD per Test attempt at October 28, 2026 prices. With cache includes cache reads and writes. Without cache prices the same input at the uncached rate. Costs cover the first agent request per turn and exclude judge calls and transport retries.</span></span></div>
+        <svg id="cost-chart" class="plot" role="group" aria-label="Mean Test Pass@1 and API cost per attempt with and without cache"></svg>
+        <div class="price-key" aria-label="API pricing"><span>With cache</span><span>Without cache</span></div></article>
+      <article><div class="heading-row"><h3>Model size and performance</h3><span class="info"><button type="button" aria-label="About parameter counts" aria-describedby="info-parameter-counts" aria-controls="info-parameter-counts" aria-expanded="false">i</button><span role="tooltip" id="info-parameter-counts" hidden>Total checkpoint parameters from each published model’s Hugging Face safetensors metadata. The horizontal axis shows billions of parameters on a logarithmic scale.</span></span></div>
+        <svg id="size-chart" class="plot" role="group" aria-label="Mean Test Pass@1 and published parameter count"></svg></article>
+    </div>
+    <p class="sr-only" id="model-status" role="status"></p>
+  </section>
+  <section id="turn-budget" class="band"><div class="wrap section">
+    <div class="heading-row"><h2>Interaction turn budget</h2><span class="info"><button type="button" aria-label="About goal success" aria-describedby="info-goal-success" aria-controls="info-goal-success" aria-expanded="false">i</button><span role="tooltip" id="info-goal-success" hidden>259 feasible Goal atoms in 180 Test tasks. Original counts goals in trajectories that finished by turn k. Truncated stops interaction at k and simulates the world to the fixed evaluation horizon. Δ is Truncated minus Original, in percentage points.</span></span></div>
+    <div class="budget-toolbar"><span class="budget-unit">Goal success (%)</span><strong id="budget-turn"></strong><div class="line-key"><span><i></i>Original</span><span><i class="truncated"></i>Truncated</span></div></div>
+    <div id="budget-grid" class="budget-grid" role="group" aria-label="Synchronized model charts, turns 1 to 50"></div>
+    <p class="budget-axis">Interaction turns</p>
+  </div></section>
+  <section id="instruction-styles" class="wrap section">
+    <div class="heading-row"><h2>Instruction-style ablation</h2><span class="info"><button type="button" aria-label="About validation experiment" aria-describedby="info-validation-experiment" aria-controls="info-validation-experiment" aria-expanded="false">i</button><span role="tooltip" id="info-validation-experiment" hidden>The same 314 validation tasks were run in all eight instruction styles. Overall pools tasks across Home, Car, and Phone. Changes from Template are measured in percentage points.</span></span></div>
+    <div class="ablation-layout">
+      <div class="ablation-context">
+        <div class="style-toolbar fields"><label>Validation split<select id="style-domain"><option value="Overall">All domains</option><option>Home</option><option>Car</option><option>Phone</option></select></label><label>Metric<select id="chart-metric"><option value="value">Pass@1 (%)</option><option value="delta">Change from Template (pp)</option></select></label></div>
+        <dl class="style-examples" aria-label="Instruction examples">
+          <div><dt>Template</dt><dd>“For Bedroom Lamp 1, set brightness to 20%.”</dd></div>
+          <div><dt>Direct</dt><dd>“Set the bedroom lamp’s brightness to 20%.”</dd></div>
+          <div><dt>Concise</dt><dd>“Bedroom lamp: brightness 20%.”</dd></div>
+          <div><dt>Polite</dt><dd>“Please set the brightness of bedroom lamp to 20%.”</dd></div>
+          <div><dt>Conversational</dt><dd>“Could you dim the bedroom lamp to 20%?”</dd></div>
+          <div><dt>Folk</dt><dd>“Turn that bedroom light down to 20%, will ya?”</dd></div>
+          <div><dt>Distracting</dt><dd>“That bedroom lamp looks old-fashioned. Could you dim it to 20%?”</dd></div>
+          <div><dt>Implicit</dt><dd>“Make the bedroom light a little dimmer.”</dd></div>
+        </dl>
+        <div class="legend" id="style-legend" role="group" aria-label="Visible validation models"></div>
+      </div>
+      <div class="ablation-plot">
+        <svg id="style-chart" class="plot style-plot" role="group" aria-label="Validation results by instruction style"></svg>
+      </div>
+    </div>
+  </section>
+  <section id="release" class="release"><div class="wrap section"><div class="heading-row"><h2>Dataset</h2><a class="action" href="https://huggingface.co/datasets/JamesZhutheThird/SynthDCB"><span class="button-icon emoji-icon" aria-hidden="true">&#x1F917;</span>Hugging Face</a></div>
+    <dl class="stats"><div><dt>Device classes</dt><dd>114</dd></div><div><dt>Functions</dt><dd>1,166</dd></div><div><dt>Events</dt><dd>95</dd></div><div><dt>Validation tasks</dt><dd>314</dd></div><div><dt>Test tasks</dt><dd>2,560</dd></div></dl>
+  </div></section>
+  <section id="citation" class="citation"><div class="wrap section"><div class="heading-row"><h2>Citation</h2><button id="copy-citation" type="button">Copy BibTeX</button></div><pre><code id="bibtex">@misc{zhu2026synthdcb,
       title={SynthDCB: World Distillation for Scalable Device Control Benchmarking},
       author={Zichen Zhu and Dingye Liu and Nan Jiang and Danyang Zhang and Hang Zheng and Shijie Zheng and Situo Zhang and Kunyao Lan and Yingzi Ma and Sheng Jiang and Lu Chen and Kai Yu},
       year={2026},
@@ -102,7 +151,8 @@
       primaryClass={cs.LG},
       url={https://arxiv.org/abs/2611.18639},
 }
-</code></pre><span id="copy-status" role="status" aria-live="polite"></span></section>
+</code></pre><span id="copy-status" role="status"></span></div></section>
 </main>
-<footer><div class="wrap"><strong>SynthDCB</strong><p>World Distillation for Scalable Device Control Benchmarking</p><a href="https://github.com/X-LANCE/SynthDCB">X-LANCE · GitHub ↗</a></div></footer>
+<footer><div class="wrap"><a class="brand" href="#top">SynthDCB</a><a href="https://github.com/X-LANCE/SynthDCB">X-LANCE · GitHub ↗</a></div></footer>
+<div id="plot-tooltip" class="plot-tooltip" role="tooltip" hidden></div>
 </body></html>
