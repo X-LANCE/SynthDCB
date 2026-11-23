@@ -13,7 +13,24 @@
 
 </div>
 
-## Overview
+**🌍 World Distillation**
+
+An automated harness that distills device knowledge into executable worlds and verified, deterministic tasks, enabling on-demand simulation construction and evaluation of emerging industrial capabilities.
+
+- ⚡ **Parallel, fast, and token-efficient:** three domains built within hours; RobotVacuum construction based on a real protocol uses **46.2–92.5% fewer tokens** than **Codex (xhigh)** with GPT-5.6 Sol.
+- 🎯 **Device capability and instruction intent coverage:** WD fully covers **71 of 91 capability checklist items** from a real RobotVacuum protocol; generated tasks semantically cover **69.8% of intent categories** and **81.6% of instructions in real-industry test set**.
+
+**🤖 SynthDCB**
+
+A scalable benchmark for evaluating agents’ environment awareness and device control, supporting **8 instruction styles**.
+
+- 🏠 **Home**, 🚗 **Car**, and 📱 **Phone:** **22 models** evaluated on **2,560 test tasks** across **32 task subtypes**.
+- 🎯 **Informative evaluation:** **20+ diagnostic metrics** assess task outcomes, state correctness, and execution behavior, providing signals to support **reward design for downstream agent training**.
+- 🔍 **Full failure analysis:** **all failed first attempts** analyzed using **12 error categories across 4 groups**, revealing capability gaps and distinct failure patterns across models.
+
+Try **SynthDCB** and share your feedback! 🤗
+
+## Abstract
 
 Scaling device-control evaluation requires scaling both interactive worlds and the tasks agents must solve. We introduce **SynthDCB**, a benchmark for environment awareness and device control built through **world distillation** (WD). World distillation transforms knowledge of device behaviors, constraints, and environmental effects into modular executable components. A unified capability representation connects tool discovery, world execution, and task synthesis. SynthDCB instantiates Home, Car, and Phone with 114 device classes, 1,166 functions, and 95 events, supporting five task families with 32 subtypes. Explicit states and tool-call traces support task validation and agent evaluation. We evaluate 22 models on 2,560 test tasks; the best achieves 88.8% mean Pass@1. Construction experiments demonstrate token efficiency and expansion of task coverage. At the richest knowledge level, WD fully covers 22/23 properties, 19/29 functionalities, and 30/39 event requirements specified in a real RobotVacuum protocol. Furthermore, the 1,000 sampled tasks semantically cover 81.6% of the 854 reference instructions in the real-world corpus. SynthDCB connects an expanding space of real-to-sim executable capabilities to verifiable agent evaluation.
 
