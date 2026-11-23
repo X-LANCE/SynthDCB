@@ -32,9 +32,9 @@
       <details class="research-dropdown">
         <summary>More Research</summary>
         <div class="research-options">
-          <a href="https://opendfm.github.io/MULTI-Benchmark/">MULTI-Benchmark</a>
-          <a href="https://github.com/OpenDFM/MobA">MobA</a>
-          <a href="https://github.com/OpenDFM/Image_Edit_Agent">Image Edit Agent</a>
+          <a href="https://opendfm.github.io/MULTI-Benchmark/"><img class="research-icon" src="assets/brands/framed-picture.png" alt="" width="20" height="20">MULTI-Benchmark</a>
+          <a href="https://github.com/OpenDFM/MobA"><img class="research-icon" src="assets/brands/moba.png" alt="" width="20" height="20">MobA</a>
+          <a href="https://github.com/OpenDFM/Image_Edit_Agent"><img class="research-icon" src="assets/brands/iea.png" alt="" width="20" height="20">Image Editing Agent（IEA）</a>
           <div class="page-links" role="group" aria-label="On this page">
             <span aria-hidden="true">On this page</span>
             <a href="#method">Method</a><a href="#task-types">Tasks</a><a href="#main-results">Results</a><a href="#citation">Citation</a>
@@ -56,14 +56,15 @@
 <span class="author-block"><a href="https://github.com/JamesZhutheThird">Zichen Zhu</a><sup>1,3</sup>,&nbsp;</span>
 <span class="author-block">Dingye Liu<sup>1</sup>,&nbsp;</span>
 <span class="author-block">Nan Jiang<sup>1</sup>,&nbsp;</span>
-<span class="author-block">Danyang Zhang<sup>1</sup>,&nbsp;</span>
-<span class="author-block">Hang Zheng<sup>1</sup>,&nbsp;</span>
+<span class="author-block"><a href="https://zdy023.github.io/">Danyang Zhang</a><sup>1</sup>,&nbsp;</span>
+<span class="author-block"><a href="https://github.com/zhenghang1">Hang Zheng</a><sup>1</sup>,&nbsp;</span>
 <span class="author-block">Shijie Zheng<sup>1</sup>,&nbsp;</span>
 <br class="author-break">
-<span class="author-block">Situo Zhang<sup>1</sup>,&nbsp;</span>
-<span class="author-block">Kunyao Lan<sup>1</sup>,&nbsp;</span>
+<span class="author-block"><a href="https://github.com/situozhang">Situo Zhang</a><sup>1</sup>,&nbsp;</span>
+<span class="author-block"><a href="https://github.com/lankunyao">Kunyao Lan</a><sup>1</sup>,&nbsp;</span>
 <span class="author-block"><a href="https://gray311.github.io">Yingzi Ma</a><sup>5</sup>,&nbsp;</span>
 <span class="author-block">Sheng Jiang<sup>6</sup>,&nbsp;</span>
+<span class="author-block"><a href="https://bobxwu.github.io/">Xiaobao Wu</a><sup>7</sup>,&nbsp;</span>
 <span class="author-block"><a href="https://coai-sjtu.github.io">Lu Chen</a><sup>1,2,4,†</sup>,&nbsp;</span>
 <span class="author-block"><a href="https://cs.sjtu.edu.cn/PeopleDetail.aspx?id=76">Kai Yu</a><sup>1,4,†</sup></span>
 </div>
@@ -74,6 +75,7 @@
 <span class="author-block"><sup>4</sup> Jiangsu Key Lab of Language Computing</span>
 <span class="author-block"><sup>5</sup> University of Wisconsin–Madison</span>
 <span class="author-block"><sup>6</sup> AISpeech Co., Ltd.</span>
+<span class="author-block"><sup>7</sup> School of Computer Science, Shanghai Jiao Tong University</span>
 <span class="author-block">† Corresponding authors</span>
 </div>
     <div class="resources">
@@ -86,6 +88,26 @@
   <section id="method" class="method-band"><div class="wrap section">
     <h2>World distillation</h2>
     <figure><a href="assets/overview.png" aria-label="Open the full-size SynthDCB overview"><img src="assets/overview.png" width="2000" height="716" alt="Overview of device capabilities, interactive worlds and verifiable tasks in Home, Car and Phone." loading="lazy"></a></figure>
+    <div class="project-summary">
+      <div>
+        <h3>🌍 World Distillation</h3>
+        <p>An automated harness that distills device knowledge into executable worlds and verified, deterministic tasks, enabling on-demand simulation construction and evaluation of emerging industrial capabilities.</p>
+        <ul>
+          <li>⚡ <strong>Parallel, fast, and token-efficient:</strong> three domains built within hours; RobotVacuum construction based on a real protocol uses <strong>46.2–92.5% fewer tokens</strong> than <strong>Codex (xhigh)</strong> with GPT-5.6 Sol.</li>
+          <li>🎯 <strong>Device capability and instruction intent coverage:</strong> WD fully covers <strong>71 of 91 capability checklist items</strong> from a real RobotVacuum protocol; generated tasks semantically cover <strong>69.8% of intent categories</strong> and <strong>81.6% of instructions in real-industry test set</strong>.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>🤖 SynthDCB</h3>
+        <p>A scalable benchmark for evaluating agents’ environment awareness and device control, supporting <strong>8 instruction styles</strong>.</p>
+        <ul>
+          <li>🏠 <strong>Home</strong>, 🚗 <strong>Car</strong>, and 📱 <strong>Phone:</strong> <strong>22 models</strong> evaluated on <strong>2,560 test tasks</strong> across <strong>32 task subtypes</strong>.</li>
+          <li>🎯 <strong>Informative evaluation:</strong> <strong>20+ diagnostic metrics</strong> assess task outcomes, state correctness, and execution behavior, providing signals to support <strong>reward design for downstream agent training</strong>.</li>
+          <li>🔍 <strong>Full failure analysis:</strong> <strong>all failed first attempts</strong> analyzed using <strong>12 error categories across 4 groups</strong>, revealing capability gaps and distinct failure patterns across models.</li>
+        </ul>
+      </div>
+      <p>Try <strong>SynthDCB</strong> and share your feedback! 🤗</p>
+    </div>
     <details class="paper-detail" id="abstract" open><summary>Abstract</summary><p class="abstract">Scaling device-control evaluation requires scaling both interactive worlds and the tasks agents must solve. We introduce <strong>SynthDCB</strong>, a benchmark for environment awareness and device control built through <strong>world distillation</strong> (WD). World distillation transforms knowledge of device behaviors, constraints, and environmental effects into modular executable components. A unified capability representation connects tool discovery, world execution, and task synthesis. SynthDCB instantiates Home, Car, and Phone with 114 device classes, 1,166 functions, and 95 events, supporting five task families with 32 subtypes. Explicit states and tool-call traces support task validation and agent evaluation. We evaluate 22 models on 2,560 test tasks; the best achieves 88.8% mean Pass@1. Construction experiments demonstrate token efficiency and expansion of task coverage. At the richest knowledge level, WD fully covers 22/23 properties, 19/29 functionalities, and 30/39 event requirements specified in a real RobotVacuum protocol. Furthermore, the 1,000 sampled tasks semantically cover 81.6% of the 854 reference instructions in the real-world corpus. SynthDCB connects an expanding space of real-to-sim executable capabilities to verifiable agent evaluation.</p></details>
     <details class="paper-detail" id="pipeline" open><summary>Construction pipeline</summary><a href="assets/pipeline.png" aria-label="Open the full-size construction pipeline"><img src="assets/pipeline.png" width="2000" height="1073" alt="Device metadata creation, device implementation and validation, and world and task construction." loading="lazy"></a></details>
   </div></section>
@@ -144,7 +166,7 @@
   </div></section>
   <section id="citation" class="citation"><div class="wrap section"><div class="heading-row"><h2>Citation</h2><button id="copy-citation" type="button">Copy BibTeX</button></div><pre><code id="bibtex">@misc{zhu2026synthdcb,
       title={SynthDCB: World Distillation for Scalable Device Control Benchmarking},
-      author={Zichen Zhu and Dingye Liu and Nan Jiang and Danyang Zhang and Hang Zheng and Shijie Zheng and Situo Zhang and Kunyao Lan and Yingzi Ma and Sheng Jiang and Lu Chen and Kai Yu},
+      author={Zichen Zhu and Dingye Liu and Nan Jiang and Danyang Zhang and Hang Zheng and Shijie Zheng and Situo Zhang and Kunyao Lan and Yingzi Ma and Sheng Jiang and Xiaobao Wu and Lu Chen and Kai Yu},
       year={2026},
       eprint={2611.18639},
       archivePrefix={arXiv},

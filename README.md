@@ -93,7 +93,7 @@ The SynthDCB source code, prompts, simulator, and device models use the Apache L
 ```bibtex
 @misc{zhu2026synthdcb,
       title={Synth{DCB}: World Distillation for Scalable Device Control Benchmarking},
-      author={Zichen Zhu and Dingye Liu and Nan Jiang and Danyang Zhang and Hang Zheng and Shijie Zheng and Situo Zhang and Kunyao Lan and Yingzi Ma and Sheng Jiang and Lu Chen and Kai Yu},
+      author={Zichen Zhu and Dingye Liu and Nan Jiang and Danyang Zhang and Hang Zheng and Shijie Zheng and Situo Zhang and Kunyao Lan and Yingzi Ma and Sheng Jiang and Xiaobao Wu and Lu Chen and Kai Yu},
       year={2026},
       eprint={2611.18639},
       archivePrefix={arXiv},
