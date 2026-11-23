@@ -4,7 +4,7 @@
 
 <img src="https://raw.githubusercontent.com/X-LANCE/SynthDCB/main/assets/overview.png" alt="Overview of SynthDCB" width="100%">
 
-**SynthDCB: World Distillation for Scalable Device Control Benchmarking**
+<h1>SynthDCB: World Distillation for Scalable Device Control Benchmarking</h1>
 
 [![Project page](https://img.shields.io/badge/Project-Page-0969DA)](https://x-lance.github.io/SynthDCB/)
 [![arXiv](https://img.shields.io/badge/arXiv-2611.18639-B31B1B?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2611.18639)
