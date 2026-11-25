@@ -392,3 +392,52 @@
     }
   });
 })();
+
+(() => {
+  const board = document.getElementById("leaderboard");
+  const rail = document.querySelector("#main-results .board-rail");
+  for (const event of ["pointerenter", "focus"]) {
+    rail.addEventListener(event, () => rail.classList.remove("hint-dismissed"));
+  }
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && rail.matches(":hover, :focus-visible")) {
+      rail.classList.add("hint-dismissed");
+    }
+  });
+  async function syncBoard() {
+    if (location.hash === "#leaderboard") {
+      board.classList.remove("leaving");
+      if (!board.open) board.showModal();
+    } else if (board.open) {
+      board.classList.add("leaving");
+      await Promise.allSettled(board.getAnimations().map(animation => animation.finished));
+      if (location.hash !== "#leaderboard") {
+        board.close();
+        board.classList.remove("leaving");
+      }
+    }
+  }
+  function returnHome() {
+    if (location.hash !== "#leaderboard") return;
+    if (history.state?.fromSynthHome) {
+      history.back();
+    } else {
+      location.replace("#main-results");
+    }
+  }
+  document.querySelectorAll('a[href="#leaderboard"]').forEach(link => {
+    link.addEventListener("click", event => {
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      history.pushState({fromSynthHome: true}, "", "#leaderboard");
+      syncBoard();
+    });
+  });
+  board.querySelector(".board-back").addEventListener("click", returnHome);
+  board.addEventListener("cancel", event => {
+    event.preventDefault();
+    returnHome();
+  });
+  window.addEventListener("hashchange", syncBoard);
+  syncBoard();
+})();

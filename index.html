@@ -13,6 +13,8 @@
 <link rel="icon" href="assets/logo.png"><link rel="stylesheet" href="assets/site.css">
 <script src="assets/benchmark-data.js" defer></script>
 <script src="assets/site.js" defer></script>
+<script src="assets/leaderboard.js" defer></script>
+<script src="assets/scrollbars.js" defer></script>
 <script src="assets/task-wall.js" defer></script>
 </head>
 <body>
@@ -83,6 +85,7 @@
       <a class="action" href="https://arxiv.org/abs/2611.18639"><span class="button-icon" aria-hidden="true"><svg><use href="#arxiv-icon"/></svg></span>arXiv</a>
       <a class="action" href="https://github.com/X-LANCE/SynthDCB"><span class="button-icon" aria-hidden="true"><svg><use href="#github-icon"/></svg></span>GitHub</a>
       <a class="action" href="#citation"><span class="button-icon emoji-icon" aria-hidden="true">&#x1F4C3;</span>BibTeX</a>
+      <a class="action" href="#leaderboard"><span class="button-icon emoji-icon" aria-hidden="true">&#x1F3C6;</span>Leaderboard</a>
     </div>
   </section>
   <section id="method" class="method-band"><div class="wrap section">
@@ -121,7 +124,7 @@
     <div id="task-wall" class="task-wall" role="region" aria-label="Validation task examples"></div>
     <dialog id="task-dialog" aria-labelledby="dialog-title"><div class="heading-row"><span id="dialog-tags"></span><button id="dialog-close" type="button" aria-label="Close task" title="Close">×</button></div><h3 id="dialog-title">Task instruction</h3><p id="dialog-instruction"></p><div class="dialog-footer"><span id="dialog-source"></span><a id="dialog-task-link">Open dataset task ↗</a></div></dialog>
   </div></section>
-  <section id="main-results" class="wrap section">
+  <section id="main-results"><div class="wrap section">
     <div class="heading-row"><h2>Main results</h2><span class="info"><button type="button" aria-label="About main results" aria-describedby="info-main-results" aria-controls="info-main-results" aria-expanded="false">i</button><span role="tooltip" id="info-main-results" hidden>Mean Pass@1 on 2,560 Test tasks. The 22 models retain their original one or three samples per task. Bars are ordered by mean Pass@1.</span></span></div>
     <div class="chart-scroll" tabindex="0" role="region" aria-label="Test Pass@1 across 22 models"><svg id="main-chart" class="plot main-plot" role="group" aria-label="Mean Test Pass@1 by model"></svg></div>
     <div class="scatter-grid">
@@ -132,6 +135,7 @@
         <svg id="size-chart" class="plot" role="group" aria-label="Mean Test Pass@1 and published parameter count"></svg></article>
     </div>
     <p class="sr-only" id="model-status" role="status"></p>
+    </div><a class="board-rail" href="#leaderboard" aria-label="View full leaderboard"><span class="board-hint" aria-hidden="true">View full leaderboard</span></a>
   </section>
   <section id="turn-budget" class="band"><div class="wrap section">
     <div class="heading-row"><h2>Interaction turn budget</h2><span class="info"><button type="button" aria-label="About goal success" aria-describedby="info-goal-success" aria-controls="info-goal-success" aria-expanded="false">i</button><span role="tooltip" id="info-goal-success" hidden>259 feasible Goal atoms in 180 Test tasks. Original counts goals in trajectories that finished by turn k. Truncated stops interaction at k and simulates the world to the fixed evaluation horizon. Δ is Truncated minus Original, in percentage points.</span></span></div>
@@ -177,4 +181,388 @@
 </main>
 <footer><div class="wrap"><a class="brand" href="#top">SynthDCB</a><a href="https://github.com/X-LANCE/SynthDCB">X-LANCE · GitHub ↗</a></div></footer>
 <div id="plot-tooltip" class="plot-tooltip" role="tooltip" hidden></div>
+<dialog class="board" id="leaderboard" aria-labelledby="board-title">
+  <div class="board-content">
+    <header class="board-header"><h2 id="board-title" tabindex="-1" autofocus>SynthDCB Leaderboard</h2></header>
+  <button type="button" class="board-rail board-back" aria-label="Back to homepage"><span class="board-hint" aria-hidden="true">Back to homepage</span></button>
+    <div class="board-scroll" tabindex="0" role="region" aria-label="Benchmark results">
+      <table>
+        <caption class="sr-only">Mean Pass@1 (%). Select a column to rank models.</caption>
+        <thead><tr><th scope="col"><button type="button" class="board-sort">Model</button></th><th scope="col" aria-sort="descending"><button type="button" class="board-sort">Overall</button></th><th scope="col"><button type="button" class="board-sort"><span>Domain</span>Home</button></th><th scope="col"><button type="button" class="board-sort"><span>Domain</span>Car</button></th><th scope="col"><button type="button" class="board-sort"><span>Domain</span>Phone</button></th><th scope="col"><button type="button" class="board-sort"><span>Task</span>Control</button></th><th scope="col"><button type="button" class="board-sort"><span>Task</span>Query</button></th><th scope="col"><button type="button" class="board-sort"><span>Task</span>Aggregate</button></th><th scope="col"><button type="button" class="board-sort"><span>Task</span>Goal</button></th><th scope="col"><button type="button" class="board-sort"><span>Task</span>Workflow</button></th></tr></thead>
+        <tbody data-model="Gemini 3.8 Flash" data-order="0" data-eval-date="2026-10-22">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#1</span><img src="assets/brands/gemini-color.svg" alt="" width="19" height="19"><span>Gemini 3.8 Flash<small>Google DeepMind</small></span><button type="button" class="board-details" aria-label="Evaluation details for Gemini 3.8 Flash" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.887890625000000"><span class="board-overall">88.79</span></td>
+            <td data-score="0.864949258391881">86.49</td>
+            <td data-score="0.869791666666667">86.98</td>
+            <td data-score="0.972602739726027">97.26</td>
+            <td data-score="0.982758620689655">98.28</td>
+            <td data-score="0.763333333333333">76.33</td>
+            <td data-score="0.877400295420975">87.74</td>
+            <td data-score="0.811320754716981">81.13</td>
+            <td data-score="0.951111111111111">95.11</td>
+          </tr>
+        </tbody>
+        <tbody data-model="GPT-5.6 Terra" data-order="1" data-eval-date="2026-10-21 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#2</span><img src="assets/brands/openai.svg" alt="" width="19" height="19"><span>GPT-5.6 Terra<small>OpenAI</small></span><button type="button" class="board-details" aria-label="Evaluation details for GPT-5.6 Terra" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.826171875000000"><span class="board-overall">82.62<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-1-1 board-run-1-2 board-run-1-3" aria-label="Individual runs for GPT-5.6 Terra">n=3</button></span></span></td>
+            <td data-score="0.814467863648192">81.45</td>
+            <td data-score="0.785590277777778">78.56</td>
+            <td data-score="0.916503587736464">91.65</td>
+            <td data-score="0.945083014048531">94.51</td>
+            <td data-score="0.758888888888889">75.89</td>
+            <td data-score="0.789020187099951">78.90</td>
+            <td data-score="0.719077568134172">71.91</td>
+            <td data-score="0.939259259259259">93.93</td>
+          </tr>
+          <tr class="board-run" id="board-run-1-1" hidden><th scope="row">Run 1</th><td>82.54</td><td>81.03</td><td>79.43</td><td>91.00</td><td>94.64</td><td>76.33</td><td>78.66</td><td>71.70</td><td>93.78</td></tr>
+          <tr class="board-run" id="board-run-1-2" hidden><th scope="row">Run 2</th><td>83.16</td><td>81.97</td><td>79.17</td><td>92.17</td><td>94.64</td><td>76.67</td><td>79.62</td><td>71.70</td><td>94.67</td></tr>
+          <tr class="board-run" id="board-run-1-3" hidden><th scope="row">Run 3</th><td>82.15</td><td>81.34</td><td>77.08</td><td>91.78</td><td>94.25</td><td>74.67</td><td>78.43</td><td>72.33</td><td>93.33</td></tr>
+        </tbody>
+        <tbody data-model="GPT-6 Astra" data-order="2" data-eval-date="2026-10-22 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#3</span><img src="assets/brands/openai.svg" alt="" width="19" height="19"><span>GPT-6 Astra<small>OpenAI</small></span><button type="button" class="board-details" aria-label="Evaluation details for GPT-6 Astra" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.819661458333333"><span class="board-overall">81.97<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-2-1 board-run-2-2 board-run-2-3" aria-label="Individual runs for GPT-6 Astra">n=3</button></span></span></td>
+            <td data-score="0.791829300026021">79.18</td>
+            <td data-score="0.757812500000000">75.78</td>
+            <td data-score="0.982387475538160">98.24</td>
+            <td data-score="0.981481481481482">98.15</td>
+            <td data-score="0.674444444444444">67.44</td>
+            <td data-score="0.764894140817331">76.49</td>
+            <td data-score="0.823899371069182">82.39</td>
+            <td data-score="0.964444444444444">96.44</td>
+          </tr>
+          <tr class="board-run" id="board-run-2-1" hidden><th scope="row">Run 1</th><td>81.95</td><td>79.31</td><td>75.65</td><td>98.04</td><td>98.08</td><td>67.00</td><td>76.59</td><td>83.02</td><td>96.00</td></tr>
+          <tr class="board-run" id="board-run-2-2" hidden><th scope="row">Run 2</th><td>81.99</td><td>78.84</td><td>76.30</td><td>98.43</td><td>98.28</td><td>68.00</td><td>76.29</td><td>82.39</td><td>96.89</td></tr>
+          <tr class="board-run" id="board-run-2-3" hidden><th scope="row">Run 3</th><td>81.95</td><td>79.39</td><td>75.39</td><td>98.24</td><td>98.08</td><td>67.33</td><td>76.59</td><td>81.76</td><td>96.44</td></tr>
+        </tbody>
+        <tbody data-model="GPT-6.1 Sol" data-order="3" data-eval-date="2026-10-21 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#4</span><img src="assets/brands/openai.svg" alt="" width="19" height="19"><span>GPT-6.1 Sol<small>OpenAI</small></span><button type="button" class="board-details" aria-label="Evaluation details for GPT-6.1 Sol" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.817317708333333"><span class="board-overall">81.73<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-3-1 board-run-3-2 board-run-3-3" aria-label="Individual runs for GPT-6.1 Sol">n=3</button></span></span></td>
+            <td data-score="0.786625032526672">78.66</td>
+            <td data-score="0.760416666666667">76.04</td>
+            <td data-score="0.979778212654925">97.98</td>
+            <td data-score="0.978288633461047">97.83</td>
+            <td data-score="0.675555555555556">67.56</td>
+            <td data-score="0.759970457902511">76.00</td>
+            <td data-score="0.838574423480084">83.86</td>
+            <td data-score="0.962962962962963">96.30</td>
+          </tr>
+          <tr class="board-run" id="board-run-3-1" hidden><th scope="row">Run 1</th><td>81.88</td><td>78.77</td><td>76.43</td><td>97.85</td><td>97.70</td><td>67.00</td><td>76.29</td><td>84.91</td><td>96.44</td></tr>
+          <tr class="board-run" id="board-run-3-2" hidden><th scope="row">Run 2</th><td>81.56</td><td>78.61</td><td>75.65</td><td>97.85</td><td>97.70</td><td>67.67</td><td>76.00</td><td>82.39</td><td>95.56</td></tr>
+          <tr class="board-run" id="board-run-3-3" hidden><th scope="row">Run 3</th><td>81.76</td><td>78.61</td><td>76.04</td><td>98.24</td><td>98.08</td><td>68.00</td><td>75.70</td><td>84.28</td><td>96.89</td></tr>
+        </tbody>
+        <tbody data-model="GPT-6 Sol" data-order="4" data-eval-date="2026-10-25 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#5</span><img src="assets/brands/openai.svg" alt="" width="19" height="19"><span>GPT-6 Sol<small>OpenAI</small></span><button type="button" class="board-details" aria-label="Evaluation details for GPT-6 Sol" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.801562500000000"><span class="board-overall">80.16<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-4-1 board-run-4-2 board-run-4-3" aria-label="Individual runs for GPT-6 Sol">n=3</button></span></span></td>
+            <td data-score="0.759042414780120">75.90</td>
+            <td data-score="0.760850694444444">76.09</td>
+            <td data-score="0.969341161121983">96.93</td>
+            <td data-score="0.966155810983397">96.62</td>
+            <td data-score="0.681111111111111">68.11</td>
+            <td data-score="0.731659281142294">73.17</td>
+            <td data-score="0.859538784067086">85.95</td>
+            <td data-score="0.960000000000000">96.00</td>
+          </tr>
+          <tr class="board-run" id="board-run-4-1" hidden><th scope="row">Run 1</th><td>80.43</td><td>75.88</td><td>76.69</td><td>97.46</td><td>96.55</td><td>69.00</td><td>73.49</td><td>84.91</td><td>96.89</td></tr>
+          <tr class="board-run" id="board-run-4-2" hidden><th scope="row">Run 2</th><td>79.92</td><td>75.96</td><td>75.52</td><td>96.48</td><td>96.93</td><td>69.00</td><td>72.38</td><td>87.42</td><td>95.11</td></tr>
+          <tr class="board-run" id="board-run-4-3" hidden><th scope="row">Run 3</th><td>80.12</td><td>75.88</td><td>76.04</td><td>96.87</td><td>96.36</td><td>66.33</td><td>73.63</td><td>85.53</td><td>96.00</td></tr>
+        </tbody>
+        <tbody data-model="DeepSeek V4.1 Flash" data-order="5" data-eval-date="2026-10-26">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#6</span><img src="assets/brands/deepseek-color.svg" alt="" width="19" height="19"><span>DeepSeek V4.1 Flash<small>DeepSeek</small></span><button type="button" class="board-details" aria-label="Evaluation details for DeepSeek V4.1 Flash" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.796484375000000"><span class="board-overall">79.65</span></td>
+            <td data-score="0.782982045277127">78.30</td>
+            <td data-score="0.740885416666667">74.09</td>
+            <td data-score="0.913894324853229">91.39</td>
+            <td data-score="0.954022988505747">95.40</td>
+            <td data-score="0.710000000000000">71.00</td>
+            <td data-score="0.730428360413589">73.04</td>
+            <td data-score="0.811320754716981">81.13</td>
+            <td data-score="0.933333333333333">93.33</td>
+          </tr>
+        </tbody>
+        <tbody data-model="GPT-6.1 Terra" data-order="6" data-eval-date="2026-10-27 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#7</span><img src="assets/brands/openai.svg" alt="" width="19" height="19"><span>GPT-6.1 Terra<small>OpenAI</small></span><button type="button" class="board-details" aria-label="Evaluation details for GPT-6.1 Terra" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.795312500000000"><span class="board-overall">79.53<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-6-1 board-run-6-2 board-run-6-3" aria-label="Individual runs for GPT-6.1 Terra">n=3</button></span></span></td>
+            <td data-score="0.756440281030445">75.64</td>
+            <td data-score="0.743489583333333">74.35</td>
+            <td data-score="0.970645792563601">97.06</td>
+            <td data-score="0.977650063856960">97.77</td>
+            <td data-score="0.630000000000000">63.00</td>
+            <td data-score="0.723535204332841">72.35</td>
+            <td data-score="0.865828092243187">86.58</td>
+            <td data-score="0.974814814814815">97.48</td>
+          </tr>
+          <tr class="board-run" id="board-run-6-1" hidden><th scope="row">Run 1</th><td>79.30</td><td>75.25</td><td>74.22</td><td>97.06</td><td>97.70</td><td>62.00</td><td>72.08</td><td>86.79</td><td>97.78</td></tr>
+          <tr class="board-run" id="board-run-6-2" hidden><th scope="row">Run 2</th><td>79.34</td><td>75.33</td><td>74.35</td><td>96.87</td><td>97.89</td><td>62.67</td><td>72.01</td><td>86.16</td><td>97.78</td></tr>
+          <tr class="board-run" id="board-run-6-3" hidden><th scope="row">Run 3</th><td>79.96</td><td>76.35</td><td>74.48</td><td>97.26</td><td>97.70</td><td>64.33</td><td>72.97</td><td>86.79</td><td>96.89</td></tr>
+        </tbody>
+        <tbody data-model="GPT-5.6 Sol" data-order="7" data-eval-date="2026-10-21 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#8</span><img src="assets/brands/openai.svg" alt="" width="19" height="19"><span>GPT-5.6 Sol<small>OpenAI</small></span><button type="button" class="board-details" aria-label="Evaluation details for GPT-5.6 Sol" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.791145833333333"><span class="board-overall">79.11<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-7-1 board-run-7-2 board-run-7-3" aria-label="Individual runs for GPT-5.6 Sol">n=3</button></span></span></td>
+            <td data-score="0.769190736403851">76.92</td>
+            <td data-score="0.730468750000000">73.05</td>
+            <td data-score="0.937377690802348">93.74</td>
+            <td data-score="0.959131545338442">95.91</td>
+            <td data-score="0.635555555555556">63.56</td>
+            <td data-score="0.739044805514525">73.90</td>
+            <td data-score="0.767295597484277">76.73</td>
+            <td data-score="0.939259259259259">93.93</td>
+          </tr>
+          <tr class="board-run" id="board-run-7-1" hidden><th scope="row">Run 1</th><td>79.49</td><td>76.89</td><td>74.22</td><td>93.93</td><td>95.98</td><td>64.00</td><td>74.52</td><td>76.73</td><td>93.78</td></tr>
+          <tr class="board-run" id="board-run-7-2" hidden><th scope="row">Run 2</th><td>79.10</td><td>77.05</td><td>72.66</td><td>93.93</td><td>95.79</td><td>64.67</td><td>73.78</td><td>75.47</td><td>94.22</td></tr>
+          <tr class="board-run" id="board-run-7-3" hidden><th scope="row">Run 3</th><td>78.75</td><td>76.81</td><td>72.27</td><td>93.35</td><td>95.98</td><td>62.00</td><td>73.41</td><td>77.99</td><td>93.78</td></tr>
+        </tbody>
+        <tbody data-model="GPT-5.6 Luna" data-order="8" data-eval-date="2026-10-20 - 2026-11-08">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#9</span><img src="assets/brands/openai.svg" alt="" width="19" height="19"><span>GPT-5.6 Luna<small>OpenAI</small></span><button type="button" class="board-details" aria-label="Evaluation details for GPT-5.6 Luna" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.741145833333333"><span class="board-overall">74.11<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-8-1 board-run-8-2 board-run-8-3" aria-label="Individual runs for GPT-5.6 Luna">n=3</button></span></span></td>
+            <td data-score="0.723653395784543">72.37</td>
+            <td data-score="0.703559027777778">70.36</td>
+            <td data-score="0.841487279843444">84.15</td>
+            <td data-score="0.910600255427842">91.06</td>
+            <td data-score="0.670000000000000">67.00</td>
+            <td data-score="0.684884293451502">68.49</td>
+            <td data-score="0.643605870020964">64.36</td>
+            <td data-score="0.850370370370370">85.04</td>
+          </tr>
+          <tr class="board-run" id="board-run-8-1" hidden><th scope="row">Run 1</th><td>74.65</td><td>72.83</td><td>70.83</td><td>84.93</td><td>91.76</td><td>69.00</td><td>68.76</td><td>64.78</td><td>84.89</td></tr>
+          <tr class="board-run" id="board-run-8-2" hidden><th scope="row">Run 2</th><td>73.71</td><td>71.90</td><td>70.18</td><td>83.56</td><td>90.23</td><td>63.67</td><td>68.83</td><td>63.52</td><td>85.33</td></tr>
+          <tr class="board-run" id="board-run-8-3" hidden><th scope="row">Run 3</th><td>73.98</td><td>72.37</td><td>70.05</td><td>83.95</td><td>91.19</td><td>68.33</td><td>67.87</td><td>64.78</td><td>84.89</td></tr>
+        </tbody>
+        <tbody data-model="Gemini 2.5 Flash-Lite" data-order="9" data-eval-date="2026-10-22">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#10</span><img src="assets/brands/gemini-color.svg" alt="" width="19" height="19"><span>Gemini 2.5 Flash-Lite<small>Google DeepMind</small></span><button type="button" class="board-details" aria-label="Evaluation details for Gemini 2.5 Flash-Lite" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.741015625000000"><span class="board-overall">74.10</span></td>
+            <td data-score="0.726775956284153">72.68</td>
+            <td data-score="0.690104166666667">69.01</td>
+            <td data-score="0.853228962818004">85.32</td>
+            <td data-score="0.934865900383142">93.49</td>
+            <td data-score="0.696666666666667">69.67</td>
+            <td data-score="0.667651403249631">66.77</td>
+            <td data-score="0.729559748427673">72.96</td>
+            <td data-score="0.800000000000000">80.00</td>
+          </tr>
+        </tbody>
+        <tbody data-model="GLM-5.3 Flash" data-order="10" data-eval-date="2026-10-26">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#11</span><img src="assets/brands/zai.svg" alt="" width="19" height="19"><span>GLM-5.3 Flash<small>Z.ai</small></span><button type="button" class="board-details" aria-label="Evaluation details for GLM-5.3 Flash" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.729296875000000"><span class="board-overall">72.93</span></td>
+            <td data-score="0.712724434035909">71.27</td>
+            <td data-score="0.657552083333333">65.76</td>
+            <td data-score="0.878669275929550">87.87</td>
+            <td data-score="0.940613026819923">94.06</td>
+            <td data-score="0.646666666666667">64.67</td>
+            <td data-score="0.636632200886263">63.66</td>
+            <td data-score="0.748427672955975">74.84</td>
+            <td data-score="0.893333333333333">89.33</td>
+          </tr>
+        </tbody>
+        <tbody data-model="Qwen3.5-27B" data-order="11" data-eval-date="2026-10-23 - 2026-11-11">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#12</span><img src="assets/brands/qwen-color.svg" alt="" width="19" height="19"><span>Qwen3.5-27B<small>Alibaba</small></span><button type="button" class="board-details" aria-label="Evaluation details for Qwen3.5-27B" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.552604166666667"><span class="board-overall">55.26<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-11-1 board-run-11-2 board-run-11-3" aria-label="Individual runs for Qwen3.5-27B">n=3</button></span></span></td>
+            <td data-score="0.538381472807702">53.84</td>
+            <td data-score="0.511284722222222">51.13</td>
+            <td data-score="0.650358773646445">65.04</td>
+            <td data-score="0.887611749680715">88.76</td>
+            <td data-score="0.704444444444444">70.44</td>
+            <td data-score="0.349089118660758">34.91</td>
+            <td data-score="0.559748427672956">55.97</td>
+            <td data-score="0.792592592592593">79.26</td>
+          </tr>
+          <tr class="board-run" id="board-run-11-1" hidden><th scope="row">Run 1</th><td>55.39</td><td>54.02</td><td>50.91</td><td>65.56</td><td>88.89</td><td>69.00</td><td>35.45</td><td>56.60</td><td>78.67</td></tr>
+          <tr class="board-run" id="board-run-11-2" hidden><th scope="row">Run 2</th><td>55.35</td><td>53.47</td><td>51.95</td><td>65.17</td><td>88.70</td><td>72.33</td><td>34.79</td><td>55.35</td><td>79.11</td></tr>
+          <tr class="board-run" id="board-run-11-3" hidden><th scope="row">Run 3</th><td>55.04</td><td>54.02</td><td>50.52</td><td>64.38</td><td>88.70</td><td>70.00</td><td>34.49</td><td>55.97</td><td>80.00</td></tr>
+        </tbody>
+        <tbody data-model="GPT-6 Luna" data-order="12" data-eval-date="2026-10-25 - 2026-11-08">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#13</span><img src="assets/brands/openai.svg" alt="" width="19" height="19"><span>GPT-6 Luna<small>OpenAI</small></span><button type="button" class="board-details" aria-label="Evaluation details for GPT-6 Luna" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.547916666666667"><span class="board-overall">54.79<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-12-1 board-run-12-2 board-run-12-3" aria-label="Individual runs for GPT-6 Luna">n=3</button></span></span></td>
+            <td data-score="0.559718969555035">55.97</td>
+            <td data-score="0.571180555555556">57.12</td>
+            <td data-score="0.483365949119374">48.34</td>
+            <td data-score="0.895274584929757">89.53</td>
+            <td data-score="0.543333333333333">54.33</td>
+            <td data-score="0.361152141802068">36.12</td>
+            <td data-score="0.584905660377358">58.49</td>
+            <td data-score="0.845925925925926">84.59</td>
+          </tr>
+          <tr class="board-run" id="board-run-12-1" hidden><th scope="row">Run 1</th><td>54.49</td><td>56.36</td><td>56.12</td><td>47.36</td><td>89.46</td><td>52.67</td><td>35.23</td><td>60.38</td><td>87.56</td></tr>
+          <tr class="board-run" id="board-run-12-2" hidden><th scope="row">Run 2</th><td>54.96</td><td>55.11</td><td>57.68</td><td>50.49</td><td>89.27</td><td>56.00</td><td>36.41</td><td>58.49</td><td>83.11</td></tr>
+          <tr class="board-run" id="board-run-12-3" hidden><th scope="row">Run 3</th><td>54.92</td><td>56.44</td><td>57.55</td><td>47.16</td><td>89.85</td><td>54.33</td><td>36.71</td><td>56.60</td><td>83.11</td></tr>
+        </tbody>
+        <tbody data-model="Claude Haiku 4.5" data-order="13" data-eval-date="2026-10-26">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#14</span><img src="assets/brands/claude-color.svg" alt="" width="19" height="19"><span>Claude Haiku 4.5<small>Anthropic</small></span><button type="button" class="board-details" aria-label="Evaluation details for Claude Haiku 4.5" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.516015625000000"><span class="board-overall">51.60</span></td>
+            <td data-score="0.635441061670570">63.54</td>
+            <td data-score="0.436197916666667">43.62</td>
+            <td data-score="0.336594911937378">33.66</td>
+            <td data-score="0.666666666666667">66.67</td>
+            <td data-score="0.583333333333333">58.33</td>
+            <td data-score="0.431314623338257">43.13</td>
+            <td data-score="0.578616352201258">57.86</td>
+            <td data-score="0.542222222222222">54.22</td>
+          </tr>
+        </tbody>
+        <tbody data-model="Qwen3.5-9B" data-order="14" data-eval-date="2026-10-22 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#15</span><img src="assets/brands/qwen-color.svg" alt="" width="19" height="19"><span>Qwen3.5-9B<small>Alibaba</small></span><button type="button" class="board-details" aria-label="Evaluation details for Qwen3.5-9B" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.408463541666667"><span class="board-overall">40.85<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-14-1 board-run-14-2 board-run-14-3" aria-label="Individual runs for Qwen3.5-9B">n=3</button></span></span></td>
+            <td data-score="0.380952380952381">38.10</td>
+            <td data-score="0.412326388888889">41.23</td>
+            <td data-score="0.471624266144814">47.16</td>
+            <td data-score="0.792464878671775">79.25</td>
+            <td data-score="0.297777777777778">29.78</td>
+            <td data-score="0.222550467749877">22.26</td>
+            <td data-score="0.461215932914046">46.12</td>
+            <td data-score="0.746666666666667">74.67</td>
+          </tr>
+          <tr class="board-run" id="board-run-14-1" hidden><th scope="row">Run 1</th><td>40.62</td><td>37.55</td><td>41.93</td><td>46.38</td><td>77.97</td><td>29.00</td><td>21.57</td><td>49.06</td><td>78.22</td></tr>
+          <tr class="board-run" id="board-run-14-2" hidden><th scope="row">Run 2</th><td>40.98</td><td>38.33</td><td>40.89</td><td>47.75</td><td>79.12</td><td>29.00</td><td>23.41</td><td>44.03</td><td>72.00</td></tr>
+          <tr class="board-run" id="board-run-14-3" hidden><th scope="row">Run 3</th><td>40.94</td><td>38.41</td><td>40.89</td><td>47.36</td><td>80.65</td><td>31.33</td><td>21.79</td><td>45.28</td><td>73.78</td></tr>
+        </tbody>
+        <tbody data-model="Qwen3.5-4B" data-order="15" data-eval-date="2026-10-21 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#16</span><img src="assets/brands/qwen-color.svg" alt="" width="19" height="19"><span>Qwen3.5-4B<small>Alibaba</small></span><button type="button" class="board-details" aria-label="Evaluation details for Qwen3.5-4B" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.346744791666667"><span class="board-overall">34.67<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-15-1 board-run-15-2 board-run-15-3" aria-label="Individual runs for Qwen3.5-4B">n=3</button></span></span></td>
+            <td data-score="0.354150403330731">35.42</td>
+            <td data-score="0.367187500000000">36.72</td>
+            <td data-score="0.297455968688845">29.75</td>
+            <td data-score="0.719667943805875">71.97</td>
+            <td data-score="0.447777777777778">44.78</td>
+            <td data-score="0.126538650910881">12.65</td>
+            <td data-score="0.402515723270440">40.25</td>
+            <td data-score="0.632592592592593">63.26</td>
+          </tr>
+          <tr class="board-run" id="board-run-15-1" hidden><th scope="row">Run 1</th><td>34.22</td><td>34.97</td><td>35.42</td><td>30.53</td><td>71.26</td><td>46.33</td><td>12.19</td><td>40.25</td><td>60.44</td></tr>
+          <tr class="board-run" id="board-run-15-2" hidden><th scope="row">Run 2</th><td>34.61</td><td>34.89</td><td>37.76</td><td>29.16</td><td>71.65</td><td>43.67</td><td>12.63</td><td>40.88</td><td>64.44</td></tr>
+          <tr class="board-run" id="board-run-15-3" hidden><th scope="row">Run 3</th><td>35.20</td><td>36.38</td><td>36.98</td><td>29.55</td><td>72.99</td><td>44.33</td><td>13.15</td><td>39.62</td><td>64.89</td></tr>
+        </tbody>
+        <tbody data-model="MiniCPM5-2B" data-order="16" data-eval-date="2026-11-07 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#17</span><img src="assets/brands/openbmb.png" alt="" width="19" height="19"><span>MiniCPM5-2B<small>ModelBest</small></span><button type="button" class="board-details" aria-label="Evaluation details for MiniCPM5-2B" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.086979166666667"><span class="board-overall">8.70<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-16-1 board-run-16-2 board-run-16-3" aria-label="Individual runs for MiniCPM5-2B">n=3</button></span></span></td>
+            <td data-score="0.053603955243300">5.36</td>
+            <td data-score="0.110677083333333">11.07</td>
+            <td data-score="0.135029354207436">13.50</td>
+            <td data-score="0.183269476372925">18.33</td>
+            <td data-score="0.058888888888889">5.89</td>
+            <td data-score="0.029542097488922">2.95</td>
+            <td data-score="0.044025157232704">4.40</td>
+            <td data-score="0.277037037037037">27.70</td>
+          </tr>
+          <tr class="board-run" id="board-run-16-1" hidden><th scope="row">Run 1</th><td>8.63</td><td>5.00</td><td>11.59</td><td>13.31</td><td>18.39</td><td>6.67</td><td>2.44</td><td>3.77</td><td>29.33</td></tr>
+          <tr class="board-run" id="board-run-16-2" hidden><th scope="row">Run 2</th><td>8.95</td><td>5.93</td><td>11.20</td><td>13.11</td><td>18.58</td><td>5.33</td><td>3.77</td><td>4.40</td><td>25.78</td></tr>
+          <tr class="board-run" id="board-run-16-3" hidden><th scope="row">Run 3</th><td>8.52</td><td>5.15</td><td>10.42</td><td>14.09</td><td>18.01</td><td>5.67</td><td>2.66</td><td>5.03</td><td>28.00</td></tr>
+        </tbody>
+        <tbody data-model="Gemma-4-E4B-it" data-order="17" data-eval-date="2026-11-06 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#18</span><img src="assets/brands/gemma-color.svg" alt="" width="19" height="19"><span>Gemma-4-E4B-it<small>Google DeepMind</small></span><button type="button" class="board-details" aria-label="Evaluation details for Gemma-4-E4B-it" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.076041666666667"><span class="board-overall">7.60<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-17-1 board-run-17-2 board-run-17-3" aria-label="Individual runs for Gemma-4-E4B-it">n=3</button></span></span></td>
+            <td data-score="0.039032006245121">3.90</td>
+            <td data-score="0.108940972222222">10.89</td>
+            <td data-score="0.119373776908023">11.94</td>
+            <td data-score="0.153256704980843">15.33</td>
+            <td data-score="0.150000000000000">15.00</td>
+            <td data-score="0.003200393894633">0.32</td>
+            <td data-score="0.048218029350105">4.82</td>
+            <td data-score="0.256296296296296">25.63</td>
+          </tr>
+          <tr class="board-run" id="board-run-17-1" hidden><th scope="row">Run 1</th><td>7.89</td><td>3.75</td><td>11.20</td><td>13.31</td><td>17.24</td><td>14.33</td><td>0.44</td><td>4.40</td><td>24.89</td></tr>
+          <tr class="board-run" id="board-run-17-2" hidden><th scope="row">Run 2</th><td>7.30</td><td>3.98</td><td>10.42</td><td>10.96</td><td>13.22</td><td>15.33</td><td>0.37</td><td>5.66</td><td>25.78</td></tr>
+          <tr class="board-run" id="board-run-17-3" hidden><th scope="row">Run 3</th><td>7.62</td><td>3.98</td><td>11.07</td><td>11.55</td><td>15.52</td><td>15.33</td><td>0.15</td><td>4.40</td><td>26.22</td></tr>
+        </tbody>
+        <tbody data-model="Qwen3.5-0.8B" data-order="18" data-eval-date="2026-10-21 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#19</span><img src="assets/brands/qwen-color.svg" alt="" width="19" height="19"><span>Qwen3.5-0.8B<small>Alibaba</small></span><button type="button" class="board-details" aria-label="Evaluation details for Qwen3.5-0.8B" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.020312500000000"><span class="board-overall">2.03<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-18-1 board-run-18-2 board-run-18-3" aria-label="Individual runs for Qwen3.5-0.8B">n=3</button></span></span></td>
+            <td data-score="0.010928961748634">1.09</td>
+            <td data-score="0.025173611111111">2.52</td>
+            <td data-score="0.036529680365297">3.65</td>
+            <td data-score="0.010855683269476">1.09</td>
+            <td data-score="0.006666666666667">0.67</td>
+            <td data-score="0.000000000000000">0.00</td>
+            <td data-score="0.012578616352201">1.26</td>
+            <td data-score="0.188148148148148">18.81</td>
+          </tr>
+          <tr class="board-run" id="board-run-18-1" hidden><th scope="row">Run 1</th><td>1.95</td><td>1.09</td><td>2.21</td><td>3.72</td><td>0.96</td><td>0.67</td><td>0.00</td><td>1.89</td><td>17.78</td></tr>
+          <tr class="board-run" id="board-run-18-2" hidden><th scope="row">Run 2</th><td>1.91</td><td>1.01</td><td>2.34</td><td>3.52</td><td>0.77</td><td>0.67</td><td>0.00</td><td>0.63</td><td>18.67</td></tr>
+          <tr class="board-run" id="board-run-18-3" hidden><th scope="row">Run 3</th><td>2.23</td><td>1.17</td><td>2.99</td><td>3.72</td><td>1.53</td><td>0.67</td><td>0.00</td><td>1.26</td><td>20.00</td></tr>
+        </tbody>
+        <tbody data-model="Gemma-4-E2B-it" data-order="19" data-eval-date="2026-11-06 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#20</span><img src="assets/brands/gemma-color.svg" alt="" width="19" height="19"><span>Gemma-4-E2B-it<small>Google DeepMind</small></span><button type="button" class="board-details" aria-label="Evaluation details for Gemma-4-E2B-it" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.016666666666667"><span class="board-overall">1.67<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-19-1 board-run-19-2 board-run-19-3" aria-label="Individual runs for Gemma-4-E2B-it">n=3</button></span></span></td>
+            <td data-score="0.007546187874057">0.75</td>
+            <td data-score="0.022135416666667">2.21</td>
+            <td data-score="0.031311154598826">3.13</td>
+            <td data-score="0.001915708812261">0.19</td>
+            <td data-score="0.004444444444444">0.44</td>
+            <td data-score="0.000246184145741">0.02</td>
+            <td data-score="0.008385744234801">0.84</td>
+            <td data-score="0.171851851851852">17.19</td>
+          </tr>
+          <tr class="board-run" id="board-run-19-1" hidden><th scope="row">Run 1</th><td>1.68</td><td>0.70</td><td>2.34</td><td>3.13</td><td>0.00</td><td>0.00</td><td>0.07</td><td>1.26</td><td>17.78</td></tr>
+          <tr class="board-run" id="board-run-19-2" hidden><th scope="row">Run 2</th><td>1.60</td><td>0.70</td><td>1.95</td><td>3.33</td><td>0.00</td><td>0.67</td><td>0.00</td><td>0.63</td><td>16.89</td></tr>
+          <tr class="board-run" id="board-run-19-3" hidden><th scope="row">Run 3</th><td>1.72</td><td>0.86</td><td>2.34</td><td>2.94</td><td>0.57</td><td>0.67</td><td>0.00</td><td>0.63</td><td>16.89</td></tr>
+        </tbody>
+        <tbody data-model="Qwen3.5-2B" data-order="20" data-eval-date="2026-10-21 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#21</span><img src="assets/brands/qwen-color.svg" alt="" width="19" height="19"><span>Qwen3.5-2B<small>Alibaba</small></span><button type="button" class="board-details" aria-label="Evaluation details for Qwen3.5-2B" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.016406250000000"><span class="board-overall">1.64<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-20-1 board-run-20-2 board-run-20-3" aria-label="Individual runs for Qwen3.5-2B">n=3</button></span></span></td>
+            <td data-score="0.006245120999219">0.62</td>
+            <td data-score="0.020833333333333">2.08</td>
+            <td data-score="0.035225048923679">3.52</td>
+            <td data-score="0.000000000000000">0.00</td>
+            <td data-score="0.000000000000000">0.00</td>
+            <td data-score="0.000000000000000">0.00</td>
+            <td data-score="0.000000000000000">0.00</td>
+            <td data-score="0.186666666666667">18.67</td>
+          </tr>
+          <tr class="board-run" id="board-run-20-1" hidden><th scope="row">Run 1</th><td>1.64</td><td>0.62</td><td>2.08</td><td>3.52</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>18.67</td></tr>
+          <tr class="board-run" id="board-run-20-2" hidden><th scope="row">Run 2</th><td>1.64</td><td>0.62</td><td>2.08</td><td>3.52</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>18.67</td></tr>
+          <tr class="board-run" id="board-run-20-3" hidden><th scope="row">Run 3</th><td>1.64</td><td>0.62</td><td>2.08</td><td>3.52</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>18.67</td></tr>
+        </tbody>
+        <tbody data-model="MiniCPM5-1B" data-order="21" data-eval-date="2026-11-06 - 2026-11-09">
+          <tr class="board-summary">
+            <th scope="row"><span class="board-model"><span class="board-rank">#21</span><img src="assets/brands/openbmb.png" alt="" width="19" height="19"><span>MiniCPM5-1B<small>ModelBest</small></span><button type="button" class="board-details" aria-label="Evaluation details for MiniCPM5-1B" aria-expanded="false" aria-controls="board-provenance"><span>!</span></button></span></th>
+            <td data-score="0.016406250000000"><span class="board-overall">1.64<span class="board-run-slot"><button type="button" class="board-repeat" aria-expanded="false" aria-controls="board-run-21-1 board-run-21-2 board-run-21-3" aria-label="Individual runs for MiniCPM5-1B">n=3</button></span></span></td>
+            <td data-score="0.006245120999219">0.62</td>
+            <td data-score="0.020833333333333">2.08</td>
+            <td data-score="0.035225048923679">3.52</td>
+            <td data-score="0.000000000000000">0.00</td>
+            <td data-score="0.000000000000000">0.00</td>
+            <td data-score="0.000000000000000">0.00</td>
+            <td data-score="0.000000000000000">0.00</td>
+            <td data-score="0.186666666666667">18.67</td>
+          </tr>
+          <tr class="board-run" id="board-run-21-1" hidden><th scope="row">Run 1</th><td>1.64</td><td>0.62</td><td>2.08</td><td>3.52</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>18.67</td></tr>
+          <tr class="board-run" id="board-run-21-2" hidden><th scope="row">Run 2</th><td>1.64</td><td>0.62</td><td>2.08</td><td>3.52</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>18.67</td></tr>
+          <tr class="board-run" id="board-run-21-3" hidden><th scope="row">Run 3</th><td>1.64</td><td>0.62</td><td>2.08</td><td>3.52</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>18.67</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <aside class="board-provenance" id="board-provenance" aria-live="polite" hidden>
+      <strong></strong>
+      <dl>
+        <dt>Eval Date</dt><dd></dd>
+        <dt>Eval CLI</dt><dd>v1.0</dd>
+        <dt>Dataset</dt><dd>v1.0</dd>
+        <dt>Home Domain</dt><dd>v20260913</dd>
+        <dt>Car Domain</dt><dd>v20260920</dd>
+        <dt>Phone Domain</dt><dd>v20260920</dd>
+        <dt>Source</dt><dd>Authors</dd>
+        <dt>Notes</dt><dd>-</dd>
+      </dl>
+    </aside>
+  </div>
+</dialog>
 </body></html>
