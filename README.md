@@ -9,7 +9,8 @@
 [![Project page](https://img.shields.io/badge/Project-Page-0969DA)](https://x-lance.github.io/SynthDCB/)
 [![arXiv](https://img.shields.io/badge/arXiv-2611.18639-B31B1B?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2611.18639)
 [![Code](https://img.shields.io/badge/Code-GitHub-24292F?logo=github&logoColor=white)](https://github.com/X-LANCE/SynthDCB)
-[![Dataset](https://img.shields.io/badge/Data-Hugging%20Face-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/datasets/JamesZhutheThird/SynthDCB)
+[![Dataset](https://img.shields.io/badge/Data-Hugging%20Face-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/datasets/X-LANCE/SynthDCB)
+[![Leaderboard](https://raw.githubusercontent.com/X-LANCE/SynthDCB/main/assets/leaderboard-badge.svg)](https://x-lance.github.io/SynthDCB/#leaderboard)
 
 </div>
 
@@ -42,7 +43,7 @@ Run the following from the repository root with Python 3.14.
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-hf download JamesZhutheThird/SynthDCB --repo-type dataset --include 'data/*' --local-dir .
+hf download X-LANCE/SynthDCB --repo-type dataset --include 'data/*' --local-dir .
 ```
 
 The download places 314 validation tasks in `data/valid/`, 2,560 test tasks in `data/test/`, and 130 source worlds in `data/world/`. Each domain has a `tasks.list` for each split. Each task directory contains its own initial world, instruction, targets, and reference trajectory. The matching device implementations and layouts are in `simulator/devices/` and `simulator/domains/`.
